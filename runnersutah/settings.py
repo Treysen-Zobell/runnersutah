@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "inventory.apps.InventoryConfig",
+    "products.apps.ProductsConfig",
+    "customers.apps.CustomersConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -54,7 +57,8 @@ ROOT_URLCONF = "runnersutah.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates']
+        ,
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
