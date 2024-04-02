@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="{% static 'base/style.css' %}">
+</head>
+<body>
+
+<header>
+    <div id="left">
+        <b>Administration Panel</b>
+    </div>
+    <div id="right">
+        <b>Logged in as admin</b>
+        <a href="">[Logout]</a>
+    </div>
+</header>
+
+<aside>
+    Aside
+    <div class="widget">
+        <h2 class="widget-title">Customer Manage</h2>
+        <ul class="widget-contents">
+            <li><a href="">Customer List</a></li>
+            <li><a href="">Add Customer</a></li>
+        </ul>
+        <div class="widget-bottom"></div>
+    </div>
+    
+    <div class="widget">
+        <h2 class="widget-title">Customer Manage</h2>
+        <ul class="widget-contents">
+            <li><a href="">Customer List</a></li>
+            <li><a href="">Add Customer</a></li>
+        </ul>
+        <div class="widget-bottom"></div>
+    </div>
+</aside>
+
+<section>
+    {% block main %}{% endblock %}
+</section>
+
+</body>
+</html>

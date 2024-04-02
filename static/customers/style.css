@@ -1,0 +1,33 @@
+div {
+    background: #EBF4FB;
+    border: 2px solid #B7DDF2;
+    padding: 10px;
+}
+
+h2 {
+    color: #9932CC;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.no-border-table {
+    border: none;
+    clear: both;
+    margin: 0 0 15px;
+    width: 80%;
+    text-align: left;
+}
+
+th {
+    color: #008B8B;
+}
+
+tr {
+    font-size: 13px;
+}
+
+tr * {
+    font-weight: bold;
+}
