@@ -1,9 +1,13 @@
-{% if customer_list %}
-    <ul>
-    {%  for customer in customer_list %}
-        <li><a href="{% url 'detail' customer.id %}">{{ customer.display_name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No customers are available.</p>
-{% endif %}
+{% extends "base/base.html" %}
+
+{% block main %}
+    {% if customer_list %}
+        <ul>
+        {%  for customer in customer_list %}
+            <li><a href="{% url 'customers:detail' customer.id %}">{{ customer.display_name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No customers are available.</p>
+    {% endif %}
+{% endblock %}

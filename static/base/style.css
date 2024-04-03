@@ -29,15 +29,14 @@ header {
 #left, #right {
     display: flex;
     align-items: center;
-}
+    gap: 5px;
 
-#left {
-    border: #ff0000 1px solid;
+    font-size: 11px;
+    color: #ffffff;
 }
 
 #right {
     justify-content: flex-end;
-    border: #00ff00 1px solid;
 }
 
 #right a {

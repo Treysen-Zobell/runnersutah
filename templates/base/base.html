@@ -21,21 +21,40 @@
 </header>
 
 <aside>
-    Aside
     <div class="widget">
         <h2 class="widget-title">Customer Manage</h2>
         <ul class="widget-contents">
-            <li><a href="">Customer List</a></li>
+            <li><a href="{% url 'customers:index' %}">Customer List</a></li>
             <li><a href="">Add Customer</a></li>
         </ul>
         <div class="widget-bottom"></div>
     </div>
     
     <div class="widget">
-        <h2 class="widget-title">Customer Manage</h2>
+        <h2 class="widget-title">Product Manage</h2>
         <ul class="widget-contents">
-            <li><a href="">Customer List</a></li>
-            <li><a href="">Add Customer</a></li>
+            <li><a href="{% url 'products:index' %}">Product List</a></li>
+            <li><a href="">Add Product</a></li>
+        </ul>
+        <div class="widget-bottom"></div>
+    </div>
+    
+    <div class="widget">
+        <h2 class="widget-title">Line Pipe Description</h2>
+        <ul class="widget-contents">
+            <li><a href="{% url 'inventory:index' %}">Inventory List</a></li>
+            <li><a href="">Add Inventory</a></li>
+        </ul>
+        <div class="widget-bottom"></div>
+    </div>
+    
+    <div class="widget">
+        <h2 class="widget-title">Administration</h2>
+        <ul class="widget-contents">
+            <li><a href="">Change Password</a></li>
+            <li><a href="">Change Username</a></li>
+            <li><a href="">Change Email</a></li>
+            <li><a href="">Logout</a></li>
         </ul>
         <div class="widget-bottom"></div>
     </div>
