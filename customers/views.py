@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 
 from customers.models import Customer
@@ -27,16 +27,25 @@ def detail(request, customer_id: str):
 
 
 @login_required
-def register(request):
+def user_register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            return HttpResponse("well done")
+            customer = Customer.objects.create_user(
+                username=form.cleaned_data["username"],
+                password=form.cleaned_data["password1"],
+                email=form.cleaned_data["email"],
+                phone_nr=form.cleaned_data["phone_nr"],
+                display_name=form.cleaned_data["display_name"],
+                status="Inactive",
+            )
+            customer.save()
+            return redirect("customers:index")
 
     else:
         form = RegisterForm()
 
-    return render(request, "customers/login.html", {"form": form})
+    return render(request, "customers/register.html", {"form": form})
 
 
 def user_login(request):

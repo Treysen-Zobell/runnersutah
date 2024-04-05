@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+
+{% block main %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'customers/register.css' %}">
+
+    <form action="{% url 'customers:register' %}" method="post">
+        {% csrf_token %}
+        <h2 id="window-title">Add Customer</h2>
+        <p id="window-description">Enter your customer information.</p>
+        <hr>
+
+        <div class="form-entry">
+            <h2 class="form-label">Full Name:</h2>
+            {{ form.display_name }}
+        </div>
+        <div class="form-entry">
+            <h2 class="form-label">Email:</h2>
+            {{ form.email }}
+        </div>
+        <div class="form-entry">
+            <h2 class="form-label">User Name:</h2>
+            {{ form.username }}
+        </div>
+        <div class="form-entry">
+            <h2 class="form-label">Phone:</h2>
+            {{ form.phone_nr }}
+        </div>
+        <div class="form-entry">
+            <h2 class="form-label">Password:</h2>
+            {{ form.password1 }}
+        </div>
+        <div class="form-entry">
+            <h2 class="form-label">Retype Password:</h2>
+            {{ form.password2 }}
+        </div>
+        <input type="submit" value="Add Customer" class="submit-button">
+    </form>
+{% endblock %}

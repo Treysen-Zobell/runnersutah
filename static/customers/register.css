@@ -1,0 +1,51 @@
+
+form {
+    background: #ebf4fb;
+    border: #b7ddf2 2px solid;
+    padding: 20px;
+}
+
+#window-title {
+    color: #9932cc;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#window-description {
+    color: #666666;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+hr {
+    color: #b7ddf2;
+    background-color: #b7ddf2;
+    height: 1px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    border: none;
+}
+
+.form-entry h2 {
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+input {
+    border: #e6e6d9 1px solid;
+    font-size: 13px;
+    padding: 5px;
+    width: max(50%, 300px);
+}
+
+.submit-button {
+    background: #888888;
+    color: #ffffff;
+    border: #666666 1px solid;
+    font-weight: bold;
+    font-size: 11px;
+
+    margin-top: 10px;
+    padding: 5px 10px;
+    width: auto;
+}

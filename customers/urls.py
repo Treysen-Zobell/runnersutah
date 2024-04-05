@@ -7,7 +7,7 @@ app_name = "customers"
 urlpatterns = [
     path("", views.index, name="index"),
     path("get/<str:customer_id>/", views.detail, name="detail"),
-    path("register/", views.register, name="register"),
+    path("register/", views.user_register, name="register"),
     path("login/", views.user_login, name="user_login"),
     path("logout/", views.user_logout, name="user_logout"),
 ]
