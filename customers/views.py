@@ -10,13 +10,16 @@ from customers.forms import RegisterForm
 
 # Create your views here.
 @login_required
-def index(request):
-    order_by = request.GET.get("order_by", "-display_name")
-    customer_list = Customer.objects.order_by(order_by)
+def customer_list(request):
+    order_by = request.GET.get("order_by", "display_name")
+    order_dir = "-" if request.GET.get("order_dir", "asc") == "desc" else ""
+    customers = Customer.objects.order_by(order_dir + order_by)
     context = {
-        "customer_list": customer_list,
+        "customer_list": customers,
+        "order_by": order_by,
+        "order_dir": order_dir,
     }
-    return render(request, "customers/index.html", context)
+    return render(request, "customers/customer_list.html", context)
 
 
 @login_required

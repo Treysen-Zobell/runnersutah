@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+
+{% block main %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'customers/customer_list.css' %}">
+
+    <h2>Customer Lists</h2>
+    <p>You can see all added customers here and can delete/edit password if necessary.</p>
+    <a href="{% url 'customers:register' %}" class="add-button">Add Customer</a>
+
+    <table>
+        <thead>
+            <tr class="column-label">
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=display_name">
+                    {% else %}
+                        <a href="?order_by=display_name&order_dir=asc">
+                    {% endif %}
+                        Full Name
+                        {% if order_by == "display_name" and order_dir == "-" %}
+                            <img src="{% static 'customers/desc.png' %}" alt="sort_by">
+                        {% elif order_by == "display_name" %}
+                            <img src="{% static 'customers/asc.png' %}" alt="sort_by">
+                        {% else %}
+                            <img src="{% static 'customers/neutral.png' %}" alt="sort_by">
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=username">
+                    {% else %}
+                        <a href="?order_by=username&order_dir=asc">
+                    {% endif %}
+                        Username
+                        {% if order_by == "username" and order_dir == "-" %}
+                            <img src="{% static 'customers/desc.png' %}" alt="sort_by">
+                        {% elif order_by == "username" %}
+                            <img src="{% static 'customers/asc.png' %}" alt="sort_by">
+                        {% else %}
+                            <img src="{% static 'customers/neutral.png' %}" alt="sort_by">
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=email">
+                    {% else %}
+                        <a href="?order_by=email&order_dir=asc">
+                    {% endif %}
+                        Email
+                        {% if order_by == "email" and order_dir == "-" %}
+                            <img src="{% static 'customers/desc.png' %}" alt="sort_by">
+                        {% elif order_by == "email" %}
+                            <img src="{% static 'customers/asc.png' %}" alt="sort_by">
+                        {% else %}
+                            <img src="{% static 'customers/neutral.png' %}" alt="sort_by">
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=status">
+                    {% else %}
+                        <a href="?order_by=status&order_dir=asc">
+                    {% endif %}
+                        Status
+                        {% if order_by == "status" and order_dir == "-" %}
+                            <img src="{% static 'customers/desc.png' %}" alt="sort_by">
+                        {% elif order_by == "status" %}
+                            <img src="{% static 'customers/asc.png' %}" alt="sort_by">
+                        {% else %}
+                            <img src="{% static 'customers/neutral.png' %}" alt="sort_by">
+                        {% endif %}
+                    </a>
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        {% if customer_list %}
+        <tbody>
+            {% for customer in customer_list %}
+            <tr>
+                <td><a href="{% url 'customers:detail' customer.id %}">{{ customer.display_name }}</a></td>
+                <td>{{ customer.username }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.status }}</td>
+                <td><a href="">View</a></td>
+                <td><a href="">Edit</a></td>
+                <td><a href="">Change Password</a></td>
+                <td><a href="">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% endif %}
+    </table>
+
+{% endblock %}
