@@ -52,6 +52,7 @@ aside {
 
 section {
     grid-area: 2 / 2 / 3 / 3;
+    margin: 10px;
 }
 
 .widget {

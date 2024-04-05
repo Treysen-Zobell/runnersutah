@@ -1,25 +1,14 @@
 import uuid
 
 from django.db import models
-from django.utils import timezone
+from django.contrib.auth.models import User
 
 
-class AutoDateTimeField(models.DateTimeField):
-    def pre_save(self, model_instance, add):
-        return timezone.now()
-
-
-class Customer(models.Model):
-    username = models.TextField()
-    password_hashed = models.TextField()
-    display_name = models.TextField()
-    email = models.EmailField(blank=True)
-    phone_nr = models.TextField(blank=True)
+class Customer(User):
+    display_name = models.CharField(max_length=150)
+    phone_nr = models.CharField(max_length=15)
 
     # automated
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    created_on = models.DateTimeField(default=timezone.now)
-    modified_on = AutoDateTimeField(default=timezone.now)
     status = models.TextField()
 
     def __str__(self):

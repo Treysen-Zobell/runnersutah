@@ -1,0 +1,19 @@
+
+body {
+    display: grid;
+    grid-template-columns: 1fr 300px 1fr;
+    grid-template-rows: 1fr 300px 4fr;
+    grid-column-gap: 0;
+    grid-row-gap: 0;
+
+    width: 100vw;
+    height: 100vh;
+}
+
+form {
+    grid-area: 2 / 2 / 2 / 2;
+}
+
+a {
+    font-size: 12px;
+}

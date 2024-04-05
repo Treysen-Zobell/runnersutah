@@ -1,0 +1,63 @@
+
+h2 {
+    color: #333333;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+p {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.add-button {
+    background: transparent url("add.png") no-repeat;
+    padding: 0 0 0 20px;
+    font-size: 13px;
+}
+
+table {
+    margin-top: 15px;
+}
+
+table, th, td {
+    border: #dddddd 1px solid;
+    border-collapse: collapse;
+}
+
+.column-label {
+    background: #eeeeee;
+    font-size: 13px;
+}
+
+th {
+    padding: 7px;
+}
+
+th a {
+    text-align: center;
+    text-decoration: none;
+}
+
+th a img {
+    margin-top: 5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+tr {
+    background: #ffffff;
+}
+
+tr:nth-child(even) {
+    background: #e0e2f3;
+}
+
+td {
+    font-size: 13px;
+    text-align: center;
+    padding: 5px;
+}
