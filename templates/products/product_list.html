@@ -1,0 +1,173 @@
+{% extends "base/base.html" %}
+
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'generic/table.css' %}">
+    <link rel="stylesheet" href="{% static 'products/product_list.css' %}">
+{% endblock %}
+
+{% block main %}
+    <div class="table">
+        <h2>Product List</h2>
+        <p>You can see all added products here and delete/edit them if necessary.</p>
+        <a href="" class="add-button">Add Product</a>
+
+        <table class="table">
+            <thead>
+                <tr class="column-label">
+                    <th>
+                        {% if order_dir == "" %}
+                            <a href="?order_by=outside_diameter">
+                        {% else %}
+                            <a href="?order_by=outside_diameter&order_dir=asc">
+                        {% endif %}
+                            Outside Diameter
+                            {% if order_by == "outside_diameter" and order_dir == "-" %}
+                                <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                            {% elif order_by == "outside_diameter" %}
+                                <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                            {% else %}
+                                <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        {% if order_dir == "" %}
+                            <a href="?order_by=weight">
+                        {% else %}
+                            <a href="?order_by=weight&order_dir=asc">
+                        {% endif %}
+                            Lbs Per Ft
+                            {% if order_by == "weight" and order_dir == "-" %}
+                                <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                            {% elif order_by == "weight" %}
+                                <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                            {% else %}
+                                <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        {% if order_dir == "" %}
+                            <a href="?order_by=grade">
+                        {% else %}
+                            <a href="?order_by=grade&order_dir=asc">
+                        {% endif %}
+                            Grade
+                            {% if order_by == "grade" and order_dir == "-" %}
+                                <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                            {% elif order_by == "grade" %}
+                                <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                            {% else %}
+                                <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        {% if order_dir == "" %}
+                            <a href="?order_by=coupling">
+                        {% else %}
+                            <a href="?order_by=coupling&order_dir=asc">
+                        {% endif %}
+                            CPLG
+                            {% if order_by == "coupling" and order_dir == "-" %}
+                                <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                            {% elif order_by == "coupling" %}
+                                <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                            {% else %}
+                                <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                            {% if order_dir == "" %}
+                                <a href="?order_by=range">
+                            {% else %}
+                                <a href="?order_by=range&order_dir=asc">
+                            {% endif %}
+                                Range
+                                {% if order_by == "range" and order_dir == "-" %}
+                                    <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                                {% elif order_by == "range" %}
+                                    <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                                {% else %}
+                                    <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            {% if order_dir == "" %}
+                                <a href="?order_by=manufacturer">
+                            {% else %}
+                                <a href="?order_by=manufacturer&order_dir=asc">
+                            {% endif %}
+                                MFG
+                                {% if order_by == "manufacturer" and order_dir == "-" %}
+                                    <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                                {% elif order_by == "manufacturer" %}
+                                    <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                                {% else %}
+                                    <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            {% if order_dir == "" %}
+                                <a href="?order_by=condition">
+                            {% else %}
+                                <a href="?order_by=condition&order_dir=asc">
+                            {% endif %}
+                                Condition
+                                {% if order_by == "condition" and order_dir == "-" %}
+                                    <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                                {% elif order_by == "condition" %}
+                                    <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                                {% else %}
+                                    <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            {% if order_dir == "" %}
+                                <a href="?order_by=condition_notes">
+                            {% else %}
+                                <a href="?order_by=condition_notes&order_dir=asc">
+                            {% endif %}
+                                Remarks
+                                {% if order_by == "condition_notes" and order_dir == "-" %}
+                                    <img src="{% static 'customers/../../static/icons/desc.png' %}" alt="sort_by">
+                                {% elif order_by == "condition_notes" %}
+                                    <img src="{% static 'customers/../../static/icons/asc.png' %}" alt="sort_by">
+                                {% else %}
+                                    <img src="{% static 'customers/../../static/icons/neutral.png' %}" alt="sort_by">
+                                {% endif %}
+                            </a>
+                        </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            {% if product_list %}
+            <tbody>
+                {% for product in product_list %}
+                <tr>
+                    <td>{{ product.outside_diameter }}"</td>
+                    <td>{{ product.weight }}#</td>
+                    <td>{{ product.grade }}</td>
+                    <td>{{ product.coupling }}</td>
+                    <td>{{ product.range }}</td>
+                    <td>{{ product.manufacturer }}</td>
+                    <td>{{ product.condition }}</td>
+                    <td>{{ product.condition_notes }}</td>
+                    <td><a href="{% url 'products:detail' product.id %}">View</a></td>
+                    <td><a href="">Edit</a></td>
+                    <td><a href="" onclick="return confirm('Are you sure?')">Delete</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+
+{% endblock %}

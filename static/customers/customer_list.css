@@ -13,7 +13,7 @@ p {
 }
 
 .add-button {
-    background: transparent url("add.png") no-repeat;
+    background: transparent url("../icons/add.png") no-repeat;
     padding: 0 0 0 20px;
     font-size: 13px;
 }

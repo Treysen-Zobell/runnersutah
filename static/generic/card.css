@@ -1,0 +1,77 @@
+
+/* Used to create generic info and input cards */
+
+.card {
+    border: #b7ddf2 2px solid;
+    background: #ebf4fb;
+    padding: 15px;
+}
+
+.card>a {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.card>h2 {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+    color: #9932cc;
+
+    margin-bottom: 8px;
+}
+
+.card>p {
+    font-size: 12px;
+    color: #666666;
+
+    margin-top: 8px;
+}
+
+.card>hr {
+    color: #b7ddf2;
+    background-color: #b7ddf2;
+    border: none;
+
+    height: 1px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.card>table {
+    text-align: left;
+}
+
+.card>table th {
+    color: #008b8b;
+}
+
+.card>form>div>h2 {
+    margin-top: 8px;
+}
+
+.card>form input {
+    border: #e6e6d9 1px solid;
+
+    padding: 5px;
+    width: max(50%, 300px);
+}
+
+.card>form>input {
+    font-size: 11px;
+    font-weight: bold;
+    background: #888888;
+    color: #ffffff;
+    border: #666666 1px solid;
+
+    margin-top: 10px;
+    padding: 5px 10px;
+    width: auto;
+}
+
+.error-message {
+    color: #ff0000;
+
+    display: block;
+    margin-left: 15px;
+}

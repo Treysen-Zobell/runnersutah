@@ -7,10 +7,10 @@
 
 {% block main %}
     <div class="card">
-        <h2 id="window-title">Add Customer</h2>
+        <h2 id="window-title">Edit Customer</h2>
         <p id="window-description">Enter your customer information.</p>
         <hr>
-        <form action="{% url 'customers:register' %}" method="post">
+        <form action="{% url 'customers:edit' customer_id %}" method="post">
             {% csrf_token %}
             <div class="form-entry">
                 <h2 class="form-label">Full Name:</h2>
@@ -38,20 +38,6 @@
                 {{ form.phone_nr }}
                 {% if "phone_nr" in form.errors %}
                     <b class="error-message">{{ form.errors.phone_nr }}</b>
-                {% endif %}
-            </div>
-            <div class="form-entry">
-                <h2 class="form-label">Password:</h2>
-                {{ form.password1 }}
-                {% if "password1" in form.errors %}
-                    <b class="error-message">{{ form.errors.password1 }}</b>
-                {% endif %}
-            </div>
-            <div class="form-entry">
-                <h2 class="form-label">Retype Password:</h2>
-                {{ form.password2 }}
-                {% if "password2" in form.errors %}
-                    <b class="error-message">{{ form.errors.password2 }}</b>
                 {% endif %}
             </div>
             <input type="submit" value="Add Customer" class="submit-button">

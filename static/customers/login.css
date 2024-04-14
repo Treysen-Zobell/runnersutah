@@ -10,6 +10,10 @@ body {
     height: 100vh;
 }
 
+legend {
+    color: #0046d5;
+}
+
 form {
     grid-area: 2 / 2 / 2 / 2;
 }

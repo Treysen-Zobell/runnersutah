@@ -5,7 +5,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 
 from customers.models import Customer
-from customers.forms import RegisterForm
+from customers.forms import RegisterForm, EditForm, EditPasswordForm
+
+
+app_name = "customers"
 
 
 # Create your views here.
@@ -26,7 +29,7 @@ def customer_list(request):
 def detail(request, customer_id: str):
     customer = get_object_or_404(Customer, pk=customer_id)
     context = {"customer": customer}
-    return render(request, "customers/detail.html", context)
+    return render(request, "customers/customer_detail.html", context)
 
 
 @login_required
@@ -43,12 +46,66 @@ def user_register(request):
                 status="Inactive",
             )
             customer.save()
-            return redirect("customers:index")
+            return redirect("customers:customer_list")
 
     else:
         form = RegisterForm()
 
     return render(request, "customers/register.html", {"form": form})
+
+
+@login_required
+def user_edit(request, customer_id: str):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    if request.method == "POST":
+        form = EditForm(request.POST, instance=customer)
+        if form.is_valid():
+            customer.username = form.cleaned_data["username"]
+            customer.email = form.cleaned_data["email"]
+            customer.phone_nr = form.cleaned_data["phone_nr"]
+            customer.display_name = form.cleaned_data["display_name"]
+            customer.save()
+            return redirect("customers:customer_list")
+
+    else:
+        form = EditForm()
+        form.fields["display_name"].initial = customer.display_name
+        form.fields["username"].initial = customer.username
+        form.fields["email"].initial = customer.email
+        form.fields["phone_nr"].initial = customer.phone_nr
+
+    return render(
+        request,
+        "customers/edit_customer.html",
+        {"form": form, "customer_id": customer_id},
+    )
+
+
+@login_required
+def user_edit_password(request, customer_id: str):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    if request.method == "POST":
+        form = EditPasswordForm(customer, request.POST)
+        if form.is_valid():
+            customer.set_password(form.cleaned_data["new_password1"])
+            customer.save()
+            return redirect("customers:customer_list")
+
+    else:
+        form = EditPasswordForm(customer)
+
+    return render(
+        request,
+        "customers/change_password.html",
+        {"form": form, "customer_id": customer_id},
+    )
+
+
+@login_required
+def user_delete(request, customer_id: str):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    customer.delete()
+    return redirect("customers:customer_list")
 
 
 def user_login(request):

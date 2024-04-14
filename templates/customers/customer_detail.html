@@ -1,27 +1,31 @@
 {% extends "base/base.html" %}
 
-{% load static %}
-<link rel="stylesheet" href="{% static 'customers/detail.css' %}">
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'generic/card.css' %}">
+    <link rel="stylesheet" href="{% static 'customers/detail.css' %}">
+{% endblock %}
 
 {% block main %}
-<div>
+<div class="card">
+    <a href="{% url 'customers:customer_list' %}">Go Back</a>
     <h2>{{ customer.username }}</h2>
     <hr/>
-    <table id="customer-desc" class="no-border-table fixed-table">
+    <table id="customer-desc">
         <tr>
-            <th>Name</th>
+            <th>Name:</th>
             <td>{{ customer.display_name }}</td>
         </tr>
         <tr>
-            <th>Username</th>
+            <th>Username:</th>
             <td>{{ customer.username }}</td>
         </tr>
         <tr>
-            <th>Email</th>
+            <th>Email:</th>
             <td>{{ customer.email }}</td>
         </tr>
         <tr>
-            <th>Phone</th>
+            <th>Phone:</th>
             <td>{{ customer.phone_nr }}</td>
         </tr>
     </table>
