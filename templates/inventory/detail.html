@@ -1,0 +1,73 @@
+{% extends "base/base.html" %}
+{% load mathfilters %}
+
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'generic/card.css' %}">
+{% endblock %}
+
+{% block main %}
+<div class="card">
+    <a href="{% url 'inventory:index' %}">Go Back</a>
+    <h2>Inventory Details Information</h2>
+    <hr/>
+    <table id="product-desc">
+        <tr>
+            <th>Date:</th>
+            <td>{{ inventory.date }}</td>
+        </tr>
+        <tr>
+            <th>R.R# OR REL.#:</th>
+            <td>{{ inventory.rr }}</td>
+        </tr>
+        <tr>
+            <th>P.O# OR B/L#:</th>
+            <td>{{ inventory.po }}</td>
+        </tr>
+        <tr>
+            <th>Carrier:</th>
+            <td>{{ inventory.carrier }}</td>
+        </tr>
+        <tr>
+            <th>Received From Transferred To:</th>
+            <td>{{ inventory.received_transferred }}</td>
+        </tr>
+        <tr>
+            <th>Joints In:</th>
+            {% if inventory.joints >= 0 %}
+                <td>{{ inventory.joints }}</td>
+            {% else %}
+                <td></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Joints Out:</th>
+            {% if inventory.joints < 0 %}
+                <td>{{ inventory.joints|abs }}</td>
+            {% else %}
+                <td></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Footage:</th>
+            <td>{{ inventory.footage|abs }}</td>
+        </tr>
+        <tr>
+            <th>Manufacturer:</th>
+            <td>{{ inventory.manufacturer }}</td>
+        </tr>
+        <tr>
+            <th>Rack#:</th>
+            <td>{{ inventory.rack_id }}</td>
+        </tr>
+        <tr>
+            <th>AFE:</th>
+            <td>{{ inventory.afe }}</td>
+        </tr>
+        <tr>
+            <th>PDF:</th>
+            <td><a href="{% url 'inventory:download_attachment' inventory.id %}">Download</a></td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

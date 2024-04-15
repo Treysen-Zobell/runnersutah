@@ -15,21 +15,21 @@ app_name = "customers"
 @login_required
 def customer_list(request):
     order_by = request.GET.get("order_by", "display_name")
-    order_dir = "-" if request.GET.get("order_dir", "asc") == "desc" else ""
+    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
     customers = Customer.objects.order_by(order_dir + order_by)
     context = {
         "customer_list": customers,
         "order_by": order_by,
         "order_dir": order_dir,
     }
-    return render(request, "customers/customer_list.html", context)
+    return render(request, "customers/index.html", context)
 
 
 @login_required
 def detail(request, customer_id: str):
     customer = get_object_or_404(Customer, pk=customer_id)
     context = {"customer": customer}
-    return render(request, "customers/customer_detail.html", context)
+    return render(request, "customers/detail.html", context)
 
 
 @login_required
@@ -76,7 +76,7 @@ def user_edit(request, customer_id: str):
 
     return render(
         request,
-        "customers/edit_customer.html",
+        "customers/edit.html",
         {"form": form, "customer_id": customer_id},
     )
 
@@ -119,7 +119,7 @@ def user_login(request):
             )
             if user is not None:
                 login(request, user)
-                return HttpResponse(f"you are logged in {user.username}")
+                return redirect("customers:customer_list")
 
         return render(
             request,

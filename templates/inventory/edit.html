@@ -1,0 +1,109 @@
+{% extends "base/base.html" %}
+
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'generic/card.css' %}">
+{% endblock %}
+
+{% block main %}
+    <div class="card">
+        <h2 id="window-title">Edit Inventory</h2>
+        <p id="window-description">Enter the inventory information.</p>
+        <hr>
+        <form action="{% url 'inventory:edit' inventory_id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-entry">
+                <h2 class="form-label">Customer:</h2>
+                {{ form.customer_id }}
+                {% if "customer_id" in form.errors %}
+                    <b class="error-message">{{ form.errors.customer_id }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Product:</h2>
+                {{ form.product_id }}
+                {% if "product_id" in form.errors %}
+                    <b class="error-message">{{ form.errors.product_id }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">PDF:</h2>
+                {{ form.attachment }}
+                {% if "date" in form.attachment %}
+                    <b class="error-message">{{ form.errors.attachment }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Date:</h2>
+                {{ form.date }}
+                {% if "date" in form.errors %}
+                    <b class="error-message">{{ form.errors.date }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">AFE:</h2>
+                {{ form.afe }}
+                {% if "date" in form.afe %}
+                    <b class="error-message">{{ form.errors.afe }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">R.R# OR REL.#:</h2>
+                {{ form.rr }}
+                {% if "date" in form.rr %}
+                    <b class="error-message">{{ form.errors.rr }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">P.O# OR B/L#:</h2>
+                {{ form.po }}
+                {% if "date" in form.po %}
+                    <b class="error-message">{{ form.errors.po }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Carrier:</h2>
+                {{ form.carrier }}
+                {% if "date" in form.carrier %}
+                    <b class="error-message">{{ form.errors.carrier }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Received From Transferred To:</h2>
+                {{ form.received_transferred }}
+                {% if "date" in form.received_transferred %}
+                    <b class="error-message">{{ form.errors.received_transferred }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Joints In:</h2>
+                {{ form.joints_in }}
+                {% if "date" in form.joints_in %}
+                    <b class="error-message">{{ form.errors.joints_in }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Joints Out:</h2>
+                {{ form.joints_out }}
+                {% if "date" in form.joints_out %}
+                    <b class="error-message">{{ form.errors.joints_out }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Footage:</h2>
+                {{ form.footage }}
+                {% if "date" in form.footage %}
+                    <b class="error-message">{{ form.errors.footage }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Rack#:</h2>
+                {{ form.rack_id }}
+                {% if "date" in form.rack_id %}
+                    <b class="error-message">{{ form.errors.rack_id }}</b>
+                {% endif %}
+            </div>
+            <input type="submit" name="submit" value="Save Changes" class="submit-button">
+        </form>
+    </div>
+{% endblock %}

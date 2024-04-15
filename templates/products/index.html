@@ -1,5 +1,4 @@
 {% extends "base/base.html" %}
-{% load mathfilters %}
 
 {% block head %}
     {% load static %}
@@ -8,24 +7,23 @@
 
 {% block main %}
     <div class="table">
-        <h2>Inventory List</h2>
-        <p>You can see all added inventory here and delete/edit them if necessary.</p>
-        <a href="{% url 'inventory:add' %}" class="add-button">Add Inventory</a>
+        <h2>Product List</h2>
+        <p>You can see all added products here and delete/edit them if necessary.</p>
+        <a href="{% url 'products:add' %}" class="add-button">Add Product</a>
 
         <table class="table">
             <thead>
             <tr class="column-label">
-                <th>Nr</th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=date&order_dir=asc">
+                        <a href="?order_by=outside_diameter&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=date">
+                        <a href="?order_by=outside_diameter">
                     {% endif %}
-                    Date
-                    {% if order_by == "date" and order_dir == "-" %}
+                    Outside Diameter
+                    {% if order_by == "outside_diameter" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "date" %}
+                    {% elif order_by == "outside_diameter" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -34,14 +32,14 @@
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=rr&order_dir=asc">
+                        <a href="?order_by=weight&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=rr">
+                        <a href="?order_by=weight">
                     {% endif %}
-                    R.R# OR REL.#
-                    {% if order_by == "rr" and order_dir == "-" %}
+                    Lbs Per Ft
+                    {% if order_by == "weight" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "rr" %}
+                    {% elif order_by == "weight" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -50,14 +48,14 @@
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=po&order_dir=asc">
+                        <a href="?order_by=grade&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=po">
+                        <a href="?order_by=grade">
                     {% endif %}
-                    P.O# OR B/L#
-                    {% if order_by == "po" and order_dir == "-" %}
+                    Grade
+                    {% if order_by == "grade" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "po" %}
+                    {% elif order_by == "grade" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -66,14 +64,14 @@
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=afe&order_dir=asc">
+                        <a href="?order_by=coupling&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=afe">
+                        <a href="?order_by=coupling">
                     {% endif %}
-                    P.O# OR B/L#
-                    {% if order_by == "afe" and order_dir == "-" %}
+                    CPLG
+                    {% if order_by == "coupling" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "afe" %}
+                    {% elif order_by == "coupling" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -82,14 +80,14 @@
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=carrier&order_dir=asc">
+                        <a href="?order_by=range&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=carrier">
+                        <a href="?order_by=range">
                     {% endif %}
-                    Carrier
-                    {% if order_by == "carrier" and order_dir == "-" %}
+                    Range
+                    {% if order_by == "range" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "carrier" %}
+                    {% elif order_by == "range" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -98,14 +96,14 @@
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=joints_in&order_dir=asc">
+                        <a href="?order_by=manufacturer&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=joints_in">
+                        <a href="?order_by=manufacturer">
                     {% endif %}
-                    Joints In
-                    {% if order_by == "joints_in" and order_dir == "-" %}
+                    MFG
+                    {% if order_by == "manufacturer" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "joints_in" %}
+                    {% elif order_by == "manufacturer" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -114,14 +112,30 @@
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=joints_out&order_dir=asc">
+                        <a href="?order_by=condition&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=joints_out">
+                        <a href="?order_by=condition">
                     {% endif %}
-                    Joints Out
-                    {% if order_by == "joints_out" and order_dir == "-" %}
+                    Condition
+                    {% if order_by == "condition" and order_dir == "-" %}
                         <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "joints_out" %}
+                    {% elif order_by == "condition" %}
+                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=condition_notes&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=condition_notes">
+                    {% endif %}
+                    Remarks
+                    {% if order_by == "condition_notes" and order_dir == "-" %}
+                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "condition_notes" %}
                         <img src="{% static 'icons/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
@@ -133,27 +147,22 @@
                 <th></th>
             </tr>
             </thead>
-            {% if inventory_list %}
+            {% if product_list %}
                 <tbody>
-                {% for inventory in inventory_list %}
+                {% for product in product_list %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ inventory.date }}</td>
-                        <td>{{ inventory.rr }}</td>
-                        <td>{{ inventory.po }}</td>
-                        <td>{{ inventory.afe }}</td>
-                        <td>{{ inventory.carrier }}</td>
-                        {% if inventory.joints >= 0 %}
-                            <td>{{ inventory.joints }}</td>
-                            <td></td>
-                        {% else %}
-                            <td></td>
-                            <td>{{ inventory.joints|abs }}</td>
-                        {% endif %}
-                        <td><a href="{% url 'inventory:detail' inventory.id %}">View</a></td>
-                        <td><a href="{% url 'inventory:edit' inventory.id %}">Edit</a></td>
-                        <td><a href="{% url 'inventory:delete' inventory.id %}"
-                               onclick="return confirm('Are you sure you want to delete {{ inventory }}')">Delete</a></td>
+                        <td>{{ product.outside_diameter }}"</td>
+                        <td>{{ product.weight }}#</td>
+                        <td>{{ product.grade }}</td>
+                        <td>{{ product.coupling }}</td>
+                        <td>{{ product.range }}</td>
+                        <td>{{ product.manufacturer }}</td>
+                        <td>{{ product.condition }}</td>
+                        <td>{{ product.condition_notes }}</td>
+                        <td><a href="{% url 'products:detail' product.id %}">View</a></td>
+                        <td><a href="{% url 'products:edit' product.id %}">Edit</a></td>
+                        <td><a href="{% url 'customers:delete' product.id %}"
+                               onclick="return confirm('Are you sure you want to delete {{ product }}')">Delete</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>

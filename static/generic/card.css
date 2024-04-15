@@ -50,8 +50,9 @@
     margin-top: 8px;
 }
 
-.card>form input {
+.card>form input, .card>form select {
     border: #e6e6d9 1px solid;
+    background: #ffffff;
 
     padding: 5px;
     width: max(50%, 300px);

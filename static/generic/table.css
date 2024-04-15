@@ -1,5 +1,5 @@
 
-.table>h2 {
+.table > h2 {
     font-size: 14px;
     font-weight: bold;
     color: #333333;
@@ -7,34 +7,39 @@
     margin-bottom: 8px;
 }
 
-.table>p {
+.table > p {
     margin-bottom: 8px;
 }
 
-.table>a {
+.table > a {
+    font-size: 13px;
+    background: transparent url("../icons/add.png") no-repeat;
+
     display: block;
     margin-bottom: 12px;
+    padding: 0 0 0 20px;
 }
 
 .column-label {
     background: #eeeeee;
 }
 
-.column-label>th>a {
+.column-label > th > a {
     text-decoration: none;
     color: #000000;
 }
 
-.table>table, .table>table th, .table>table td {
+.table > table, .table > table th, .table > table td {
     border: #dddddd 1px solid;
     border-collapse: collapse;
+    padding: 5px;
 }
 
-.table>table td {
+.table > table td {
     text-align: center;
     padding: 5px;
 }
 
-.table>table>tbody>tr:nth-child(even) {
+.table > table > tbody > tr:nth-child(even) {
     background: #e0e2f3;
 }
