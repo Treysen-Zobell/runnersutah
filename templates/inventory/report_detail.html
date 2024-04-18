@@ -1,0 +1,235 @@
+{% extends "base/base.html" %}
+
+{% block main %}
+    {% load static %}
+    {% load mathfilters %}
+    {% load inventory_extras %}
+    <link rel="stylesheet" href="{% static 'generic/table.css' %}">
+
+    <div class="table">
+        <h1>{{ customer_name }}</h1>
+{#        <p>Desc.</p>#}
+{#        <a href="{% url 'products:add' %}" class="add-button">Add Product</a>#}
+
+        <table class="table">
+            <thead>
+            <tr class="column-label">
+                <th colspan="11">Product Description</th>
+                <th colspan="2">Balance</th>
+                <th colspan="2"></th>
+            </tr>
+            <tr class="column-label">
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=date&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=date">
+                    {% endif %}
+                    <h2>Date</h2>
+                    {% if order_by == "date" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "date" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=afe&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=afe">
+                    {% endif %}
+                    <h2>AFE</h2>
+                    {% if order_by == "afe" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "afe" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=rr&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=rr">
+                    {% endif %}
+                    <h2>RR OR REL#</h2>
+                    {% if order_by == "rr" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "rr" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=po&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=po">
+                    {% endif %}
+                    <h2>PO OR B/L#</h2>
+                    {% if order_by == "po" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "po" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=carrier&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=carrier">
+                    {% endif %}
+                    <h2>Carrier</h2>
+                    {% if order_by == "carrier" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "carrier" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=received_transferred&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=received_transferred">
+                    {% endif %}
+                    <h2>Received from Transferred to</h2>
+                    {% if order_by == "received_transferred" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "received_transferred" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=joints_in&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=joints_in">
+                    {% endif %}
+                    <h2>In</h2>
+                    {% if order_by == "joints_in" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "joints_in" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=joints_out&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=joints_out">
+                    {% endif %}
+                    <h2>Out</h2>
+                    {% if order_by == "joints_out" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "joints_out" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=footage&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=footage">
+                    {% endif %}
+                    <h2>Footage</h2>
+                    {% if order_by == "footage" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "footage" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=manufacturer&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=manufacturer">
+                    {% endif %}
+                    <h2>Manufacturer</h2>
+                    {% if order_by == "manufacturer" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "manufacturer" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=rack_id&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=rack_id">
+                    {% endif %}
+                    <h2>Rack#</h2>
+                    {% if order_by == "rack_id" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "rack_id" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>Joints</th>
+                <th>Footage</th>
+                <th>Download</th>
+                <th></th>
+            </tr>
+            </thead>
+            {% if inventory_list %}
+                <tbody>
+                {% for inventory in inventory_list %}
+                    <tr>
+                        <td>{{ inventory.date|date:"m/d/Y" }}</td>
+                        <td>{{ inventory.afe }}</td>
+                        <td>{{ inventory.rr }}</td>
+                        <td>{{ inventory.po }}</td>
+                        <td>{{ inventory.carrier }}</td>
+                        <td>{{ inventory.received_transferred }}</td>
+                        {% if inventory.joints >= 0 %}
+                            <td>{{ inventory.joints }}</td>
+                            <td></td>
+                        {% else %}
+                            <td></td>
+                            <td>{{ inventory.joints|abs }}</td>
+                        {% endif %}
+                        <td>{{ inventory.footage|abs }}</td>
+                        <td>{{ inventory.manufacturer }}</td>
+                        <td>{{ inventory.rack_id }}</td>
+                        <td>{{ joints_history|get_item:inventory.id }}</td>
+                        <td>{{ footage_history|get_item:inventory.id }}</td>
+                        <td><a href="{% url 'inventory:download_attachment' inventory.id %}">PDF</a></td>
+                        <td><a href="{% url 'inventory:edit' inventory.id %}" class="edit-link">Edit</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% endif %}
+        </table>
+    </div>
+
+{% endblock %}

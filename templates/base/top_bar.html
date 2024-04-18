@@ -1,0 +1,16 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'base/top_bar.css' %}">
+
+<header class="top-bar">
+    <div class="left">
+        {% if is_customer %}
+            <p>Customer Panel</p>
+        {% elif is_admin %}
+            <p>Administration Panel</p>
+        {% endif %}
+    </div>
+    <div class="right">
+        <p>Logged in as {{ request.user.username }}</p>
+        <a href="{% url 'customers:logout' %}">[Logout]</a>
+    </div>
+</header>

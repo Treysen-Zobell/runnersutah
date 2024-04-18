@@ -1,0 +1,12 @@
+{% if is_customer %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base/sidebar.css' %}">
+    
+    <div class="sidebar-menu">
+        <h1>Reports</h1>
+        <ul>
+            <li><a href="{% url 'inventory:report' customer_id %}">Summary</a></li>  <!-- todo add link -->
+        </ul>
+        <footer></footer>
+    </div>
+{% endif %}

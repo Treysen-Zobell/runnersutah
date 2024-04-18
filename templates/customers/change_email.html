@@ -1,0 +1,23 @@
+{% extends "base/base.html" %}
+
+{% block main %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'generic/card.css' %}">
+    
+    <div class="card">
+        <h2 id="window-title">Change Email</h2>
+        <p id="window-description">Enter the new email.</p>
+        <hr>
+        <form action="{% url 'customers:edit_username' user_id %}" method="post">
+            {% csrf_token %}
+            <div class="form-entry">
+                <h2 class="form-label">Email:</h2>
+                {{ form.email }}
+                {% if "email" in form.errors %}
+                    <b class="error-message">{{ form.errors.email }}</b>
+                {% endif %}
+            </div>
+            <input type="submit" value="Set Email" class="submit-button">
+        </form>
+    </div>
+{% endblock %}
