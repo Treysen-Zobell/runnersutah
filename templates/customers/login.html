@@ -11,13 +11,13 @@
 </head>
 
 <body>
-    <form action="{% url 'customers:user_login' %}" method="post">
+    <form action="{% url 'customers:login' %}" method="post">
         <fieldset>
             <legend>User Login</legend>
 
             {% csrf_token %}
             {% if error_message %}
-                <p class="bg-danger p-d ml-b">{{ error_message }}</p>
+                <p>{{ error_message }}</p>
             {% endif %}
 
             {% csrf_token %}
@@ -34,15 +34,15 @@
                     </tr>
 
                     <tr>
-                        <td colspan="2" align="right">
+                        <td colspan="2">
                         <input type="submit" value="Login">
                         <input type="reset" value="Reset">
                         </td>
                     </tr>
 
                     <tr>
-                        <td colspan="2" align="right">
-                        <a href="https://www.runnersutah.com/inventory/index.php/users/login/forgotpassword">Did you forget your login details?</a>
+                        <td colspan="2">
+                        <a href="">Did you forget your login details?</a>  <!-- todo add link -->
                         </td>
                     </tr>
 

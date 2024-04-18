@@ -1,14 +1,12 @@
-import uuid
-
 from django.db import models
 
 from customers.models import Customer
 from products.models import Product
 
 
-class ManifestUpdate(models.Model):
-    customer_id = models.ForeignKey(Customer, on_delete=models.RESTRICT)
-    product_id = models.ForeignKey(Product, on_delete=models.RESTRICT)
+class InventoryChange(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     date = models.DateField()
     rr = models.TextField(blank=True)
     po = models.TextField(blank=True)
@@ -19,12 +17,22 @@ class ManifestUpdate(models.Model):
     footage = models.FloatField()
     attachment_id = models.TextField(blank=True)
     rack_id = models.TextField(blank=True)
-
-    # automated
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    manufacturer = models.TextField(blank=True)
 
     def __str__(self):
         if self.joints >= 0:
-            return f"Import {self.joints} {self.product_id.outside_diameter}\" from {self.customer_id.display_name}"
+            return f"Import {self.footage}ft of {self.product.outside_diameter} in {self.joints} joints"
         else:
-            return f"Export {-self.joints} {self.product_id.outside_diameter}\" from {self.customer_id.display_name}"
+            return f"Export {self.footage}ft of {self.product.outside_diameter} in {self.joints} joints"
+
+
+class InventoryCurrent(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    last_updated = models.DateField()
+    joints = models.IntegerField()
+    footage = models.FloatField()
+    rack_id = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.footage}ft of {self.product.outside_diameter} on rack {self.rack_id}"

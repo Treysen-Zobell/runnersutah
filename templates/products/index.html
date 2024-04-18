@@ -1,15 +1,15 @@
 {% extends "base/base.html" %}
 
-{% block head %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'generic/table.css' %}">
-{% endblock %}
-
 {% block main %}
+    {% load static %}
+    {% load mathfilters %}
+    <link rel="stylesheet" href="{% static 'generic/table.css' %}">
+
     <div class="table">
         <h2>Product List</h2>
         <p>You can see all added products here and delete/edit them if necessary.</p>
         <a href="{% url 'products:add' %}" class="add-button">Add Product</a>
+        <a href="{% url 'products:download_product_table' %}" class="add-button">Download Excel</a>
 
         <table class="table">
             <thead>
@@ -20,13 +20,13 @@
                     {% else %}
                         <a href="?order_by=outside_diameter">
                     {% endif %}
-                    Outside Diameter
+                    <h2>Outside Diameter</h2>
                     {% if order_by == "outside_diameter" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "outside_diameter" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -36,13 +36,13 @@
                     {% else %}
                         <a href="?order_by=weight">
                     {% endif %}
-                    Lbs Per Ft
+                    <h2>Lbs Per Ft</h2>
                     {% if order_by == "weight" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "weight" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -52,13 +52,13 @@
                     {% else %}
                         <a href="?order_by=grade">
                     {% endif %}
-                    Grade
+                    <h2>Grade</h2>
                     {% if order_by == "grade" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "grade" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -68,13 +68,13 @@
                     {% else %}
                         <a href="?order_by=coupling">
                     {% endif %}
-                    CPLG
+                    <h2>CPLG</h2>
                     {% if order_by == "coupling" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "coupling" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -84,29 +84,13 @@
                     {% else %}
                         <a href="?order_by=range">
                     {% endif %}
-                    Range
+                    <h2>Range</h2>
                     {% if order_by == "range" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "range" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
-                    {% endif %}
-                    </a>
-                </th>
-                <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=manufacturer&order_dir=asc">
-                    {% else %}
-                        <a href="?order_by=manufacturer">
-                    {% endif %}
-                    MFG
-                    {% if order_by == "manufacturer" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "manufacturer" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
-                    {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -116,29 +100,45 @@
                     {% else %}
                         <a href="?order_by=condition">
                     {% endif %}
-                    Condition
+                    <h2>Condition</h2>
                     {% if order_by == "condition" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "condition" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=condition_notes&order_dir=asc">
+                        <a href="?order_by=remarks&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=condition_notes">
+                        <a href="?order_by=remarks">
                     {% endif %}
-                    Remarks
-                    {% if order_by == "condition_notes" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "condition_notes" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                    <h2>Remarks</h2>
+                    {% if order_by == "remarks" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "remarks" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "" %}
+                        <a href="?order_by=foreman&order_dir=asc">
+                    {% else %}
+                        <a href="?order_by=foreman">
+                    {% endif %}
+                    <h2>Foreman</h2>
+                    {% if order_by == "foreman" and order_dir == "-" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "foreman" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -151,17 +151,17 @@
                 <tbody>
                 {% for product in product_list %}
                     <tr>
-                        <td>{{ product.outside_diameter }}"</td>
+                        <td>{{ product.outside_diameter }}</td>
                         <td>{{ product.weight }}#</td>
                         <td>{{ product.grade }}</td>
                         <td>{{ product.coupling }}</td>
                         <td>{{ product.range }}</td>
-                        <td>{{ product.manufacturer }}</td>
                         <td>{{ product.condition }}</td>
-                        <td>{{ product.condition_notes }}</td>
-                        <td><a href="{% url 'products:detail' product.id %}">View</a></td>
-                        <td><a href="{% url 'products:edit' product.id %}">Edit</a></td>
-                        <td><a href="{% url 'customers:delete' product.id %}"
+                        <td>{{ product.remarks }}</td>
+                        <td>{{ product.foreman }}</td>
+                        <td><a href="{% url 'products:detail' product.id %}" class="view-link">View</a></td>
+                        <td><a href="{% url 'products:edit' product.id %}" class="edit-link">Edit</a></td>
+                        <td><a href="{% url 'customers:delete' product.id %}" class="delete-link"
                                onclick="return confirm('Are you sure you want to delete {{ product }}')">Delete</a></td>
                     </tr>
                 {% endfor %}

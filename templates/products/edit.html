@@ -1,17 +1,22 @@
 {% extends "base/base.html" %}
 
-{% block head %}
+{% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/card.css' %}">
-{% endblock %}
-
-{% block main %}
+    
     <div class="card">
         <h2 id="window-title">Edit Product</h2>
         <p id="window-description">Enter the product information.</p>
         <hr>
-        <form action="{% url 'products:add' product_id %}" method="post">
+        <form action="{% url 'products:edit' product_id %}" method="post">
             {% csrf_token %}
+            <div class="form-entry">
+                <h2 class="form-label">Customer:</h2>
+                {{ form.customer_id }}
+                {% if "customer_id" in form.customer_id %}
+                    <b class="error-message">{{ form.errors.customer_id }}</b>
+                {% endif %}
+            </div>
             <div class="form-entry">
                 <h2 class="form-label">Outside Diameter:</h2>
                 {{ form.outside_diameter }}
@@ -48,31 +53,24 @@
                 {% endif %}
             </div>
             <div class="form-entry">
-                <h2 class="form-label">Manufacturer:</h2>
-                {{ form.manufacturer }}
-                {% if "manufacturer" in form.errors %}
-                    <b class="error-message">{{ form.errors.manufacturer }}</b>
-                {% endif %}
-            </div>
-            <div class="form-entry">
                 <h2 class="form-label">Condition:</h2>
                 {{ form.condition }}
-                {% if "manufacturer" in form.condition %}
+                {% if "condition" in form.condition %}
                     <b class="error-message">{{ form.errors.condition }}</b>
                 {% endif %}
             </div>
             <div class="form-entry">
                 <h2 class="form-label">Remarks:</h2>
-                {{ form.condition_notes }}
-                {% if "manufacturer" in form.condition_notes %}
-                    <b class="error-message">{{ form.errors.condition_notes }}</b>
+                {{ form.remarks }}
+                {% if "remarks" in form.condition_notes %}
+                    <b class="error-message">{{ form.errors.remarks }}</b>
                 {% endif %}
             </div>
             <div class="form-entry">
-                <h2 class="form-label">Customer:</h2>
-                {{ form.customer_id }}
-                {% if "manufacturer" in form.customer_id %}
-                    <b class="error-message">{{ form.errors.customer_id }}</b>
+                <h2 class="form-label">Foreman:</h2>
+                {{ form.foreman }}
+                {% if "customer_id" in form.foreman %}
+                    <b class="error-message">{{ form.errors.foreman }}</b>
                 {% endif %}
             </div>
             <input type="submit" value="Save Changes" class="submit-button">

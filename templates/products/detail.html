@@ -1,49 +1,46 @@
 {% extends "base/base.html" %}
 
-{% block head %}
+{% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/card.css' %}">
-    <link rel="stylesheet" href="{% static 'products/product_detail.css' %}">
-{% endblock %}
-
-{% block main %}
-<div class="card">
-    <a href="{% url 'products:index' %}">Go Back</a>
-    <h2>Product Details Information</h2>
-    <hr/>
-    <table id="product-desc">
-        <tr>
-            <th>Outside Diameter:</th>
-            <td>{{ product.outside_diameter }}"</td>
-        </tr>
-        <tr>
-            <th>Lbs Per Ft:</th>
-            <td>{{ product.weight }}#</td>
-        </tr>
-        <tr>
-            <th>Grade:</th>
-            <td>{{ product.grade }}</td>
-        </tr>
-        <tr>
-            <th>CPLG:</th>
-            <td>{{ product.coupling }}</td>
-        </tr>
-        <tr>
-            <th>Range:</th>
-            <td>{{ product.range }}</td>
-        </tr>
-        <tr>
-            <th>MFG:</th>
-            <td>{{ product.manufacturer }}</td>
-        </tr>
-        <tr>
-            <th>Condition:</th>
-            <td>{{ product.condition }}</td>
-        </tr>
-        <tr>
-            <th>Remarks:</th>
-            <td>{{ product.condition_notes }}</td>
-        </tr>
-    </table>
-</div>
+    
+    <div class="card">
+        <a href="{% url 'products:index' %}">Go Back</a>
+        <h2>Product Details Information</h2>
+        <hr/>
+        <table id="product-desc">
+            <tr>
+                <th>Outside Diameter:</th>
+                <td>{{ product.outside_diameter }}"</td>
+            </tr>
+            <tr>
+                <th>Lbs Per Ft:</th>
+                <td>{{ product.weight }}#</td>
+            </tr>
+            <tr>
+                <th>Grade:</th>
+                <td>{{ product.grade }}</td>
+            </tr>
+            <tr>
+                <th>CPLG:</th>
+                <td>{{ product.coupling }}</td>
+            </tr>
+            <tr>
+                <th>Range:</th>
+                <td>{{ product.range }}</td>
+            </tr>
+            <tr>
+                <th>Condition:</th>
+                <td>{{ product.condition }}</td>
+            </tr>
+            <tr>
+                <th>Remarks:</th>
+                <td>{{ product.remarks }}</td>
+            </tr>
+            <tr>
+                <th>Foreman:</th>
+                <td>{{ product.Foreman }}</td>
+            </tr>
+        </table>
+    </div>
 {% endblock %}

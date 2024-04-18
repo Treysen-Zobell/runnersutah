@@ -1,69 +1,30 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-
+    <title>Runners Utah</title>
+    
+    {% load static %}
     <link rel="stylesheet" href="{% static 'base/base.css' %}">
-    {% block head %}{% endblock %}
 </head>
 <body>
 
-<header>
-    <div id="left">
-        <b>Administration Panel</b>
-    </div>
-    <div id="right">
-        <b>Logged in as admin</b>
-        <a href="{% url 'customers:user_logout' %}">[Logout]</a>
-    </div>
-</header>
+<!-- Top Bar -->
+{% include 'base/top_bar.html' %}
 
-<aside>
-    <div class="widget">
-        <h2 class="widget-title">Customer Manage</h2>
-        <ul class="widget-contents">
-            <li><a href="{% url 'customers:customer_list' %}">Customer List</a></li>
-            <li><a href="{% url 'customers:register' %}">Add Customer</a></li>
-        </ul>
-        <div class="widget-bottom"></div>
-    </div>
-    
-    <div class="widget">
-        <h2 class="widget-title">Product Manage</h2>
-        <ul class="widget-contents">
-            <li><a href="{% url 'products:index' %}">Product List</a></li>
-            <li><a href="{% url 'products:add' %}">Add Product</a></li>
-        </ul>
-        <div class="widget-bottom"></div>
-    </div>
-    
-    <div class="widget">
-        <h2 class="widget-title">Line Pipe Description</h2>
-        <ul class="widget-contents">
-            <li><a href="{% url 'inventory:index' %}">Inventory List</a></li>
-            <li><a href="{% url 'inventory:add' %}">Add Inventory</a></li>
-        </ul>
-        <div class="widget-bottom"></div>
-    </div>
-    
-    <div class="widget">
-        <h2 class="widget-title">Administration</h2>
-        <ul class="widget-contents">
-            <li><a href="{% url 'user:edit_password' %}">Change Password</a></li>
-            <li><a href="{% url 'user:edit_username' %}">Change Username</a></li>
-            <li><a href="{% url 'user:edit_email' %}">Change Email</a></li>
-            <li><a href="{% url 'customers:user_logout' %}">Logout</a></li>
-        </ul>
-        <div class="widget-bottom"></div>
-    </div>
-</aside>
+<!-- Side Bar -->
+<nav class="sidebar">
+    {% include 'base/reports.html' %}
+    {% include 'base/customer_manage.html' %}
+    {% include 'base/product_manage.html' %}
+    {% include 'base/inventory_manage.html' %}
+    {% include 'base/administration.html' %}
+</nav>
 
-<section>
+<!-- Content -->
+<main class="main-content">
     {% block main %}{% endblock %}
-</section>
+</main>
 
 </body>
 </html>

@@ -1,13 +1,75 @@
 import io
+from datetime import datetime
+from pandas import DataFrame
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Value, Case, IntegerField, When
+from django.db.models import Value, Case, IntegerField, When, F
 from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .models import ManifestUpdate
+from customers.models import Customer
+from products.models import Product
 from .forms import InventoryForm
+from .models import InventoryChange, InventoryCurrent
 from .utils import GoogleDrive
+
+
+def calculate_current_inventory(inventory_change: InventoryChange):
+    """
+    Recalculates the current inventory for the resource affected by the change.
+    :param inventory_change:
+    :return:
+    """
+    customer = inventory_change.customer
+    product = inventory_change.product
+    rack_id = inventory_change.rack_id
+
+    inventory_current = (
+        InventoryCurrent.objects.filter(customer=customer)
+        .filter(product=product)
+        .filter(rack_id=rack_id)
+    )
+
+    if len(inventory_current) == 0:
+        inventory_current = InventoryCurrent(
+            customer=inventory_change.customer,
+            product=inventory_change.product,
+            last_updated=datetime.now(),
+            joints=0,
+            footage=0,
+            rack_id=inventory_change.rack_id,
+        )
+
+    else:
+        inventory_current = inventory_current[0]
+
+    inventory_current.last_updated = datetime.now()
+    inventory_current.joints += inventory_change.joints
+    inventory_current.footage += inventory_change.footage
+    inventory_current.save()
+
+    # Update status on customer
+    if inventory_current.footage < 0.1 and inventory_current.joints == 0:
+        inventory_change.customer.status = "Inactive"
+    elif inventory_current.joints == 0:
+        inventory_change.customer.status = "Invalid"
+    else:
+        inventory_change.customer.status = "Active"
+    inventory_change.customer.save()
+
+
+@login_required
+def load_products(request):
+    """
+    Gets the products associated with the selected customer
+    :param request:
+    :return:
+    """
+    customer_id = request.GET.get("customer")
+    products = Product.objects.filter(customer_id=customer_id)
+    return render(
+        request, "inventory/product_dropdown_list_options.html", {"products": products}
+    )
 
 
 @login_required
@@ -19,7 +81,7 @@ def index(request):
     if order_by in ("joints_in", "joints_out"):
         positive_condition = Value(1) if order_by == "joints_in" else Value(2)
         negative_condition = Value(1) if order_by == "joints_out" else Value(2)
-        sorted_objects = ManifestUpdate.objects.annotate(
+        sorted_objects = InventoryChange.objects.annotate(
             positive_negative=Case(
                 When(joints__gte=0, then=positive_condition),
                 When(joints__lt=0, then=negative_condition),
@@ -29,7 +91,7 @@ def index(request):
         inventory = sorted_objects.order_by("positive_negative", order_dir + "joints")
 
     else:
-        inventory = ManifestUpdate.objects.order_by(order_dir + order_by)
+        inventory = InventoryChange.objects.order_by(order_dir + order_by)
 
     context = {
         "inventory_list": inventory,
@@ -41,7 +103,7 @@ def index(request):
 
 @login_required
 def detail(request, inventory_id: str):
-    inventory = get_object_or_404(ManifestUpdate, pk=inventory_id)
+    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
     context = {"inventory": inventory}
     return render(request, "inventory/detail.html", context)
 
@@ -66,9 +128,9 @@ def add(request):
                 attachment_id = drive.upload_file(file)
 
             # Create and save inventory change
-            inventory = ManifestUpdate.objects.create(
-                customer_id=form.cleaned_data["customer_id"],
-                product_id=form.cleaned_data["product_id"],
+            inventory = InventoryChange.objects.create(
+                customer=form.cleaned_data["customer"],
+                product=form.cleaned_data["product"],
                 date=form.cleaned_data["date"],
                 rr=form.cleaned_data["rr"],
                 po=form.cleaned_data["po"],
@@ -81,6 +143,7 @@ def add(request):
                 rack_id=form.cleaned_data["rack_id"],
             )
             inventory.save()
+            calculate_current_inventory(inventory)
 
             if "submit" in request.POST:
                 return redirect("inventory:index")
@@ -95,7 +158,7 @@ def add(request):
 
 @login_required
 def edit(request, inventory_id: str):
-    inventory = get_object_or_404(ManifestUpdate, pk=inventory_id)
+    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
     if request.method == "POST":
         form = InventoryForm(request.POST, request.FILES)
         if form.is_valid():
@@ -119,8 +182,8 @@ def edit(request, inventory_id: str):
                 inventory.attachment_id = drive.upload_file(file)
 
             # Save inventory change
-            inventory.customer_id = form.cleaned_data["customer_id"]
-            inventory.product_id = form.cleaned_data["product_id"]
+            inventory.customer = form.cleaned_data["customer"]
+            inventory.product = form.cleaned_data["product"]
             inventory.date = form.cleaned_data["date"]
             inventory.rr = form.cleaned_data["rr"]
             inventory.po = form.cleaned_data["po"]
@@ -131,6 +194,7 @@ def edit(request, inventory_id: str):
             inventory.footage = footage
             inventory.rack_id = form.cleaned_data["rack_id"]
             inventory.save()
+            calculate_current_inventory(inventory)
 
             if "submit" in request.POST:
                 return redirect("inventory:index")
@@ -138,10 +202,13 @@ def edit(request, inventory_id: str):
             form = InventoryForm()
 
     else:
-        form = InventoryForm()
-        form.fields["customer_id"].initial = inventory.customer_id
-        form.fields["product_id"].initial = inventory.product_id
-        form.fields["date"].initial = inventory.date
+        form = InventoryForm(
+            initial={
+                "customer": inventory.customer,
+                "product": inventory.product,
+                "date": inventory.date,
+            }
+        )
         form.fields["rr"].initial = inventory.rr
         form.fields["po"].initial = inventory.po
         form.fields["afe"].initial = inventory.afe
@@ -156,6 +223,10 @@ def edit(request, inventory_id: str):
         form.fields["footage"].initial = abs(inventory.footage)
         form.fields["rack_id"].initial = inventory.rack_id
 
+        form.fields["product"].queryset = Product.objects.filter(
+            customer_id=inventory.customer
+        )
+
     return render(
         request, "inventory/edit.html", {"form": form, "inventory_id": inventory_id}
     )
@@ -163,7 +234,7 @@ def edit(request, inventory_id: str):
 
 @login_required
 def delete(request, inventory_id: str):
-    inventory = get_object_or_404(ManifestUpdate, pk=inventory_id)
+    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
 
     # Delete file from Google Drive
     attachment_id = inventory.attachment_id
@@ -171,12 +242,14 @@ def delete(request, inventory_id: str):
     drive.delete_file(attachment_id)
 
     inventory.delete()
+    calculate_current_inventory(inventory)
+
     return redirect("inventory:index")
 
 
 @login_required
 def download_attachment(request, inventory_id: str):
-    inventory = get_object_or_404(ManifestUpdate, pk=inventory_id)
+    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
 
     # Download file from Google Drive
     drive = GoogleDrive()
@@ -190,3 +263,94 @@ def download_attachment(request, inventory_id: str):
         f"attachment; filename={inventory.attachment_id}.pdf"
     )
     return response
+
+
+@login_required
+def report(request, customer_id: str):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    inventory_current = InventoryCurrent.objects.filter(customer=customer)
+
+    order_by = request.GET.get("order_by", "outside_diameter")
+    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
+    if order_by in (
+        "outside_diameter",
+        "weight",
+        "grade",
+        "coupling",
+        "range",
+        "manufacturer",
+        "condition",
+        "remarks",
+    ):
+        inventory_current = inventory_current.annotate(
+            s=F(f"product__{order_by}")
+        ).order_by(f"s")
+    else:
+        inventory_current = inventory_current.order_by(order_dir + order_by)
+
+    context = {
+        "inventory_list": inventory_current,
+        "order_by": order_by,
+        "order_dir": order_dir,
+        "customer_name": customer.display_name,
+    }
+    return render(request, "inventory/report.html", context)
+
+
+@login_required
+def report_detail(request, customer_id: str, product_id: str):
+    # Get inventory changes sorted by date
+    customer = get_object_or_404(Customer, pk=customer_id)
+    product = get_object_or_404(Product, pk=product_id)
+    inventory_changes = (
+        InventoryChange.objects.filter(customer=customer)
+        .filter(product=product)
+        .order_by("date")
+    )
+
+    # Calculate historical joint and footage totals
+    joints_history = {}
+    footage_history = {}
+    joints_total = 0
+    footage_total = 0
+    for change in inventory_changes:
+        joints_total += change.joints
+        footage_total += change.footage
+        joints_history[change.id] = joints_total
+        footage_history[change.id] = footage_total
+
+    # Sort historical changes by column labels
+    order_by = request.GET.get("order_by", "date")
+    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
+
+    if order_by in ("joints_in", "joints_out"):
+        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
+        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
+        sorted_objects = InventoryChange.objects.annotate(
+            positive_negative=Case(
+                When(joints__gte=0, then=positive_condition),
+                When(joints__lt=0, then=negative_condition),
+                output_field=IntegerField(),
+            )
+        )
+        inventory_current = sorted_objects.order_by(
+            "positive_negative", order_dir + "joints"
+        )
+
+    elif order_by in ("outside_diameter",):
+        inventory_current = inventory_changes.annotate(
+            s=F(f"product__{order_by}")
+        ).order_by(f"s")
+
+    else:
+        inventory_current = inventory_changes.order_by(order_dir + order_by)
+
+    context = {
+        "inventory_list": inventory_current,
+        "joints_history": joints_history,
+        "footage_history": footage_history,
+        "order_by": order_by,
+        "order_dir": order_dir,
+        "customer_name": customer.display_name,
+    }
+    return render(request, "inventory/report_detail.html", context)

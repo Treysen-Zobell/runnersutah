@@ -1,34 +1,33 @@
 {% extends "base/base.html" %}
 
-{% block head %}
+{% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/card.css' %}">
-{% endblock %}
 
-{% block main %}
     <div class="card">
         <h2 id="window-title">Add Inventory</h2>
         <p id="window-description">Enter the inventory information.</p>
         <hr>
         <form action="{% url 'inventory:add' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
             <div class="form-entry">
                 <h2 class="form-label">Customer:</h2>
-                {{ form.customer_id }}
-                {% if "customer_id" in form.errors %}
-                    <b class="error-message">{{ form.errors.customer_id }}</b>
+                {{ form.customer }}
+                {% if "customer" in form.errors %}
+                    <b class="error-message">{{ form.errors.customer }}</b>
                 {% endif %}
             </div>
             <div class="form-entry">
                 <h2 class="form-label">Product:</h2>
-                {{ form.product_id }}
-                {% if "product_id" in form.errors %}
-                    <b class="error-message">{{ form.errors.product_id }}</b>
+                {{ form.product }}
+                {% if "product" in form.errors %}
+                    <b class="error-message">{{ form.errors.product }}</b>
                 {% endif %}
             </div>
             <div class="form-entry">
                 <h2 class="form-label">PDF:</h2>
-                {{ form.attachment }}
+                {{ form.attachment_id }}
                 {% if "date" in form.attachment %}
                     <b class="error-message">{{ form.errors.attachment }}</b>
                 {% endif %}
@@ -73,6 +72,13 @@
                 {{ form.received_transferred }}
                 {% if "date" in form.received_transferred %}
                     <b class="error-message">{{ form.errors.received_transferred }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
+                <h2 class="form-label">Manufacturer:</h2>
+                {{ form.manufacturer }}
+                {% if "manufacturer" in form.errors %}
+                    <b class="error-message">{{ form.errors.manufacturer }}</b>
                 {% endif %}
             </div>
             <div class="form-entry">

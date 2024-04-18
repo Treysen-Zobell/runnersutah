@@ -1,11 +1,9 @@
 {% extends "base/base.html" %}
 
-{% block head %}
+{% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/card.css' %}">
-{% endblock %}
-
-{% block main %}
+    
     <div class="card">
         <h2 id="window-title">Edit Customer</h2>
         <p id="window-description">Enter your customer information.</p>
@@ -35,9 +33,9 @@
             </div>
             <div class="form-entry">
                 <h2 class="form-label">Phone:</h2>
-                {{ form.phone_nr }}
-                {% if "phone_nr" in form.errors %}
-                    <b class="error-message">{{ form.errors.phone_nr }}</b>
+                {{ form.phone_number }}
+                {% if "phone_number" in form.errors %}
+                    <b class="error-message">{{ form.errors.phone_number }}</b>
                 {% endif %}
             </div>
             <input type="submit" value="Save Changes" class="submit-button">

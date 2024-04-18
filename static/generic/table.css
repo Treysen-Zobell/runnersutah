@@ -7,13 +7,22 @@
     margin-bottom: 8px;
 }
 
+.table > h1 {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: #000000;
+
+    margin-bottom: 8px;
+}
+
 .table > p {
     margin-bottom: 8px;
 }
 
 .table > a {
     font-size: 13px;
-    background: transparent url("../icons/add.png") no-repeat;
+    background: transparent url("../resources/add.png") no-repeat;
 
     display: block;
     margin-bottom: 12px;
@@ -40,6 +49,27 @@
     padding: 5px;
 }
 
+.table > table td a {
+    display: block;
+    height: 16px;
+    white-space: nowrap;
+}
+
 .table > table > tbody > tr:nth-child(even) {
     background: #e0e2f3;
+}
+
+.view-link {
+    background: transparent url("../resources/magnifier.png") no-repeat 0 50%;
+    padding: 0 0 0 20px;
+}
+
+.edit-link {
+    background: transparent url("../resources/pencil.png") no-repeat 0 50%;
+    padding: 0 0 0 20px;
+}
+
+.delete-link {
+    background: transparent url("../resources/delete.png") no-repeat 0 50%;
+    padding: 0 0 0 20px;
 }

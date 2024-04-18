@@ -1,15 +1,99 @@
+import io
+import pandas as pd
 from django.contrib.auth.decorators import login_required
+from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
 from products.models import Product
 from products.forms import ProductForm
 
 
+def outside_diameter_to_float(value: str):
+    """
+    Converts an outside diameter measurement such as "Casing 5 1/2"" to a float, uses imperial notation.
+    :param value:
+    :return:
+    """
+    segments = value.split(" ")
+    measure = 0
+    for segment in segments:
+        # Skip segment if it has no numbers
+        if segment.isalpha():
+            continue
+
+        # Calculate the length of the remainder
+        try:
+            multiplier = 12 if "'" in segment else 1
+            segment = segment.replace("'", "").replace('"', "")
+            if "/" in segment:
+                numerator, denominator = segment.split("/")
+                measure += (float(numerator) / float(denominator)) * multiplier
+            else:
+                measure += float(segment) * multiplier
+        except ValueError:
+            pass
+
+    return measure
+
+
+@login_required
+def download_product_table(request):
+    products = Product.objects.all()
+    outside_diameters = []
+    weights = []
+    grades = []
+    couplings = []
+    ranges = []
+    conditions = []
+    remarks = []
+    foremen = []
+    for product in products:
+        outside_diameters.append(product.outside_diameter)
+        weights.append(product.weight)
+        grades.append(product.grade)
+        couplings.append(product.coupling)
+        ranges.append(product.range)
+        conditions.append(product.condition)
+        remarks.append(product.remarks)
+        foremen.append(product.foreman)
+
+    df = pd.DataFrame(
+        {
+            "Outside Diameter": outside_diameters,
+            "Lbs Per Ft": weights,
+            "Grade": grades,
+            "CPLG": couplings,
+            "Range": ranges,
+            "Condition": conditions,
+            "Remarks": remarks,
+            "Foreman": foremen,
+        }
+    )
+
+    file = io.BytesIO()
+    df.to_excel(file, index=False)
+    file.seek(0, 0)
+
+    response = FileResponse(file)
+    response["Content-Type"] = "application/ms-excel"
+    response["Content-Disposition"] = f"attachment; filename=products.xlsx"
+    return response
+
+
 @login_required
 def product_list(request):
     order_by = request.GET.get("order_by", "outside_diameter")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-    products = Product.objects.order_by(order_dir + order_by)
+    if order_by == "outside_diameter":
+        products = Product.objects.all()
+        products = sorted(
+            products, key=lambda p: outside_diameter_to_float(p.outside_diameter)
+        )
+        if order_dir == "-":
+            products = reversed(products)
+    else:
+        products = Product.objects.order_by(order_dir + order_by)
+
     context = {
         "product_list": products,
         "order_by": order_by,
@@ -30,17 +114,9 @@ def product_add(request):
     if request.method == "POST":
         form = ProductForm(request.POST)
         if form.is_valid():
-            product = Product.objects.create(form)
-            # customer = Product.objects.create_user(
-            #     username=form.cleaned_data["username"],
-            #     password=form.cleaned_data["password1"],
-            #     email=form.cleaned_data["email"],
-            #     phone_nr=form.cleaned_data["phone_nr"],
-            #     display_name=form.cleaned_data["display_name"],
-            #     status="Inactive",
-            # )
-            # customer.save()
-            return redirect("products:product_list")
+            product = Product.objects.create(**form.cleaned_data)
+            product.save()
+            return redirect("products:index")
 
     else:
         form = ProductForm()
@@ -54,25 +130,36 @@ def product_edit(request, product_id: str):
     if request.method == "POST":
         form = ProductForm(request.POST)
         if form.is_valid():
-            # customer = Product.objects.create_user(
-            #     username=form.cleaned_data["username"],
-            #     password=form.cleaned_data["password1"],
-            #     email=form.cleaned_data["email"],
-            #     phone_nr=form.cleaned_data["phone_nr"],
-            #     display_name=form.cleaned_data["display_name"],
-            #     status="Inactive",
-            # )
-            # customer.save()
-            return redirect("products:product_list")
+            product.outside_diameter = form.cleaned_data["outside_diameter"]
+            product.weight = form.cleaned_data["weight"]
+            product.grade = form.cleaned_data["grade"]
+            product.coupling = form.cleaned_data["coupling"]
+            product.range = form.cleaned_data["range"]
+            product.condition = form.cleaned_data["condition"]
+            product.remarks = form.cleaned_data["remarks"]
+            product.customer_id = form.cleaned_data["customer_id"]
+            product.save()
+
+            return redirect("products:index")
 
     else:
         form = ProductForm()
+        form.fields["outside_diameter"].initial = product.outside_diameter
+        form.fields["weight"].initial = product.weight
+        form.fields["grade"].initial = product.grade
+        form.fields["coupling"].initial = product.coupling
+        form.fields["range"].initial = product.range
+        form.fields["condition"].initial = product.condition
+        form.fields["remarks"].initial = product.remarks
+        form.fields["customer_id"].initial = product.customer_id
 
-    return render(request, "products/edit.html", {"form": form})
+    return render(
+        request, "products/edit.html", {"form": form, "product_id": product_id}
+    )
 
 
 @login_required
 def product_delete(request, product_id: str):
     product = get_object_or_404(Product, pk=product_id)
     product.delete()
-    return redirect("products:product_list")
+    return redirect("products:index")

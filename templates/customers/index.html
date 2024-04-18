@@ -1,17 +1,15 @@
 {% extends "base/base.html" %}
 
-{% block head %}
+{% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/table.css' %}">
-{% endblock %}
 
-{% block main %}
     <div class="table">
         <h2>Customer List</h2>
         <p>You can see all added customers here and can delete/edit password if necessary.</p>
-        <a href="{% url 'customers:register' %}" class="add-button">Add Customer</a>
+        <a href="{% url 'customers:add' %}" class="add-button">Add Customer</a>
+        <a href="{% url 'customers:download_customer_table' %}" class="add-button">Download Excel</a>
 
-    <p>Order dir: {{ order_dir }}</p>
         <table>
             <thead>
             <tr class="column-label">
@@ -21,13 +19,13 @@
                     {% else %}
                         <a href="?order_by=display_name">
                     {% endif %}
-                    Full Name
+                    <h2>Full Name</h2>
                     {% if order_by == "display_name" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "display_name" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -37,13 +35,13 @@
                     {% else %}
                         <a href="?order_by=username">
                     {% endif %}
-                    Username
+                    <h2>Username</h2>
                     {% if order_by == "username" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "username" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -53,13 +51,13 @@
                     {% else %}
                         <a href="?order_by=email">
                     {% endif %}
-                    Email
+                    <h2>Email</h2>
                     {% if order_by == "email" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "email" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -69,13 +67,13 @@
                     {% else %}
                         <a href="?order_by=status">
                     {% endif %}
-                    Status
+                    <h2>Status</h2>
                     {% if order_by == "status" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "status" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -89,14 +87,14 @@
                 <tbody>
                 {% for customer in customer_list %}
                     <tr>
-                        <td><a href="">{{ customer.display_name }}</a></td>
+                        <td><a href="{% url 'inventory:report' customer.id %}">{{ customer.display_name }}</a></td>
                         <td>{{ customer.username }}</td>
                         <td>{{ customer.email }}</td>
                         <td>{{ customer.status }}</td>
-                        <td><a href="{% url 'customers:detail' customer.id %}">View</a></td>
-                        <td><a href="{% url 'customers:edit' customer.id %}">Edit</a></td>
-                        <td><a href="{% url 'customers:edit_password' customer.id %}">Change Password</a></td>
-                        <td><a href="{% url 'customers:delete' customer.id %}"
+                        <td><a href="{% url 'customers:detail' customer.id %}" class="view-link">View</a></td>
+                        <td><a href="{% url 'customers:edit' customer.id %}" class="edit-link">Edit</a></td>
+                        <td><a href="{% url 'customers:edit_password' customer.id %}" class="edit-link">Change Password</a></td>
+                        <td><a href="{% url 'customers:delete' customer.id %}" class="delete-link"
                                onclick="return confirm('Are you sure you want to delete {{ customer }}?')">Delete</a>
                         </td>
                     </tr>

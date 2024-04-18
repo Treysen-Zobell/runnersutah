@@ -10,4 +10,9 @@ urlpatterns = [
     path("get/<str:product_id>/", views.product_detail, name="detail"),
     path("edit/<str:product_id>/", views.product_edit, name="edit"),
     path("delete/<str:product_id>/", views.product_delete, name="delete"),
+    path(
+        "download/product_table",
+        views.download_product_table,
+        name="download_product_table",
+    ),
 ]

@@ -4,30 +4,34 @@ from .models import Customer, Product
 
 
 class ProductForm(forms.ModelForm):
-    outside_diameter = forms.FloatField(
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    outside_diameter = forms.CharField(
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False,
     )
     weight = forms.FloatField(
         widget=forms.NumberInput(attrs={"class": "form-control"}),
+        required=False,
     )
     grade = forms.CharField(
         widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False,
     )
     coupling = forms.CharField(
         widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False,
     )
     range = forms.CharField(
         widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    manufacturer = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False,
     )
     condition = forms.CharField(
         widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False,
     )
-    # condition_notes = forms.CharField(
-    #     widget=forms.TextInput(attrs={"class": "form-control"}),
-    # )
+    foreman = forms.CharField(
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False,
+    )
     customer_id = forms.ModelChoiceField(
         label="Customer",
         queryset=Customer.objects.all(),
@@ -41,8 +45,8 @@ class ProductForm(forms.ModelForm):
             "grade",
             "coupling",
             "range",
-            "manufacturer",
             "condition",
-            "condition_notes",
+            "remarks",
+            "foreman",
             "customer_id",
         ]

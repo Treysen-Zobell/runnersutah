@@ -5,16 +5,19 @@ from . import views
 app_name = "customers"
 
 urlpatterns = [
-    path("", views.customer_list, name="customer_list"),
-    path("get/<str:customer_id>/", views.detail, name="detail"),
-    path("edit/<str:customer_id>/", views.user_edit, name="edit"),
+    path("", views.index, name="index"),
+    path("detail/<str:customer_id>", views.detail, name="detail"),
+    path("add", views.add, name="add"),
+    path("edit/<str:customer_id>", views.edit, name="edit"),
+    path("edit/<str:user_id>/password", views.edit_password, name="edit_password"),
+    path("edit/<str:user_id>/username", views.edit_username, name="edit_username"),
+    path("edit/<str:user_id>/email", views.edit_email, name="edit_email"),
+    path("delete/<str:customer_id>", views.delete, name="delete"),
+    path("login/", views.login, name="login"),
+    path("logout/", views.logout, name="logout"),
     path(
-        "editpassword/<str:customer_id>/",
-        views.user_edit_password,
-        name="edit_password",
+        "download/customer_table",
+        views.download_customer_table,
+        name="download_customer_table",
     ),
-    path("delete/<str:customer_id>/", views.user_delete, name="delete"),
-    path("register/", views.user_register, name="register"),
-    path("login/", views.user_login, name="user_login"),
-    path("logout/", views.user_logout, name="user_logout"),
 ]

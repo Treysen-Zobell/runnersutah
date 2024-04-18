@@ -1,12 +1,10 @@
 {% extends "base/base.html" %}
 {% load mathfilters %}
 
-{% block head %}
+{% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/table.css' %}">
-{% endblock %}
 
-{% block main %}
     <div class="table">
         <h2>Inventory List</h2>
         <p>You can see all added inventory here and delete/edit them if necessary.</p>
@@ -22,13 +20,13 @@
                     {% else %}
                         <a href="?order_by=date">
                     {% endif %}
-                    Date
+                    <h2>Date</h2>
                     {% if order_by == "date" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "date" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -38,13 +36,13 @@
                     {% else %}
                         <a href="?order_by=rr">
                     {% endif %}
-                    R.R# OR REL.#
+                    <h2>R.R# OR REL.#</h2>
                     {% if order_by == "rr" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "rr" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -54,13 +52,13 @@
                     {% else %}
                         <a href="?order_by=po">
                     {% endif %}
-                    P.O# OR B/L#
+                    <h2>P.O# OR B/L#</h2>
                     {% if order_by == "po" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "po" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -70,13 +68,13 @@
                     {% else %}
                         <a href="?order_by=afe">
                     {% endif %}
-                    P.O# OR B/L#
+                    <h2>AFE</h2>
                     {% if order_by == "afe" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "afe" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -86,13 +84,13 @@
                     {% else %}
                         <a href="?order_by=carrier">
                     {% endif %}
-                    Carrier
+                    <h2>Carrier</h2>
                     {% if order_by == "carrier" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "carrier" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -102,13 +100,13 @@
                     {% else %}
                         <a href="?order_by=joints_in">
                     {% endif %}
-                    Joints In
+                    <h2>Joints In</h2>
                     {% if order_by == "joints_in" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "joints_in" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -118,13 +116,13 @@
                     {% else %}
                         <a href="?order_by=joints_out">
                     {% endif %}
-                    Joints Out
+                    <h2>Joints Out</h2>
                     {% if order_by == "joints_out" and order_dir == "-" %}
-                        <img src="{% static 'icons/desc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "joints_out" %}
-                        <img src="{% static 'icons/asc.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
-                        <img src="{% static 'icons/neutral.png' %}" alt="sort_by">
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
                     {% endif %}
                     </a>
                 </th>
@@ -138,7 +136,7 @@
                 {% for inventory in inventory_list %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ inventory.date }}</td>
+                        <td>{{ inventory.date|date:"m/d/Y" }}</td>
                         <td>{{ inventory.rr }}</td>
                         <td>{{ inventory.po }}</td>
                         <td>{{ inventory.afe }}</td>
@@ -150,9 +148,9 @@
                             <td></td>
                             <td>{{ inventory.joints|abs }}</td>
                         {% endif %}
-                        <td><a href="{% url 'inventory:detail' inventory.id %}">View</a></td>
-                        <td><a href="{% url 'inventory:edit' inventory.id %}">Edit</a></td>
-                        <td><a href="{% url 'inventory:delete' inventory.id %}"
+                        <td><a href="{% url 'inventory:detail' inventory.id %}" class="view-link">View</a></td>
+                        <td><a href="{% url 'inventory:edit' inventory.id %}" class="edit-link">Edit</a></td>
+                        <td><a href="{% url 'inventory:delete' inventory.id %}" class="delete-link"
                                onclick="return confirm('Are you sure you want to delete {{ inventory }}')">Delete</a></td>
                     </tr>
                 {% endfor %}

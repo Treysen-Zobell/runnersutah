@@ -16,7 +16,7 @@ class RegisterForm(UserCreationForm):
             "password1",
             "password2",
             "email",
-            "phone_nr",
+            "phone_number",
         ]
 
 
@@ -27,7 +27,7 @@ class EditForm(UserChangeForm):
             "display_name",
             "username",
             "email",
-            "phone_nr",
+            "phone_number",
         ]
 
 
@@ -37,4 +37,20 @@ class EditPasswordForm(SetPasswordForm):
         fields = [
             "new_password1",
             "new_password2",
+        ]
+
+
+class EditUsernameForm(UserChangeForm):
+    class Meta:
+        model = Customer
+        fields = [
+            "username",
+        ]
+
+
+class EditEmailForm(UserChangeForm):
+    class Meta:
+        model = Customer
+        fields = [
+            "email",
         ]

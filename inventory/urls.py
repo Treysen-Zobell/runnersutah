@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 
 from . import views
 
@@ -15,4 +15,11 @@ urlpatterns = [
         name="download_attachment",
     ),
     path("delete/<str:inventory_id>/", views.delete, name="delete"),
+    path("report/<str:customer_id>/", views.report, name="report"),
+    path(
+        "report/<str:customer_id>/<str:product_id>",
+        views.report_detail,
+        name="report_detail",
+    ),
+    path("load_products/", views.load_products, name="load_products"),
 ]

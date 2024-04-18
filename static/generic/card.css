@@ -8,6 +8,11 @@
 }
 
 .card>a {
+    background: transparent url("../resources/back.png") no-repeat 0 50%;
+    white-space: nowrap;
+
+    padding: 0 0 0 30px;
+    height: 16px;
     display: block;
     margin-bottom: 8px;
 }
@@ -44,6 +49,7 @@
 
 .card>table th {
     color: #008b8b;
+    padding-right: 10px;
 }
 
 .card>form>div>h2 {
