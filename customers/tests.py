@@ -5,7 +5,7 @@ from .models import Customer
 
 class CustomerTestCase(TestCase):
     def setUp(self):
-        customer = Customer.objects.create(
+        Customer.objects.create(
             username="testuser",
             password="testpassword",
             email="test@example.com",
@@ -13,7 +13,6 @@ class CustomerTestCase(TestCase):
             display_name="Test User",
             status="Inactive",
         )
-        customer.save()
 
     def test_customer_fields(self):
         customer = Customer.objects.get(username="testuser")
