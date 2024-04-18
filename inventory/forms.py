@@ -80,7 +80,6 @@ class InventoryForm(forms.ModelForm):
             "afe",
             "carrier",
             "received_transferred",
-            "joints",
             "footage",
             "attachment_id",
             "rack_id",

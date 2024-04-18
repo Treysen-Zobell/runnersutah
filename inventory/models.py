@@ -23,7 +23,7 @@ class InventoryChange(models.Model):
         if self.joints >= 0:
             return f"Import {self.footage}ft of {self.product.outside_diameter} in {self.joints} joints"
         else:
-            return f"Export {self.footage}ft of {self.product.outside_diameter} in {self.joints} joints"
+            return f"Export {-self.footage}ft of {self.product.outside_diameter} in {-self.joints} joints"
 
 
 class InventoryCurrent(models.Model):

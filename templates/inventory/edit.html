@@ -28,8 +28,8 @@
             <div class="form-entry">
                 <h2 class="form-label">PDF:</h2>
                 {{ form.attachment_id }}
-                {% if "date" in form.attachment %}
-                    <b class="error-message">{{ form.errors.attachment }}</b>
+                {% if "date" in form.attachment_id %}
+                    <b class="error-message">{{ form.errors.attachment_id }}</b>
                 {% endif %}
             </div>
             <div class="form-entry">

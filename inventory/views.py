@@ -1,6 +1,5 @@
 import io
 from datetime import datetime
-from pandas import DataFrame
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Value, Case, IntegerField, When, F
@@ -44,13 +43,21 @@ def calculate_current_inventory(inventory_change: InventoryChange):
         inventory_current = inventory_current[0]
 
     inventory_current.last_updated = datetime.now()
-    inventory_current.joints += inventory_change.joints
-    inventory_current.footage += inventory_change.footage
+    inventory_current.footage = 0
+    inventory_current.joints = 0
+    for inv in InventoryChange.objects.filter(
+        customer=customer, product=product, rack_id=rack_id
+    ):
+        inventory_current.joints += inv.joints
+        inventory_current.footage += inv.footage
     inventory_current.save()
 
     # Update status on customer
-    if inventory_current.footage < 0.1 and inventory_current.joints == 0:
+    if 0 <= inventory_current.footage < 0.01 and inventory_current.joints == 0:
         inventory_change.customer.status = "Inactive"
+        InventoryCurrent.objects.filter(
+            customer=customer, product=product, rack_id=rack_id
+        ).delete()
     elif inventory_current.joints == 0:
         inventory_change.customer.status = "Invalid"
     else:
@@ -67,9 +74,7 @@ def load_products(request):
     """
     customer_id = request.GET.get("customer")
     products = Product.objects.filter(customer_id=customer_id)
-    return render(
-        request, "inventory/product_dropdown_list_options.html", {"products": products}
-    )
+    return render(request, "inventory/dropdown_options.html", {"options": products})
 
 
 @login_required
@@ -122,8 +127,8 @@ def add(request):
 
             # Upload attachment to Google Drive if a file was selected and get file ID
             attachment_id = ""
-            if form.cleaned_data["attachment"]:
-                file = form.cleaned_data["attachment"]
+            if form.cleaned_data["attachment_id"]:
+                file = form.cleaned_data["attachment_id"]
                 drive = GoogleDrive()
                 attachment_id = drive.upload_file(file)
 
@@ -171,14 +176,14 @@ def edit(request, inventory_id: str):
 
             # Delete old attachment and upload new attachment to Google Drive if a new file
             # was selected and save the new file ID
-            if form.cleaned_data["attachment"]:
+            if form.cleaned_data["attachment_id"]:
                 drive = GoogleDrive()
 
                 attachment_id = inventory.attachment_id
                 if attachment_id:
                     drive.delete_file(attachment_id)
 
-                file = form.cleaned_data["attachment"]
+                file = form.cleaned_data["attachment_id"]
                 inventory.attachment_id = drive.upload_file(file)
 
             # Save inventory change
@@ -219,7 +224,7 @@ def edit(request, inventory_id: str):
             form.fields["joints_out"].initial = 0
         else:
             form.fields["joints_in"].initial = 0
-            form.fields["joints_out"].initial = inventory.joints
+            form.fields["joints_out"].initial = -inventory.joints
         form.fields["footage"].initial = abs(inventory.footage)
         form.fields["rack_id"].initial = inventory.rack_id
 
