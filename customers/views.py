@@ -16,6 +16,7 @@ from customers.forms import (
     EditUsernameForm,
     EditEmailForm,
 )
+from common.utils import generate_excel
 
 app_name = "customers"
 
@@ -23,27 +24,13 @@ app_name = "customers"
 @login_required
 def download_customer_table(request):
     customers = Customer.objects.all()
-    display_names = []
-    usernames = []
-    emails = []
-    statuses = []
-    for customer in customers:
-        display_names.append(customer.display_name)
-        usernames.append(customer.username)
-        emails.append(customer.email)
-        statuses.append(customer.status)
-    df = pd.DataFrame(
-        {
-            "Full Name": display_names,
-            "Username": usernames,
-            "Email": emails,
-            "Status": statuses,
-        }
-    )
-    file = io.BytesIO()
-    df.to_excel(file, index=False)
-    file.seek(0, 0)
+    labels = ["Full Name", "Username", "Email", "Status"]
+    rows = [
+        (customer.display_name, customer.username, customer.email, customer.status)
+        for customer in customers
+    ]
 
+    file = generate_excel(labels, rows)
     response = FileResponse(file)
     response["Content-Type"] = "application/ms-excel"
     response["Content-Disposition"] = f"attachment; filename=customers.xlsx"

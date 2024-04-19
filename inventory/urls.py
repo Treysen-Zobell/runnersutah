@@ -22,4 +22,19 @@ urlpatterns = [
         name="report_detail",
     ),
     path("load_products/", views.load_products, name="load_products"),
+    path(
+        "download/inventory_table",
+        views.download_inventory_table,
+        name="download_inventory_table",
+    ),
+    path(
+        "download/report_table/<str:customer_id>/",
+        views.download_report_table,
+        name="download_report_table",
+    ),
+    path(
+        "download/report_table/<str:customer_id>/<str:product_id>/",
+        views.download_report_detail_table,
+        name="download_report_detail_table",
+    ),
 ]

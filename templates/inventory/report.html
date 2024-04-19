@@ -7,8 +7,7 @@
 
     <div class="table">
         <h1>{{ customer_name }}</h1>
-{#        <p>Desc.</p>#}
-{#        <a href="{% url 'products:add' %}" class="add-button">Add Product</a>#}
+        <a href="{% url 'inventory:download_report_table' customer_id %}" class="add-button">Download Excel</a>
 
         <table class="table">
             <thead>
@@ -92,22 +91,6 @@
                     {% if order_by == "range" and order_dir == "-" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "range" %}
-                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
-                    {% else %}
-                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
-                    {% endif %}
-                    </a>
-                </th>
-                <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=manufacturer&order_dir=asc">
-                    {% else %}
-                        <a href="?order_by=manufacturer">
-                    {% endif %}
-                    <h2>MFG</h2>
-                    {% if order_by == "manufacturer" and order_dir == "-" %}
-                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "manufacturer" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
@@ -222,7 +205,6 @@
                         <td>{{ inventory.product.grade }}</td>
                         <td>{{ inventory.product.coupling }}</td>
                         <td>{{ inventory.product.range }}</td>
-                        <td>{{ inventory.product.manufacturer }}</td>
                         <td>{{ inventory.product.condition }}</td>
                         <td>{{ inventory.product.remarks }}</td>
                         <td>{{ inventory.rack_id }}</td>

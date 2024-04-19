@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db import models
 from django.db.models.signals import post_delete, post_save
+from django.db.models import Q
 from django.dispatch import receiver
 
 from customers.models import Customer
@@ -77,25 +78,33 @@ def calculate_current_inventory(customer: Customer, product: Product, rack_id: s
     inventory_current.save()
 
     # Update status on customer
-    if 0 <= inventory_current.footage < 0.01 and inventory_current.joints == 0:
-        customer.status = "Inactive"
-        InventoryCurrent.objects.filter(
-            customer=customer, product=product, rack_id=rack_id
-        ).delete()
-    elif inventory_current.joints == 0:
+    active = (
+        InventoryCurrent.objects.filter(customer=customer)
+        .filter(footage__gt=0)
+        .filter(joints__gt=0)
+        .count()
+    )
+    invalid = (
+        InventoryCurrent.objects.filter(customer=customer).filter(footage__lt=0).count()
+        + InventoryCurrent.objects.filter(customer=customer)
+        .filter(joints__lt=0)
+        .count()
+    )
+
+    if invalid > 0:
         customer.status = "Invalid"
-    else:
+    elif active > 0:
         customer.status = "Active"
+    else:
+        customer.status = "Inactive"
     customer.save()
 
 
 @receiver(post_delete, sender=InventoryChange)
 def inventory_delete(sender, instance: InventoryChange, **kwargs):
     calculate_current_inventory(instance.customer, instance.product, instance.rack_id)
-    print("Deleted record")
 
 
 @receiver(post_save, sender=InventoryChange)
 def inventory_save(sender, instance: InventoryChange, **kwargs):
     calculate_current_inventory(instance.customer, instance.product, instance.rack_id)
-    print("Updated record")

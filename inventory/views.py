@@ -5,6 +5,7 @@ from django.db.models import Value, Case, IntegerField, When, F
 from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
+from common.utils import generate_excel
 from customers.models import Customer
 from products.models import Product
 from .forms import InventoryForm
@@ -22,6 +23,38 @@ def load_products(request):
     customer_id = request.GET.get("customer")
     products = Product.objects.filter(customer_id=customer_id)
     return render(request, "inventory/dropdown_options.html", {"options": products})
+
+
+@login_required
+def download_inventory_table(request):
+    inventory_changes = InventoryChange.objects.all()
+    labels = [
+        "Date",
+        "R.R# OR REL#",
+        "P.O# OR B/L#",
+        "AFE",
+        "Carrier",
+        "Joints In",
+        "Joints Out",
+    ]
+    rows = [
+        (
+            change.date.strftime("%m/%d/%Y"),
+            change.rr,
+            change.po,
+            change.afe,
+            change.carrier,
+            change.joints if change.joints >= 0 else "",
+            "" if change.joints >= 0 else -change.joints,
+        )
+        for change in inventory_changes
+    ]
+
+    file = generate_excel(labels, rows)
+    response = FileResponse(file)
+    response["Content-Type"] = "application/ms-excel"
+    response["Content-Disposition"] = f"attachment; filename=inventory.xlsx"
+    return response
 
 
 @login_required
@@ -227,7 +260,6 @@ def report(request, customer_id: str):
         "grade",
         "coupling",
         "range",
-        "manufacturer",
         "condition",
         "remarks",
     ):
@@ -242,8 +274,69 @@ def report(request, customer_id: str):
         "order_by": order_by,
         "order_dir": order_dir,
         "customer_name": customer.display_name,
+        "customer_id": customer_id,
     }
     return render(request, "inventory/report.html", context)
+
+
+@login_required
+def download_report_table(request, customer_id: str):
+    inventory_changes = InventoryChange.objects.all()
+    labels = [
+        "Outside Diameter",
+        "Lbs Per Ft",
+        "Grade",
+        "CPLG",
+        "Range",
+        "Condition",
+        "Remarks",
+        "Rack#",
+        "Joints",
+        "Footage",
+    ]
+
+    customer = get_object_or_404(Customer, pk=customer_id)
+    inventory_current = InventoryCurrent.objects.filter(customer=customer)
+
+    order_by = request.GET.get("order_by", "outside_diameter")
+    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
+    if order_by in (
+        "outside_diameter",
+        "weight",
+        "grade",
+        "coupling",
+        "range",
+        "condition",
+        "remarks",
+    ):
+        inventory_current = inventory_current.annotate(
+            s=F(f"product__{order_by}")
+        ).order_by(f"s")
+    else:
+        inventory_current = inventory_current.order_by(order_dir + order_by)
+
+    rows = [
+        (
+            inventory.product.outside_diameter,
+            inventory.product.weight,
+            inventory.product.grade,
+            inventory.product.coupling,
+            inventory.product.range,
+            inventory.product.condition,
+            inventory.product.remarks,
+            inventory.rack_id,
+            inventory.joints,
+            inventory.footage,
+            inventory.product.foreman,
+        )
+        for inventory in inventory_current
+    ]
+
+    file = generate_excel(labels, rows)
+    response = FileResponse(file)
+    response["Content-Type"] = "application/ms-excel"
+    response["Content-Disposition"] = f"attachment; filename=inventory.xlsx"
+    return response
 
 
 @login_required
@@ -301,5 +394,98 @@ def report_detail(request, customer_id: str, product_id: str):
         "order_by": order_by,
         "order_dir": order_dir,
         "customer_name": customer.display_name,
+        "customer_id": customer_id,
+        "product_id": product_id,
     }
     return render(request, "inventory/report_detail.html", context)
+
+
+@login_required
+def download_report_detail_table(request, customer_id: str, product_id: str):
+    inventory_changes = InventoryChange.objects.all()
+    labels = [
+        "Date",
+        "AFE",
+        "R.R OR REL#",
+        "P.O OR B/L#",
+        "Carrier",
+        "Received from Transferred to",
+        "In",
+        "Out",
+        "Footage",
+        "Manufacturer",
+        "Rack#",
+        "Joints",
+        "Footage",
+    ]
+
+    # Get inventory changes sorted by date
+    customer = get_object_or_404(Customer, pk=customer_id)
+    product = get_object_or_404(Product, pk=product_id)
+    inventory_changes = (
+        InventoryChange.objects.filter(customer=customer)
+        .filter(product=product)
+        .order_by("date")
+    )
+
+    # Calculate historical joint and footage totals
+    joints_history = {}
+    footage_history = {}
+    joints_total = 0
+    footage_total = 0
+    for change in inventory_changes:
+        joints_total += change.joints
+        footage_total += change.footage
+        joints_history[change.id] = joints_total
+        footage_history[change.id] = footage_total
+
+    # Sort historical changes by column labels
+    order_by = request.GET.get("order_by", "date")
+    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
+
+    if order_by in ("joints_in", "joints_out"):
+        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
+        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
+        sorted_objects = InventoryChange.objects.annotate(
+            positive_negative=Case(
+                When(joints__gte=0, then=positive_condition),
+                When(joints__lt=0, then=negative_condition),
+                output_field=IntegerField(),
+            )
+        )
+        inventory_current = sorted_objects.order_by(
+            "positive_negative", order_dir + "joints"
+        )
+
+    elif order_by in ("outside_diameter",):
+        inventory_current = inventory_changes.annotate(
+            s=F(f"product__{order_by}")
+        ).order_by(f"s")
+
+    else:
+        inventory_current = inventory_changes.order_by(order_dir + order_by)
+
+    rows = [
+        (
+            inventory.date.strftime("%m/%d/%Y"),
+            inventory.afe,
+            inventory.rr,
+            inventory.po,
+            inventory.carrier,
+            inventory.received_transferred,
+            inventory.joints if inventory.joints >= 0 else "",
+            "" if inventory.joints >= 0 else -inventory.joints,
+            abs(inventory.footage),
+            inventory.manufacturer,
+            inventory.rack_id,
+            joints_history[inventory.id],
+            abs(footage_history[inventory.id]),
+        )
+        for inventory in inventory_current
+    ]
+
+    file = generate_excel(labels, rows)
+    response = FileResponse(file)
+    response["Content-Type"] = "application/ms-excel"
+    response["Content-Disposition"] = f"attachment; filename=inventory.xlsx"
+    return response

@@ -10,6 +10,7 @@
         <h1>{{ customer_name }}</h1>
 {#        <p>Desc.</p>#}
 {#        <a href="{% url 'products:add' %}" class="add-button">Add Product</a>#}
+        <a href="{% url 'inventory:download_report_detail_table' customer_id product_id %}" class="add-button">Download Excel</a>
 
         <table class="table">
             <thead>

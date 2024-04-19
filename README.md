@@ -11,9 +11,9 @@ sorting by date to keep daily entries in order.
 * [DONE] Admin View
 * [DONE] Customer Inventory
 * Email notification on inventory change
-* Download table buttons
-  * Inventory
-  * Report
-  * Report Historical
-* Move inventory logic out of inventory views
-* Make inventory tests
+* [DONE] Download table buttons
+  * [DONE] Inventory
+  * [DONE] Report
+  * [DONE] Report Historical
+* [DONE] Move inventory logic out of inventory views
+* [DONE] Make inventory tests

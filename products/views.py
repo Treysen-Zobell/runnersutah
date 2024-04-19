@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from products.models import Product
 from products.forms import ProductForm
+from common.utils import generate_excel
 
 
 def outside_diameter_to_float(value: str):
@@ -39,41 +40,31 @@ def outside_diameter_to_float(value: str):
 @login_required
 def download_product_table(request):
     products = Product.objects.all()
-    outside_diameters = []
-    weights = []
-    grades = []
-    couplings = []
-    ranges = []
-    conditions = []
-    remarks = []
-    foremen = []
-    for product in products:
-        outside_diameters.append(product.outside_diameter)
-        weights.append(product.weight)
-        grades.append(product.grade)
-        couplings.append(product.coupling)
-        ranges.append(product.range)
-        conditions.append(product.condition)
-        remarks.append(product.remarks)
-        foremen.append(product.foreman)
+    labels = [
+        "Outside Diameter",
+        "Lbs Per Ft",
+        "Grade",
+        "CPLG",
+        "Range",
+        "Condition",
+        "Remarks",
+        "Foreman",
+    ]
+    rows = [
+        (
+            product.outside_diameter,
+            product.weight,
+            product.grade,
+            product.coupling,
+            product.range,
+            product.condition,
+            product.remarks,
+            product.foreman,
+        )
+        for product in products
+    ]
 
-    df = pd.DataFrame(
-        {
-            "Outside Diameter": outside_diameters,
-            "Lbs Per Ft": weights,
-            "Grade": grades,
-            "CPLG": couplings,
-            "Range": ranges,
-            "Condition": conditions,
-            "Remarks": remarks,
-            "Foreman": foremen,
-        }
-    )
-
-    file = io.BytesIO()
-    df.to_excel(file, index=False)
-    file.seek(0, 0)
-
+    file = generate_excel(labels, rows)
     response = FileResponse(file)
     response["Content-Type"] = "application/ms-excel"
     response["Content-Disposition"] = f"attachment; filename=products.xlsx"
