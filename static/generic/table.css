@@ -22,10 +22,19 @@
 
 .table > a {
     font-size: 13px;
-    background: transparent url("../resources/add.png") no-repeat;
 
     display: block;
     margin-bottom: 12px;
+}
+
+.add-button {
+    background: transparent url("../resources/add.png") no-repeat;
+    padding: 0 0 0 20px;
+}
+
+.sheet-button {
+    background: transparent url("../resources/spreadsheet.png") no-repeat;
+    background-size: 16px 16px;
     padding: 0 0 0 20px;
 }
 
