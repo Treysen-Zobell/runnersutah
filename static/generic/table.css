@@ -44,6 +44,10 @@
     padding: 5px;
 }
 
+.table > table {
+    width: 100%;
+}
+
 .table > table td {
     text-align: center;
     padding: 5px;

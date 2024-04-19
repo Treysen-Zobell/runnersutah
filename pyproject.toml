@@ -13,6 +13,7 @@ django-mathfilters = "1.0.0"
 django-widget-tweaks = "1.5.0"
 pandas = "2.2.2"
 black = "24.4.0"
+openpyxl = "3.1.2"
 
 [build-system]
 requires = ["poetry-core"]

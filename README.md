@@ -15,3 +15,5 @@ sorting by date to keep daily entries in order.
   * Inventory
   * Report
   * Report Historical
+* Move inventory logic out of inventory views
+* Make inventory tests

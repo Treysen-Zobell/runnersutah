@@ -1,5 +1,4 @@
 import io
-from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Value, Case, IntegerField, When, F
@@ -11,58 +10,6 @@ from products.models import Product
 from .forms import InventoryForm
 from .models import InventoryChange, InventoryCurrent
 from .utils import GoogleDrive
-
-
-def calculate_current_inventory(inventory_change: InventoryChange):
-    """
-    Recalculates the current inventory for the resource affected by the change.
-    :param inventory_change:
-    :return:
-    """
-    customer = inventory_change.customer
-    product = inventory_change.product
-    rack_id = inventory_change.rack_id
-
-    inventory_current = (
-        InventoryCurrent.objects.filter(customer=customer)
-        .filter(product=product)
-        .filter(rack_id=rack_id)
-    )
-
-    if len(inventory_current) == 0:
-        inventory_current = InventoryCurrent(
-            customer=inventory_change.customer,
-            product=inventory_change.product,
-            last_updated=datetime.now(),
-            joints=0,
-            footage=0,
-            rack_id=inventory_change.rack_id,
-        )
-
-    else:
-        inventory_current = inventory_current[0]
-
-    inventory_current.last_updated = datetime.now()
-    inventory_current.footage = 0
-    inventory_current.joints = 0
-    for inv in InventoryChange.objects.filter(
-        customer=customer, product=product, rack_id=rack_id
-    ):
-        inventory_current.joints += inv.joints
-        inventory_current.footage += inv.footage
-    inventory_current.save()
-
-    # Update status on customer
-    if 0 <= inventory_current.footage < 0.01 and inventory_current.joints == 0:
-        inventory_change.customer.status = "Inactive"
-        InventoryCurrent.objects.filter(
-            customer=customer, product=product, rack_id=rack_id
-        ).delete()
-    elif inventory_current.joints == 0:
-        inventory_change.customer.status = "Invalid"
-    else:
-        inventory_change.customer.status = "Active"
-    inventory_change.customer.save()
 
 
 @login_required
@@ -148,7 +95,6 @@ def add(request):
                 rack_id=form.cleaned_data["rack_id"],
             )
             inventory.save()
-            calculate_current_inventory(inventory)
 
             if "submit" in request.POST:
                 return redirect("inventory:index")
@@ -199,7 +145,6 @@ def edit(request, inventory_id: str):
             inventory.footage = footage
             inventory.rack_id = form.cleaned_data["rack_id"]
             inventory.save()
-            calculate_current_inventory(inventory)
 
             if "submit" in request.POST:
                 return redirect("inventory:index")
@@ -247,7 +192,6 @@ def delete(request, inventory_id: str):
     drive.delete_file(attachment_id)
 
     inventory.delete()
-    calculate_current_inventory(inventory)
 
     return redirect("inventory:index")
 
