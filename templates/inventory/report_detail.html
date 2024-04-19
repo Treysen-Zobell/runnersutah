@@ -199,7 +199,9 @@
                 <th>Joints</th>
                 <th>Footage</th>
                 <th>Download</th>
-                <th></th>
+                {% if is_admin %}
+                    <th></th>
+                {% endif %}
             </tr>
             </thead>
             {% if inventory_list %}
@@ -225,7 +227,9 @@
                         <td>{{ joints_history|get_item:inventory.id }}</td>
                         <td>{{ footage_history|get_item:inventory.id }}</td>
                         <td><a href="{% url 'inventory:download_attachment' inventory.id %}">PDF</a></td>
-                        <td><a href="{% url 'inventory:edit' inventory.id %}" class="edit-link">Edit</a></td>
+                        {% if is_admin %}
+                            <td><a href="{% url 'inventory:edit' inventory.id %}" class="edit-link">Edit</a></td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>

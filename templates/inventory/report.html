@@ -193,7 +193,9 @@
                     {% endif %}
                     </a>
                 </th>
-                <th></th>
+                {% if is_admin %}
+                    <th></th>
+                {% endif %}
             </tr>
             </thead>
             {% if inventory_list %}
@@ -211,7 +213,9 @@
                         <td>{{ inventory.joints }}</td>
                         <td>{{ inventory.footage }}</td>
                         <td>{{ inventory.product.foreman }}</td>
-                        <td><a href="{% url 'products:edit' inventory.product.id %}" class="edit-link">Edit</a></td>
+                        {% if is_admin %}
+                            <td><a href="{% url 'products:edit' inventory.product.id %}" class="edit-link">Edit</a></td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>

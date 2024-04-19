@@ -184,7 +184,10 @@ def login(request):
             )
             if user is not None:
                 auth.login(request, user)
-                return redirect("customers:index")
+                if user.groups.filter(name="admin").exists():
+                    return redirect("customers:index")
+                else:
+                    return redirect("inventory:report", user.pk)
 
         return render(
             request,

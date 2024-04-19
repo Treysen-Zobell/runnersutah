@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from customers.views import login
 
 app_name = "inventory"
 
@@ -17,13 +18,13 @@ urlpatterns = [
     path("delete/<str:inventory_id>/", views.delete, name="delete"),
     path("report/<str:customer_id>/", views.report, name="report"),
     path(
-        "report/<str:customer_id>/<str:product_id>",
+        "report/<str:customer_id>/<str:product_id>/",
         views.report_detail,
         name="report_detail",
     ),
     path("load_products/", views.load_products, name="load_products"),
     path(
-        "download/inventory_table",
+        "download/inventory_table/",
         views.download_inventory_table,
         name="download_inventory_table",
     ),
@@ -37,4 +38,7 @@ urlpatterns = [
         views.download_report_detail_table,
         name="download_report_detail_table",
     ),
+    # forward legacy login routes to not break bookmarks
+    path("index.php/admin/login", login, name="admin_login"),
+    path("index.php/users/login", login, name="user_login"),
 ]
