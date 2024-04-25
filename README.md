@@ -1,7 +1,3 @@
-# Proposed Changes
-
-* Change inventory date to datetime, only show date in inventory list | This change will increase the accuracy of
-sorting by date to keep daily entries in order.
 
 # Todo
 * Get account with Hertzner
