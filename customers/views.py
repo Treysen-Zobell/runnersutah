@@ -17,7 +17,7 @@ from customers.forms import (
     EditEmailForm,
 )
 from common.utils import generate_excel, GoogleDrive
-from inventory.models import InventoryChange
+from inventory.models import InventoryChange, InventoryCurrent
 from products.models import Product
 
 app_name = "customers"
@@ -214,9 +214,15 @@ def migrate(request):
     old_db = sqlite3.connect("old_processed.sqlite3")
     old_db_cursor = old_db.cursor()
 
+    InventoryCurrent.objects.all().delete()
+    InventoryChange.objects.all().delete()
+    Product.objects.all().delete()
+    Customer.objects.all().delete()
+
     customer_dict = {}
     product_dict = {}
 
+    # Import customers from old DB
     old_users = old_db_cursor.execute("SELECT * FROM users").fetchall()
     for (
         user_id,
@@ -224,39 +230,41 @@ def migrate(request):
         display_name,
         email,
         phone,
-        address,
+        _,
         _,
         password,
         _,
-        created_date,
-        modified_date,
+        _,
+        _,
         user_role,
-        status,
+        _,
     ) in old_users:
-        try:
-            if username != "admin":
-                customer = Customer.objects.create_user(
-                    username=username,
-                    password=password,
-                    email=email,
-                    phone_number=phone,
-                    display_name=display_name,
-                    status="Inactive",
-                )
-                customer_dict[user_id] = customer
-        except Exception:
-            print("username: ", username)
-            print("password: ", password)
-            print("email: ", email)
-            print("phone: ", phone)
-            print("display_name: ", display_name)
-            raise ValueError("Failed to create user")
+        if username == "admin":
+            continue
 
+        username = username.replace('\\"', '"')
+        display_name = display_name.replace('\\"', '"')
+        email = email.replace('\\"', '"')
+        phone = phone.replace('\\"', '"')
+        password = password.replace('\\"', '"')
+        username = username.replace('\\"', '"')
+
+        customer = Customer.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+            phone_number=phone,
+            display_name=display_name,
+            status="Inactive",
+        )
+        customer_dict[user_id] = customer
+
+    # Import products from old DB
     old_products = old_db_cursor.execute("SELECT * FROM products").fetchall()
     for (
         product_id,
         od,
-        wall_thickness,
+        _,
         weight,
         end_type,
         grade,
@@ -264,6 +272,14 @@ def migrate(request):
         foreman,
         customer_id,
     ) in old_products:
+        # Clean inputs
+        od = od.replace('\\"', '"')
+        weight = weight.replace('\\"', '"')
+        end_type = end_type.replace('\\"', '"')
+        grade = grade.replace('\\"', '"')
+        foreman = foreman.replace('\\"', '"')
+
+        # Split grade column to extract data
         elements = grade.split(",")
         if len(elements) == 1:
             elements = grade.split(" ")
@@ -335,10 +351,8 @@ def migrate(request):
             ):
                 coupling = element
 
+        elements.append(end_type)
         remarks = ", ".join(elements)
-
-        if grade and coupling and pipe_range and condition and remarks:
-            continue
 
         try:
             weight = float(weight.replace("#", ""))
@@ -359,9 +373,7 @@ def migrate(request):
         product_dict[product_id] = product
 
     drive = GoogleDrive()
-
     old_inventory = old_db_cursor.execute("SELECT * FROM store").fetchall()
-    print(old_inventory)
     for (
         inventory_id,
         customer_id,
@@ -383,7 +395,25 @@ def migrate(request):
     ) in old_inventory:
         rack_id = old_db_cursor.execute(
             "SELECT coating FROM products WHERE product_id = ?", (product_id,)
-        ).fetchone()[0]
+        ).fetchone()
+        if rack_id is None:
+            print(f"Product {product_id} does not exist")
+            rack_id = "default"
+        else:
+            rack_id = rack_id[0]
+
+        c_date = c_date.replace('\\"', '"')
+        rr = rr.replace('\\"', '"')
+        po = po.replace('\\"', '"')
+        carrier = carrier.replace('\\"', '"')
+        received_transferred = received_transferred.replace('\\"', '"')
+        joints_in = joints_in.replace('\\"', '"')
+        joints_out = joints_out.replace('\\"', '"')
+        footage = footage.replace('\\"', '"')
+        attachment = attachment.replace('\\"', '"')
+        manufacturer = manufacturer.replace('\\"', '"')
+        rack = rack.replace('\\"', '"')
+        c_datetime = c_datetime.replace('\\"', '"')
 
         # Upload attachment
         file_id = "NONE"
