@@ -3,37 +3,42 @@ from django.contrib.auth.forms import (
     UserChangeForm,
     SetPasswordForm,
 )
+from django.contrib.auth import get_user_model
+from django import forms
+from django.contrib.auth.models import User
 
 from customers.models import Customer
 
 
 class RegisterForm(UserCreationForm):
+    display_name = forms.CharField()
+    phone_number = forms.CharField()
+
     class Meta:
-        model = Customer
+        model = get_user_model()
         fields = [
-            "display_name",
             "username",
             "password1",
             "password2",
             "email",
-            "phone_number",
         ]
 
 
 class EditForm(UserChangeForm):
+    display_name = forms.CharField()
+    phone_number = forms.CharField()
+
     class Meta:
-        model = Customer
+        model = get_user_model()
         fields = [
-            "display_name",
             "username",
             "email",
-            "phone_number",
         ]
 
 
 class EditPasswordForm(SetPasswordForm):
     class Meta:
-        model = Customer
+        model = get_user_model()
         fields = [
             "new_password1",
             "new_password2",
@@ -42,7 +47,7 @@ class EditPasswordForm(SetPasswordForm):
 
 class EditUsernameForm(UserChangeForm):
     class Meta:
-        model = Customer
+        model = get_user_model()
         fields = [
             "username",
         ]
@@ -50,7 +55,7 @@ class EditUsernameForm(UserChangeForm):
 
 class EditEmailForm(UserChangeForm):
     class Meta:
-        model = Customer
+        model = get_user_model()
         fields = [
             "email",
         ]

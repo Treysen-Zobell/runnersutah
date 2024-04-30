@@ -6,7 +6,7 @@
 
     <div class="card">
         <a href="{% url 'customers:index' %}">Go Back</a>
-        <h2>{{ customer.username }}'s information</h2>
+        <h2>{{ customer.user.username }}'s information</h2>
         <hr/>
         <table id="customer-desc">
             <tr>
@@ -15,11 +15,11 @@
             </tr>
             <tr>
                 <th>Username:</th>
-                <td>{{ customer.username }}</td>
+                <td>{{ customer.user.username }}</td>
             </tr>
             <tr>
                 <th>Email:</th>
-                <td>{{ customer.email }}</td>
+                <td>{{ customer.user.email }}</td>
             </tr>
             <tr>
                 <th>Phone:</th>

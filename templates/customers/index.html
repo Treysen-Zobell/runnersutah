@@ -87,14 +87,14 @@
                 <tbody>
                 {% for customer in customer_list %}
                     <tr>
-                        <td><a href="{% url 'inventory:report' customer.id %}">{{ customer.display_name }}</a></td>
+                        <td><a href="{% url 'inventory:report' customer.user.id %}">{{ customer.display_name }}</a></td>
                         <td>{{ customer.username }}</td>
                         <td>{{ customer.email }}</td>
                         <td>{{ customer.status }}</td>
-                        <td><a href="{% url 'customers:detail' customer.id %}" class="view-link">View</a></td>
-                        <td><a href="{% url 'customers:edit' customer.id %}" class="edit-link">Edit</a></td>
-                        <td><a href="{% url 'customers:edit_password' customer.id %}" class="edit-link">Change Password</a></td>
-                        <td><a href="{% url 'customers:delete' customer.id %}" class="delete-link"
+                        <td><a href="{% url 'customers:detail' customer.user.id %}" class="view-link">View</a></td>
+                        <td><a href="{% url 'customers:edit' customer.user.id %}" class="edit-link">Edit</a></td>
+                        <td><a href="{% url 'customers:edit_password' customer.user.id %}" class="edit-link">Change Password</a></td>
+                        <td><a href="{% url 'customers:delete' customer.user.id %}" class="delete-link"
                                onclick="return confirm('Are you sure you want to delete {{ customer }}?')">Delete</a>
                         </td>
                     </tr>

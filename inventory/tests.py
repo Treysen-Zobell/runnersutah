@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from .models import Customer, Product, InventoryChange, InventoryCurrent
@@ -7,18 +8,24 @@ from .models import Customer, Product, InventoryChange, InventoryCurrent
 
 class ProductTestCase(TestCase):
     def setUp(self):
-        customer = Customer.objects.create(
+        user = User.objects.create_user(
             username="testuser",
             password="testpassword",
             email="test@example.com",
+        )
+        customer = Customer.objects.create(
+            user=user,
             phone_number="+00000000000",
             display_name="Test User",
             status="Inactive",
         )
-        customer2 = Customer.objects.create(
+        user2 = User.objects.create_user(
             username="testuser2",
             password="testpassword2",
             email="test2@example.com",
+        )
+        customer2 = Customer.objects.create(
+            user=user2,
             phone_number="+00000000001",
             display_name="Test User 2",
             status="Active",
@@ -167,8 +174,8 @@ class ProductTestCase(TestCase):
         )
 
     def test_inventory_current_totals(self):
-        customer = Customer.objects.get(username="testuser")
-        customer2 = Customer.objects.get(username="testuser2")
+        customer = Customer.objects.get(user__username="testuser")
+        customer2 = Customer.objects.get(user__username="testuser2")
         customer_inventory = InventoryCurrent.objects.filter(customer=customer)
         customer2_inventory = InventoryCurrent.objects.filter(customer=customer2)
 

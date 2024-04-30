@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from .models import Customer, Product
@@ -5,18 +6,24 @@ from .models import Customer, Product
 
 class ProductTestCase(TestCase):
     def setUp(self):
-        customer = Customer.objects.create(
+        user = User.objects.create_user(
             username="testuser",
             password="testpassword",
             email="test@example.com",
+        )
+        customer = Customer.objects.create(
+            user=user,
             phone_number="+00000000000",
             display_name="Test User",
             status="Inactive",
         )
-        Customer.objects.create(
+        user2 = User.objects.create_user(
             username="testuser2",
             password="testpassword2",
             email="test2@example.com",
+        )
+        Customer.objects.create(
+            user=user2,
             phone_number="+00000000001",
             display_name="Test User 2",
             status="Active",
@@ -34,8 +41,8 @@ class ProductTestCase(TestCase):
         )
 
     def test_product_fields(self):
-        customer = Customer.objects.get(username="testuser")
-        customer2 = Customer.objects.get(username="testuser2")
+        customer = Customer.objects.get(user__username="testuser")
+        customer2 = Customer.objects.get(user__username="testuser2")
         product = Product.objects.get(outside_diameter='Casing 5 1/2"')
 
         self.assertEqual(product.outside_diameter, 'Casing 5 1/2"')

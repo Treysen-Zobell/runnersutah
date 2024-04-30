@@ -19,7 +19,7 @@ class InventoryChange(models.Model):
     carrier = models.TextField(blank=True)
     received_transferred = models.TextField(blank=True)
     joints = models.IntegerField()
-    footage = models.FloatField()
+    footage = models.DecimalField(decimal_places=4, max_digits=44)
     attachment_id = models.TextField(blank=True)
     rack_id = models.TextField(blank=True)
     manufacturer = models.TextField(blank=True)

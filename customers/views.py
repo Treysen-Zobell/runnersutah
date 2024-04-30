@@ -3,7 +3,8 @@ import sqlite3
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.db.models import Q
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import auth
@@ -28,7 +29,12 @@ def download_customer_table(request):
     customers = Customer.objects.all()
     labels = ["Full Name", "Username", "Email", "Status"]
     rows = [
-        (customer.display_name, customer.username, customer.email, customer.status)
+        (
+            customer.display_name,
+            customer.user.username,
+            customer.user.email,
+            customer.status,
+        )
         for customer in customers
     ]
 
@@ -64,10 +70,15 @@ def add(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            customer = Customer.objects.create_user(
+            user = User.objects.create_user(
                 username=form.cleaned_data["username"],
                 password=form.cleaned_data["password1"],
                 email=form.cleaned_data["email"],
+            )
+            group = Group.objects.get(name="customer")
+            group.user_set.add(user)
+            customer = Customer.objects.create(
+                user=user,
                 phone_number=form.cleaned_data["phone_number"],
                 display_name=form.cleaned_data["display_name"],
                 status="Inactive",
@@ -87,8 +98,8 @@ def edit(request, customer_id: str):
     if request.method == "POST":
         form = EditForm(request.POST, instance=customer)
         if form.is_valid():
-            customer.username = form.cleaned_data["username"]
-            customer.email = form.cleaned_data["email"]
+            customer.user.username = form.cleaned_data["username"]
+            customer.user.email = form.cleaned_data["email"]
             customer.phone_number = form.cleaned_data["phone_number"]
             customer.display_name = form.cleaned_data["display_name"]
             customer.save()
@@ -97,8 +108,8 @@ def edit(request, customer_id: str):
     else:
         form = EditForm()
         form.fields["display_name"].initial = customer.display_name
-        form.fields["username"].initial = customer.username
-        form.fields["email"].initial = customer.email
+        form.fields["username"].initial = customer.user.username
+        form.fields["email"].initial = customer.user.email
         form.fields["phone_number"].initial = customer.phone_number
 
     return render(
@@ -110,16 +121,16 @@ def edit(request, customer_id: str):
 
 @login_required
 def edit_password(request, user_id: str):
-    customer = get_object_or_404(User, pk=user_id)
+    user = get_object_or_404(User, pk=user_id)
     if request.method == "POST":
-        form = EditPasswordForm(customer, request.POST)
+        form = EditPasswordForm(user, request.POST)
         if form.is_valid():
-            customer.set_password(form.cleaned_data["new_password1"])
-            customer.save()
+            user.set_password(form.cleaned_data["new_password1"])
+            user.save()
             return redirect("customers:index")
 
     else:
-        form = EditPasswordForm(customer)
+        form = EditPasswordForm(user)
 
     return render(
         request,
@@ -218,6 +229,7 @@ def migrate(request):
     InventoryChange.objects.all().delete()
     Product.objects.all().delete()
     Customer.objects.all().delete()
+    User.objects.filter(~Q(username="admin")).delete()
 
     customer_dict = {}
     product_dict = {}
@@ -249,10 +261,15 @@ def migrate(request):
         password = password.replace('\\"', '"')
         username = username.replace('\\"', '"')
 
-        customer = Customer.objects.create_user(
+        user = User.objects.create_user(
             username=username,
             password=password,
             email=email,
+        )
+        group = Group.objects.get(name="customer")
+        group.user_set.add(user)
+        customer = Customer.objects.create(
+            user=user,
             phone_number=phone,
             display_name=display_name,
             status="Inactive",

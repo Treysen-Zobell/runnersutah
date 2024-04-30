@@ -22,6 +22,7 @@ def load_products(request):
     """
     customer_id = request.GET.get("customer")
     products = Product.objects.filter(customer_id=customer_id)
+    print(products)
     return render(request, "inventory/dropdown_options.html", {"options": products})
 
 
