@@ -20,4 +20,5 @@ urlpatterns = [
         views.download_customer_table,
         name="download_customer_table",
     ),
+    path("migrate", views.migrate, name="migrate"),
 ]

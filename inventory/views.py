@@ -10,7 +10,7 @@ from customers.models import Customer
 from products.models import Product
 from .forms import InventoryForm
 from .models import InventoryChange, InventoryCurrent
-from .utils import GoogleDrive
+from common.utils import GoogleDrive
 
 
 @login_required
