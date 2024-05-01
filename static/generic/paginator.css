@@ -2,12 +2,13 @@
 .pagination {
     display: flex;
     flex-direction: row;
-    margin: 15px;
+    margin: 15px 0;
 }
 
 .pagination li {
-    border: #aaaaaa 1px solid;
+    border: #e0e2f3 1px solid;
     list-style-type: none;
+    margin-right: 2px;
 }
 
 .pagination li:hover {
@@ -16,7 +17,6 @@
 
 .page-link {
     text-decoration: none;
-    font-weight: bold;
     color: #2e6ab1;
 
     padding: 4px 7px;
