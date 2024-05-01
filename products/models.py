@@ -5,6 +5,7 @@ from customers.models import Customer
 
 class Product(models.Model):
     outside_diameter = models.TextField(blank=True)
+    outside_diameter_inches = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
     grade = models.TextField(blank=True)
     coupling = models.TextField(blank=True)

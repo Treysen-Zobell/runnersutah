@@ -18,7 +18,7 @@ from customers.forms import (
     EditUsernameForm,
     EditEmailForm,
 )
-from common.utils import generate_excel, GoogleDrive
+from common.utils import generate_excel, GoogleDrive, outside_diameter_to_float
 from inventory.models import InventoryChange, InventoryCurrent
 from products.models import Product
 
@@ -393,6 +393,7 @@ def migrate(request):
 
         product = Product.objects.create(
             outside_diameter=od,
+            outside_diameter_inches=outside_diameter_to_float(od),
             weight=weight,
             grade=grade,
             coupling=coupling,

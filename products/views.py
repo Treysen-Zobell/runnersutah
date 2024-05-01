@@ -46,17 +46,9 @@ def download_product_table(request):
 
 @login_required
 def product_list(request):
-    order_by = request.GET.get("order_by", "outside_diameter")
+    order_by = request.GET.get("order_by", "outside_diameter_inches")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-    if order_by == "outside_diameter":
-        products = Product.objects.all()
-        products = sorted(
-            products, key=lambda p: outside_diameter_to_float(p.outside_diameter)
-        )
-        if order_dir == "-":
-            products = reversed(products)
-    else:
-        products = Product.objects.order_by(order_dir + order_by)
+    products = Product.objects.order_by(order_dir + order_by)
 
     paginator = Paginator(products, 30)
     page = request.GET.get("page", 1)
@@ -108,6 +100,9 @@ def product_edit(request, product_id: str):
         form = ProductForm(request.POST)
         if form.is_valid():
             product.outside_diameter = form.cleaned_data["outside_diameter"]
+            product.outside_diameter_inches = outside_diameter_to_float(
+                form.cleaned_data["outside_diameter"]
+            )
             product.weight = form.cleaned_data["weight"]
             product.grade = form.cleaned_data["grade"]
             product.coupling = form.cleaned_data["coupling"]
