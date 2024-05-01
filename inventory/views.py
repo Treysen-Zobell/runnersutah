@@ -89,7 +89,7 @@ def index(request):
     else:
         inventory = InventoryChange.objects.order_by(order_dir + order_by)
 
-    paginator = Paginator(inventory, 30)
+    paginator = Paginator(inventory, 20)
     page = request.GET.get("page", 1)
     try:
         inventory = paginator.page(page)
@@ -302,7 +302,7 @@ def report(request, customer_id: str):
     else:
         inventory_current = inventory_current.order_by(order_dir + order_by)
 
-    paginator = Paginator(inventory_current, 30)
+    paginator = Paginator(inventory_current, 20)
     page = request.GET.get("page", 1)
     try:
         inventory_current = paginator.page(page)
@@ -433,7 +433,7 @@ def report_detail(request, customer_id: str, product_id: str):
     else:
         inventory_current = inventory_changes.order_by(order_dir + order_by)
 
-    paginator = Paginator(inventory_current, 30)
+    paginator = Paginator(inventory_current, 20)
     page = request.GET.get("page", 1)
     try:
         inventory_current = paginator.page(page)

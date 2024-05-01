@@ -52,7 +52,7 @@ def index(request):
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
     customers = Customer.objects.order_by(order_dir + order_by)
 
-    paginator = Paginator(customers, 30)
+    paginator = Paginator(customers, 20)
     page = request.GET.get("page", 1)
     try:
         customers = paginator.page(page)

@@ -50,7 +50,7 @@ def product_list(request):
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
     products = Product.objects.order_by(order_dir + order_by)
 
-    paginator = Paginator(products, 30)
+    paginator = Paginator(products, 20)
     page = request.GET.get("page", 1)
     try:
         products = paginator.page(page)
