@@ -1,6 +1,7 @@
 import re
 import sqlite3
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
@@ -50,10 +51,24 @@ def index(request):
     order_by = request.GET.get("order_by", "display_name")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
     customers = Customer.objects.order_by(order_dir + order_by)
+
+    paginator = Paginator(customers, 30)
+    page = request.GET.get("page", 1)
+    try:
+        customers = paginator.page(page)
+        page_range = paginator.get_elided_page_range(number=page)
+    except PageNotAnInteger:
+        customers = paginator.page(1)
+        page_range = paginator.get_elided_page_range(number=1)
+    except EmptyPage:
+        customers = paginator.page(paginator.num_pages)
+        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
+
     context = {
         "customer_list": customers,
         "order_by": order_by,
         "order_dir": order_dir,
+        "page_range": page_range,
     }
     return render(request, "customers/index.html", context)
 

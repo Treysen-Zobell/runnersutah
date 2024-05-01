@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Value, Case, IntegerField, When, F
 from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from common.utils import generate_excel
 from customers.models import Customer
@@ -88,10 +89,23 @@ def index(request):
     else:
         inventory = InventoryChange.objects.order_by(order_dir + order_by)
 
+    paginator = Paginator(inventory, 30)
+    page = request.GET.get("page", 1)
+    try:
+        inventory = paginator.page(page)
+        page_range = paginator.get_elided_page_range(number=page)
+    except PageNotAnInteger:
+        inventory = paginator.page(1)
+        page_range = paginator.get_elided_page_range(number=1)
+    except EmptyPage:
+        inventory = paginator.page(paginator.num_pages)
+        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
+
     context = {
         "inventory_list": inventory,
         "order_by": order_by,
         "order_dir": order_dir,
+        "page_range": page_range,
     }
     return render(request, "inventory/index.html", context)
 
@@ -288,12 +302,25 @@ def report(request, customer_id: str):
     else:
         inventory_current = inventory_current.order_by(order_dir + order_by)
 
+    paginator = Paginator(inventory_current, 30)
+    page = request.GET.get("page", 1)
+    try:
+        inventory_current = paginator.page(page)
+        page_range = paginator.get_elided_page_range(number=page)
+    except PageNotAnInteger:
+        inventory_current = paginator.page(1)
+        page_range = paginator.get_elided_page_range(number=1)
+    except EmptyPage:
+        inventory_current = paginator.page(paginator.num_pages)
+        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
+
     context = {
         "inventory_list": inventory_current,
         "order_by": order_by,
         "order_dir": order_dir,
         "customer_name": customer.display_name,
         "customer_id": customer_id,
+        "page_range": page_range,
     }
     return render(request, "inventory/report.html", context)
 
@@ -406,6 +433,18 @@ def report_detail(request, customer_id: str, product_id: str):
     else:
         inventory_current = inventory_changes.order_by(order_dir + order_by)
 
+    paginator = Paginator(inventory_current, 30)
+    page = request.GET.get("page", 1)
+    try:
+        inventory_current = paginator.page(page)
+        page_range = paginator.get_elided_page_range(number=page)
+    except PageNotAnInteger:
+        inventory_current = paginator.page(1)
+        page_range = paginator.get_elided_page_range(number=1)
+    except EmptyPage:
+        inventory_current = paginator.page(paginator.num_pages)
+        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
+
     context = {
         "inventory_list": inventory_current,
         "joints_history": joints_history,
@@ -415,6 +454,7 @@ def report_detail(request, customer_id: str, product_id: str):
         "customer_name": customer.display_name,
         "customer_id": customer_id,
         "product_id": product_id,
+        "page_range": page_range,
     }
     return render(request, "inventory/report_detail.html", context)
 

@@ -3,6 +3,7 @@ import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from products.models import Product
 from products.forms import ProductForm
@@ -57,10 +58,23 @@ def product_list(request):
     else:
         products = Product.objects.order_by(order_dir + order_by)
 
+    paginator = Paginator(products, 30)
+    page = request.GET.get("page", 1)
+    try:
+        products = paginator.page(page)
+        page_range = paginator.get_elided_page_range(number=page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+        page_range = paginator.get_elided_page_range(number=1)
+    except EmptyPage:
+        product = paginator.page(paginator.num_pages)
+        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
+
     context = {
         "product_list": products,
         "order_by": order_by,
         "order_dir": order_dir,
+        "page_range": page_range,
     }
     return render(request, "products/index.html", context)
 

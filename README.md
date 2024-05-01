@@ -15,7 +15,7 @@
 * [DONE] Make inventory tests
 * Home page
 * Sort download table
-* Paginate tables
+* [DONE] Paginate tables
 
 # DB Migration
 

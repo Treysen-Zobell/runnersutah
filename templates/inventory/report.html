@@ -4,6 +4,7 @@
     {% load static %}
     {% load mathfilters %}
     <link rel="stylesheet" href="{% static 'generic/table.css' %}">
+    <link rel="stylesheet" href="{% static 'generic/paginator.css' %}">
 
     <div class="table">
         <h1>{{ customer_name }}</h1>
@@ -226,5 +227,30 @@
             {% endif %}
         </table>
     </div>
+
+    <ul class="pagination justify-content-center flex-wrap mt-2 mb-4">
+        {% if inventory_list.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ inventory_list.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled page-item"><a class="page-link">&laquo;</a></li>
+        {% endif %}
+        {% for i in page_range|default_if_none:inventory_list.paginator.get_elided_page_range %}
+            {% if inventory_list.number == i %}
+                <li class="active page-item"><span class="active page-link">{{ i }}</span>
+                </li>
+            {% else %}
+                {% if i == inventory_list.paginator.ELLIPSIS %}
+                    <li class="page-item"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% if inventory_list.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ inventory_list.next_page_number }}">&raquo;</a></li>
+        {% else %}
+            <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
+        {% endif %}
+    </ul>
 
 {% endblock %}

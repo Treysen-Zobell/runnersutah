@@ -29,7 +29,7 @@ class CustomerTestCase(TestCase):
         self.assertEqual(customer.status, "Inactive")
 
         customer.user.username = "testuser2"
-        customer.user.password = "testpassword2"
+        customer.user.set_password("testpassword2")
         customer.user.email = "test2@example.com"
         customer.phone_number = "+00000000001"
         customer.display_name = "Test User2"
