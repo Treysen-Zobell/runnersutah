@@ -152,7 +152,11 @@
                 {% for product in product_list %}
                     <tr>
                         <td>{{ product.outside_diameter }}</td>
-                        <td>{{ product.weight }}#</td>
+                        {% if product.weight == None %}
+                            <td></td>
+                        {% else %}
+                            <td>{{ product.weight }}#</td>
+                        {% endif %}
                         <td>{{ product.grade }}</td>
                         <td>{{ product.coupling }}</td>
                         <td>{{ product.range }}</td>

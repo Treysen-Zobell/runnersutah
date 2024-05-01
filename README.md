@@ -35,7 +35,3 @@
 5. Missing fields (db migration)
 
 Current plan for data migration. Auto-categorize data when possible. If any data can't be categorized automatically add it to the remarks section.
-
-## Changes
-
-1.

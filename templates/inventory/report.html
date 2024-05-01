@@ -203,7 +203,11 @@
                 {% for inventory in inventory_list %}
                     <tr>
                         <td><a href="{% url 'inventory:report_detail' inventory.customer.user.id inventory.product.id %}">{{ inventory.product.outside_diameter }}</a></td>
-                        <td>{{ inventory.product.weight }}#</td>
+                        {% if inventory.product.weight == None %}
+                            <td></td>
+                        {% else %}
+                            <td>{{ inventory.product.weight }}#</td>
+                        {% endif %}
                         <td>{{ inventory.product.grade }}</td>
                         <td>{{ inventory.product.coupling }}</td>
                         <td>{{ inventory.product.range }}</td>

@@ -15,7 +15,11 @@
             </tr>
             <tr>
                 <th>Lbs Per Ft:</th>
-                <td>{{ product.weight }}#</td>
+                {% if product.weight == None %}
+                    <td></td>
+                {% else %}
+                    <td>{{ product.weight }}#</td>
+                {% endif %}
             </tr>
             <tr>
                 <th>Grade:</th>

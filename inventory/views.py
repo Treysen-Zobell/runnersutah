@@ -13,6 +13,34 @@ from .models import InventoryChange, InventoryCurrent
 from common.utils import GoogleDrive
 
 
+def outside_diameter_to_float(value: str):
+    """
+    Converts an outside diameter measurement such as "Casing 5 1/2"" to a float, uses imperial notation.
+    :param value:
+    :return:
+    """
+    segments = value.split(" ")
+    measure = 0
+    for segment in segments:
+        # Skip segment if it has no numbers
+        if segment.isalpha():
+            continue
+
+        # Calculate the length of the remainder
+        try:
+            multiplier = 12 if "'" in segment else 1
+            segment = segment.replace("'", "").replace('"', "")
+            if "/" in segment:
+                numerator, denominator = segment.split("/")
+                measure += (float(numerator) / float(denominator)) * multiplier
+            else:
+                measure += float(segment) * multiplier
+        except ValueError:
+            pass
+
+    return measure
+
+
 @login_required
 def load_products(request):
     """
@@ -75,6 +103,15 @@ def index(request):
             )
         )
         inventory = sorted_objects.order_by("positive_negative", order_dir + "joints")
+
+    elif order_by == "outside_diameter":
+        inventory = InventoryChange.objects.all()
+        inventory = sorted(
+            inventory,
+            key=lambda p: outside_diameter_to_float(p.product.outside_diameter),
+        )
+        if order_dir == "-":
+            inventory = reversed(inventory)
 
     else:
         inventory = InventoryChange.objects.order_by(order_dir + order_by)
@@ -255,8 +292,17 @@ def report(request, customer_id: str):
 
     order_by = request.GET.get("order_by", "outside_diameter")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-    if order_by in (
-        "outside_diameter",
+
+    if order_by == "outside_diameter":
+        inventory_current = InventoryCurrent.objects.all()
+        inventory_current = sorted(
+            inventory_current,
+            key=lambda p: outside_diameter_to_float(p.product.outside_diameter),
+        )
+        if order_dir == "-":
+            inventory_current = reversed(inventory_current)
+
+    elif order_by in (
         "weight",
         "grade",
         "coupling",
