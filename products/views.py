@@ -6,35 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from products.models import Product
 from products.forms import ProductForm
-from common.utils import generate_excel
-
-
-def outside_diameter_to_float(value: str):
-    """
-    Converts an outside diameter measurement such as "Casing 5 1/2"" to a float, uses imperial notation.
-    :param value:
-    :return:
-    """
-    segments = value.split(" ")
-    measure = 0
-    for segment in segments:
-        # Skip segment if it has no numbers
-        if segment.isalpha():
-            continue
-
-        # Calculate the length of the remainder
-        try:
-            multiplier = 12 if "'" in segment else 1
-            segment = segment.replace("'", "").replace('"', "")
-            if "/" in segment:
-                numerator, denominator = segment.split("/")
-                measure += (float(numerator) / float(denominator)) * multiplier
-            else:
-                measure += float(segment) * multiplier
-        except ValueError:
-            pass
-
-    return measure
+from common.utils import generate_excel, outside_diameter_to_float
 
 
 @login_required
