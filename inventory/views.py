@@ -276,19 +276,11 @@ def report(request, customer_id: str):
     customer = get_object_or_404(Customer, pk=customer_id)
     inventory_current = InventoryCurrent.objects.filter(customer=customer)
 
-    order_by = request.GET.get("order_by", "outside_diameter")
+    order_by = request.GET.get("order_by", "outside_diameter_inches")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
 
-    if order_by == "outside_diameter":
-        inventory_current = InventoryCurrent.objects.all()
-        inventory_current = sorted(
-            inventory_current,
-            key=lambda p: outside_diameter_to_float(p.product.outside_diameter),
-        )
-        if order_dir == "-":
-            inventory_current = reversed(inventory_current)
-
-    elif order_by in (
+    if order_by in (
+        "outside_diameter_inches",
         "weight",
         "grade",
         "coupling",

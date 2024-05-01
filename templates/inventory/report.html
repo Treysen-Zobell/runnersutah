@@ -20,14 +20,14 @@
             <tr class="column-label">
                 <th>
                     {% if order_dir == "" %}
-                        <a href="?order_by=outside_diameter&order_dir=asc">
+                        <a href="?order_by=outside_diameter_inches&order_dir=asc">
                     {% else %}
-                        <a href="?order_by=outside_diameter">
+                        <a href="?order_by=outside_diameter_inches">
                     {% endif %}
                     <h2>Outside Diameter</h2>
-                    {% if order_by == "outside_diameter" and order_dir == "-" %}
+                    {% if order_by == "outside_diameter_inches" and order_dir == "-" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
-                    {% elif order_by == "outside_diameter" %}
+                    {% elif order_by == "outside_diameter_inches" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
                     {% else %}
                         <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
