@@ -6,7 +6,7 @@
 * [DONE] Customer View
 * [DONE] Admin View
 * [DONE] Customer Inventory
-* Email notification on inventory change
+* [ON HOLD] Email notification on inventory change
 * [DONE] Download table buttons
   * [DONE] Inventory
   * [DONE] Report
@@ -16,8 +16,8 @@
 * Home page
 * Sort download table
 * [DONE] Paginate tables
-* Fix table sorting bug. Changing page 3 times will result in order changing to desc
-* Fix table sorting bug. Column labels don't maintain page
+* [DONE] Fix table sorting bug. Changing page 3 times will result in order changing to desc
+* [DONE] Fix table sorting bug. Column labels don't maintain page
 
 # DB Migration
 

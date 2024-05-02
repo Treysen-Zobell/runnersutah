@@ -17,9 +17,9 @@ def generate_excel(column_labels: List[str], rows: List[Any]):
 
     header_row_format = workbook.add_format({"bold": True})
 
-    worksheet.set_row(0, 100)
+    worksheet.set_row(0, 25)
     worksheet.insert_image(
-        0, 0, "static/resources/runners_logo.png", {"x_scale": 0.4, "y_scale": 0.4}
+        0, 0, "static/resources/runners_logo.png", {"x_scale": 0.1, "y_scale": 0.1}
     )
     worksheet.write_row(1, 0, column_labels, header_row_format)
     for i in range(len(rows)):
