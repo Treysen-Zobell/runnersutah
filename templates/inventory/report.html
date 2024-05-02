@@ -15,7 +15,9 @@
             <tr class="column-label">
                 <th colspan="9">Product Description</th>
                 <th colspan="2">Balance</th>
-                <th colspan="2"></th>
+                {% if is_admin %}
+                    <th colspan="2"></th>
+                {% endif %}
             </tr>
             <tr class="column-label">
                 <th>
@@ -227,7 +229,7 @@
             {% endif %}
         </table>
     </div>
-    
+
     <ul class="pagination justify-content-center flex-wrap mt-2 mb-4">
         {% if inventory_list.has_previous %}
             <li class="page-item"><a class="page-link" href="?page={{ inventory_list.previous_page_number }}&order_by={{ order_by }}&order_dir={{ order_dir }}">&laquo;</a></li>
