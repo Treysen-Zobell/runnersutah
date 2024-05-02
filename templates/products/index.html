@@ -16,13 +16,13 @@
             <thead>
             <tr class="column-label">
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=outside_diameter_inches&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=outside_diameter_inches&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=outside_diameter_inches">
+                        <a href="?order_by=outside_diameter_inches&page={{ page }}">
                     {% endif %}
                     <h2>Outside Diameter</h2>
-                    {% if order_by == "outside_diameter_inches" and order_dir == "-" %}
+                    {% if order_by == "outside_diameter_inches" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "outside_diameter_inches" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -32,13 +32,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=weight&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=weight&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=weight">
+                        <a href="?order_by=weight&page={{ page }}">
                     {% endif %}
                     <h2>Lbs Per Ft</h2>
-                    {% if order_by == "weight" and order_dir == "-" %}
+                    {% if order_by == "weight" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "weight" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -48,13 +48,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=grade&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=grade&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=grade">
+                        <a href="?order_by=grade&page={{ page }}">
                     {% endif %}
                     <h2>Grade</h2>
-                    {% if order_by == "grade" and order_dir == "-" %}
+                    {% if order_by == "grade" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "grade" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -64,13 +64,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=coupling&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=coupling&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=coupling">
+                        <a href="?order_by=coupling&page={{ page }}">
                     {% endif %}
                     <h2>CPLG</h2>
-                    {% if order_by == "coupling" and order_dir == "-" %}
+                    {% if order_by == "coupling" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "coupling" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -80,13 +80,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=range&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=range&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=range">
+                        <a href="?order_by=range&page={{ page }}">
                     {% endif %}
                     <h2>Range</h2>
-                    {% if order_by == "range" and order_dir == "-" %}
+                    {% if order_by == "range" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "range" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -96,13 +96,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=condition&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=condition&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=condition">
+                        <a href="?order_by=condition&page={{ page }}">
                     {% endif %}
                     <h2>Condition</h2>
-                    {% if order_by == "condition" and order_dir == "-" %}
+                    {% if order_by == "condition" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "condition" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -112,13 +112,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=remarks&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=remarks&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=remarks">
+                        <a href="?order_by=remarks&page={{ page }}">
                     {% endif %}
                     <h2>Remarks</h2>
-                    {% if order_by == "remarks" and order_dir == "-" %}
+                    {% if order_by == "remarks" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "remarks" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -128,13 +128,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=foreman&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=foreman&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=foreman">
+                        <a href="?order_by=foreman&page={{ page }}">
                     {% endif %}
                     <h2>Foreman</h2>
-                    {% if order_by == "foreman" and order_dir == "-" %}
+                    {% if order_by == "foreman" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "foreman" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -174,10 +174,10 @@
             {% endif %}
         </table>
     </div>
-
+    
     <ul class="pagination justify-content-center flex-wrap mt-2 mb-4">
         {% if product_list.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ product_list.previous_page_number }}">&laquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ product_list.previous_page_number }}&order_by={{ order_by }}&order_dir={{ order_dir }}">&laquo;</a></li>
         {% else %}
             <li class="disabled page-item"><a class="page-link">&laquo;</a></li>
         {% endif %}
@@ -189,12 +189,12 @@
                 {% if i == product_list.paginator.ELLIPSIS %}
                     <li class="page-item"><span class="page-link">{{ i }}</span></li>
                 {% else %}
-                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}&order_by={{ order_by }}&order_dir={{ order_dir }}">{{ i }}</a></li>
                 {% endif %}
             {% endif %}
         {% endfor %}
         {% if product_list.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ product_list.next_page_number }}">&raquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ product_list.next_page_number }}&order_by={{ order_by }}&order_dir={{ order_dir }}">&raquo;</a></li>
         {% else %}
             <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
         {% endif %}

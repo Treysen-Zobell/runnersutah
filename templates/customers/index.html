@@ -15,13 +15,13 @@
             <thead>
             <tr class="column-label">
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=display_name&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=display_name&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=display_name">
+                        <a href="?order_by=display_name&page={{ page }}">
                     {% endif %}
                     <h2>Full Name</h2>
-                    {% if order_by == "display_name" and order_dir == "-" %}
+                    {% if order_by == "display_name" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "display_name" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -31,13 +31,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=username&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=username&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=username">
+                        <a href="?order_by=username&page={{ page }}">
                     {% endif %}
                     <h2>Username</h2>
-                    {% if order_by == "username" and order_dir == "-" %}
+                    {% if order_by == "username" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "username" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -47,13 +47,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=email&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=email&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=email">
+                        <a href="?order_by=email&page={{ page }}">
                     {% endif %}
                     <h2>Email</h2>
-                    {% if order_by == "email" and order_dir == "-" %}
+                    {% if order_by == "email" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "email" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -63,13 +63,13 @@
                     </a>
                 </th>
                 <th>
-                    {% if order_dir == "" %}
-                        <a href="?order_by=status&order_dir=asc">
+                    {% if order_dir == "desc" %}
+                        <a href="?order_by=status&order_dir=asc&page={{ page }}">
                     {% else %}
-                        <a href="?order_by=status">
+                        <a href="?order_by=status&page={{ page }}">
                     {% endif %}
                     <h2>Status</h2>
-                    {% if order_by == "status" and order_dir == "-" %}
+                    {% if order_by == "status" and order_dir == "asc" %}
                         <img src="{% static 'resources/desc.png' %}" alt="sort_by">
                     {% elif order_by == "status" %}
                         <img src="{% static 'resources/asc.png' %}" alt="sort_by">
@@ -89,8 +89,8 @@
                 {% for customer in customer_list %}
                     <tr>
                         <td><a href="{% url 'inventory:report' customer.user.id %}">{{ customer.display_name }}</a></td>
-                        <td>{{ customer.username }}</td>
-                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.user.username }}</td>
+                        <td>{{ customer.user.email }}</td>
                         <td>{{ customer.status }}</td>
                         <td><a href="{% url 'customers:detail' customer.user.id %}" class="view-link">View</a></td>
                         <td><a href="{% url 'customers:edit' customer.user.id %}" class="edit-link">Edit</a></td>
@@ -107,7 +107,7 @@
     
     <ul class="pagination justify-content-center flex-wrap mt-2 mb-4">
         {% if customer_list.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ customer_list.previous_page_number }}">&laquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ customer_list.previous_page_number }}&order_by={{ order_by }}&order_dir={{ order_dir }}">&laquo;</a></li>
         {% else %}
             <li class="disabled page-item"><a class="page-link">&laquo;</a></li>
         {% endif %}
@@ -119,12 +119,12 @@
                 {% if i == customer_list.paginator.ELLIPSIS %}
                     <li class="page-item"><span class="page-link">{{ i }}</span></li>
                 {% else %}
-                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}&order_by={{ order_by }}&order_dir={{ order_dir }}">{{ i }}</a></li>
                 {% endif %}
             {% endif %}
         {% endfor %}
         {% if customer_list.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ customer_list.next_page_number }}">&raquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ customer_list.next_page_number }}&order_by={{ order_by }}&order_dir={{ order_dir }}">&raquo;</a></li>
         {% else %}
             <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
         {% endif %}

@@ -59,14 +59,16 @@ def product_list(request):
         products = paginator.page(1)
         page_range = paginator.get_elided_page_range(number=1)
     except EmptyPage:
-        product = paginator.page(paginator.num_pages)
+        products = paginator.page(paginator.num_pages)
         page_range = paginator.get_elided_page_range(number=paginator.num_pages)
 
+    order_dir = "asc" if order_dir == "-" else "desc"
     context = {
         "product_list": products,
         "order_by": order_by,
         "order_dir": order_dir,
         "page_range": page_range,
+        "page": page,
     }
     return render(request, "products/index.html", context)
 

@@ -101,11 +101,13 @@ def index(request):
         inventory = paginator.page(paginator.num_pages)
         page_range = paginator.get_elided_page_range(number=paginator.num_pages)
 
+    order_dir = "asc" if order_dir == "-" else "desc"
     context = {
         "inventory_list": inventory,
         "order_by": order_by,
         "order_dir": order_dir,
         "page_range": page_range,
+        "page": page,
     }
     return render(request, "inventory/index.html", context)
 
@@ -274,12 +276,25 @@ def download_attachment(request, inventory_id: str):
 @login_required
 def report(request, customer_id: str):
     customer = get_object_or_404(Customer, pk=customer_id)
-    inventory_current = InventoryCurrent.objects.filter(customer=customer)
 
     order_by = request.GET.get("order_by", "outside_diameter_inches")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
 
-    if order_by in (
+    if order_by in ("joints_in", "joints_out"):
+        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
+        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
+        sorted_objects = InventoryCurrent.objects.filter(customer=customer).annotate(
+            positive_negative=Case(
+                When(joints__gte=0, then=positive_condition),
+                When(joints__lt=0, then=negative_condition),
+                output_field=IntegerField(),
+            )
+        )
+        inventory_current = sorted_objects.order_by(
+            "positive_negative", order_dir + "joints"
+        )
+
+    elif order_by in (
         "outside_diameter_inches",
         "weight",
         "grade",
@@ -288,11 +303,16 @@ def report(request, customer_id: str):
         "condition",
         "remarks",
     ):
-        inventory_current = inventory_current.annotate(
-            s=F(f"product__{order_by}")
-        ).order_by(f"s")
+        inventory_current = (
+            InventoryCurrent.objects.filter(customer=customer)
+            .annotate(s=F(f"product__{order_by}"))
+            .order_by(order_dir + "s")
+        )
+
     else:
-        inventory_current = inventory_current.order_by(order_dir + order_by)
+        inventory_current = InventoryCurrent.objects.filter(customer=customer).order_by(
+            order_dir + order_by
+        )
 
     paginator = Paginator(inventory_current, 20)
     page = request.GET.get("page", 1)
@@ -306,6 +326,7 @@ def report(request, customer_id: str):
         inventory_current = paginator.page(paginator.num_pages)
         page_range = paginator.get_elided_page_range(number=paginator.num_pages)
 
+    order_dir = "asc" if order_dir == "-" else "desc"
     context = {
         "inventory_list": inventory_current,
         "order_by": order_by,
@@ -313,6 +334,7 @@ def report(request, customer_id: str):
         "customer_name": customer.display_name,
         "customer_id": customer_id,
         "page_range": page_range,
+        "page": page,
     }
     return render(request, "inventory/report.html", context)
 
@@ -406,11 +428,15 @@ def report_detail(request, customer_id: str, product_id: str):
     if order_by in ("joints_in", "joints_out"):
         positive_condition = Value(1) if order_by == "joints_in" else Value(2)
         negative_condition = Value(1) if order_by == "joints_out" else Value(2)
-        sorted_objects = InventoryChange.objects.annotate(
-            positive_negative=Case(
-                When(joints__gte=0, then=positive_condition),
-                When(joints__lt=0, then=negative_condition),
-                output_field=IntegerField(),
+        sorted_objects = (
+            InventoryChange.objects.filter(customer=customer)
+            .filter(product=product)
+            .annotate(
+                positive_negative=Case(
+                    When(joints__gte=0, then=positive_condition),
+                    When(joints__lt=0, then=negative_condition),
+                    output_field=IntegerField(),
+                )
             )
         )
         inventory_current = sorted_objects.order_by(
@@ -437,6 +463,7 @@ def report_detail(request, customer_id: str, product_id: str):
         inventory_current = paginator.page(paginator.num_pages)
         page_range = paginator.get_elided_page_range(number=paginator.num_pages)
 
+    order_dir = "asc" if order_dir == "-" else "desc"
     context = {
         "inventory_list": inventory_current,
         "joints_history": joints_history,
@@ -447,6 +474,7 @@ def report_detail(request, customer_id: str, product_id: str):
         "customer_id": customer_id,
         "product_id": product_id,
         "page_range": page_range,
+        "page": page,
     }
     return render(request, "inventory/report_detail.html", context)
 

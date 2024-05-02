@@ -16,6 +16,8 @@
 * Home page
 * Sort download table
 * [DONE] Paginate tables
+* Fix table sorting bug. Changing page 3 times will result in order changing to desc
+* Fix table sorting bug. Column labels don't maintain page
 
 # DB Migration
 

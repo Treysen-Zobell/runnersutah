@@ -5,7 +5,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
-from django.db.models import Q
+from django.db.models import Q, F
+from django.db.models.functions import Lower
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import auth
@@ -50,7 +51,13 @@ def download_customer_table(request):
 def index(request):
     order_by = request.GET.get("order_by", "display_name")
     order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-    customers = Customer.objects.order_by(order_dir + order_by)
+
+    if order_by in ("username", "email"):
+        customers = Customer.objects.annotate(s=Lower(F(f"user__{order_by}"))).order_by(
+            order_dir + "s"
+        )
+    else:
+        customers = Customer.objects.order_by(order_dir + order_by)
 
     paginator = Paginator(customers, 20)
     page = request.GET.get("page", 1)
@@ -64,11 +71,13 @@ def index(request):
         customers = paginator.page(paginator.num_pages)
         page_range = paginator.get_elided_page_range(number=paginator.num_pages)
 
+    order_dir = "asc" if order_dir == "-" else "desc"
     context = {
         "customer_list": customers,
         "order_by": order_by,
         "order_dir": order_dir,
         "page_range": page_range,
+        "page": page,
     }
     return render(request, "customers/index.html", context)
 
