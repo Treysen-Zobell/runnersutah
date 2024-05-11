@@ -1,9 +1,11 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from customers.models import Customer
 
 
 class Product(models.Model):
+    product_type = models.TextField(blank=True)
     outside_diameter = models.TextField(blank=True)
     outside_diameter_inches = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)

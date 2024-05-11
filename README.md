@@ -18,6 +18,9 @@
 * [DONE] Paginate tables
 * [DONE] Fix table sorting bug. Changing page 3 times will result in order changing to desc
 * [DONE] Fix table sorting bug. Column labels don't maintain page
+* Add permissions to limit page views by account
+* [PREPARE] Remove strict password validator
+* Import PDFs in db migration
 
 # DB Migration
 

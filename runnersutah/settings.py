@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "mathfilters",
     "widget_tweaks",
+    "extra_views",
 ]
 
 MIDDLEWARE = [

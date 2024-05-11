@@ -18,6 +18,13 @@
                 {% endif %}
             </div>
             <div class="form-entry">
+                <h2 class="form-label">Product Type:</h2>
+                {{ form.product_type|safe }}
+                {% if "product_type" in form.errors %}
+                    <b class="error-message">{{ form.errors.product_type }}</b>
+                {% endif %}
+            </div>
+            <div class="form-entry">
                 <h2 class="form-label">Outside Diameter:</h2>
                 {{ form.outside_diameter }}
                 {% if "outside_diameter" in form.errors %}

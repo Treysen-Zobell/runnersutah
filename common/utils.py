@@ -1,6 +1,6 @@
 import io
 from io import BytesIO
-from typing import List, Any, TextIO
+from typing import List, Any, BinaryIO
 
 import xlsxwriter
 from google.oauth2 import service_account
@@ -84,8 +84,11 @@ class GoogleDrive:
         except HttpError as error:
             print(f"Failed to get file list from Google Drive: {error}")
 
-    def upload_file(self, file: TextIO):
-        file_metadata = {"name": file.name}
+    def upload_file(self, file, name=None):
+        file_metadata = {
+            "name": file.name if name is None else name,
+            "parents": ["1HimCMWLot4AQXlzSaVb_LXZrkcczLIwP"],
+        }
         media = MediaIoBaseUpload(file, mimetype="application/pdf", resumable=True)
         file = (
             self.service.files()

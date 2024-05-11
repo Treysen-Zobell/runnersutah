@@ -1,5 +1,6 @@
 import re
 import sqlite3
+from io import BytesIO
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
@@ -10,20 +11,28 @@ from django.db.models.functions import Lower
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import auth
+from extra_views import InlineFormSetFactory
 
-from customers.models import Customer
+from customers.models import Customer  # , EmailList
 from customers.forms import (
     RegisterForm,
     EditForm,
     EditPasswordForm,
     EditUsernameForm,
     EditEmailForm,
+    # EmailListForm,
 )
 from common.utils import generate_excel, GoogleDrive, outside_diameter_to_float
 from inventory.models import InventoryChange, InventoryCurrent
 from products.models import Product
 
 app_name = "customers"
+
+
+# class EmailListView(InlineFormSetFactory):
+#     model = EmailList
+#     form_class = EmailListForm
+#     prefix = "email_list"
 
 
 @login_required
@@ -297,6 +306,7 @@ def migrate(request):
             phone_number=phone,
             display_name=display_name,
             status="Inactive",
+            email_list=EmailList.objects.create(emails="", tags=""),
         )
         customer_dict[user_id] = customer
 
@@ -315,6 +325,16 @@ def migrate(request):
     ) in old_products:
         # Clean inputs
         od = od.replace('\\"', '"')
+        diameter = []
+        product_type = []
+        for ele in od.replace('\\"', '"').split(" "):
+            if any(char.isdigit() for char in ele) or ele == "x":
+                diameter.append(ele)
+            else:
+                product_type.append(ele)
+        diameter = " ".join(diameter)
+        product_type = " ".join(product_type)
+
         weight = weight.replace('\\"', '"')
         end_type = end_type.replace('\\"', '"')
         grade = grade.replace('\\"', '"')
@@ -401,7 +421,8 @@ def migrate(request):
             weight = None
 
         product = Product.objects.create(
-            outside_diameter=od,
+            product_type=product_type,
+            outside_diameter=diameter,
             outside_diameter_inches=outside_diameter_to_float(od),
             weight=weight,
             grade=grade,
@@ -416,7 +437,7 @@ def migrate(request):
 
     drive = GoogleDrive()
     old_inventory = old_db_cursor.execute("SELECT * FROM store").fetchall()
-    for (
+    for i, (
         inventory_id,
         customer_id,
         product_id,
@@ -434,7 +455,9 @@ def migrate(request):
         afe,
         added_by,
         c_datetime,
-    ) in old_inventory:
+    ) in enumerate(old_inventory):
+        # print(f"{(i / len(old_inventory)) * 100:.2f}%")
+
         rack_id = old_db_cursor.execute(
             "SELECT coating FROM products WHERE product_id = ?", (product_id,)
         ).fetchone()
@@ -458,12 +481,12 @@ def migrate(request):
         c_datetime = c_datetime.replace('\\"', '"')
 
         # Upload attachment
-        file_id = "NONE"
+        file_id = ""
         # if attachment:
         #     try:
         #         filename = attachment
-        #         with open(filename, "r") as f:
-        #             file_id = drive.upload_file(f)
+        #         with open("/home/treysenzobell/Downloads/pdf/" + filename, "rb") as f:
+        #             file_id = drive.upload_file(f, name=inventory_id)
         #     except Exception as e:
         #         pass
 

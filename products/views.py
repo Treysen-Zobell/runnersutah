@@ -1,5 +1,3 @@
-import io
-import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -90,7 +88,9 @@ def product_add(request):
             return redirect("products:index")
 
     else:
-        form = ProductForm()
+        form = ProductForm(
+            product_type_list=("Line Pipe", "Casing", "Flex", "Tubing", "Poly")
+        )
 
     return render(request, "products/add.html", {"form": form})
 
@@ -101,6 +101,7 @@ def product_edit(request, product_id: str):
     if request.method == "POST":
         form = ProductForm(request.POST)
         if form.is_valid():
+            product.product_type = form.cleaned_data["product_type"]
             product.outside_diameter = form.cleaned_data["outside_diameter"]
             product.outside_diameter_inches = outside_diameter_to_float(
                 form.cleaned_data["outside_diameter"]
@@ -117,7 +118,10 @@ def product_edit(request, product_id: str):
             return redirect("products:index")
 
     else:
-        form = ProductForm()
+        form = ProductForm(
+            product_type_list=("Line Pipe", "Casing", "Flex", "Tubing", "Poly")
+        )
+        form.fields["product_type"].initial = product.product_type
         form.fields["outside_diameter"].initial = product.outside_diameter
         form.fields["weight"].initial = product.weight
         form.fields["grade"].initial = product.grade

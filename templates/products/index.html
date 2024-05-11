@@ -17,6 +17,22 @@
             <tr class="column-label">
                 <th>
                     {% if order_dir == "desc" %}
+                        <a href="?order_by=product_type&order_dir=asc&page={{ page }}">
+                    {% else %}
+                        <a href="?order_by=product_type&page={{ page }}">
+                    {% endif %}
+                    <h2>Product Type</h2>
+                    {% if order_by == "product_type" and order_dir == "asc" %}
+                        <img src="{% static 'resources/desc.png' %}" alt="sort_by">
+                    {% elif order_by == "product_type" %}
+                        <img src="{% static 'resources/asc.png' %}" alt="sort_by">
+                    {% else %}
+                        <img src="{% static 'resources/neutral.png' %}" alt="sort_by">
+                    {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {% if order_dir == "desc" %}
                         <a href="?order_by=outside_diameter_inches&order_dir=asc&page={{ page }}">
                     {% else %}
                         <a href="?order_by=outside_diameter_inches&page={{ page }}">
@@ -152,6 +168,7 @@
                 <tbody>
                 {% for product in product_list %}
                     <tr>
+                        <td>{{ product.product_type }}</td>
                         <td>{{ product.outside_diameter }}</td>
                         {% if product.weight == None %}
                             <td></td>
