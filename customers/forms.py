@@ -7,12 +7,13 @@ from django.contrib.auth import get_user_model
 from django import forms
 from django.contrib.auth.models import User
 
-from customers.models import Customer  # , EmailList
+from customers.models import Customer
 
 
 class RegisterForm(UserCreationForm):
     display_name = forms.CharField()
     phone_number = forms.CharField()
+    email_list = forms.CharField()
 
     class Meta:
         model = get_user_model()
@@ -59,11 +60,3 @@ class EditEmailForm(UserChangeForm):
         fields = [
             "email",
         ]
-
-
-# class EmailListForm(forms.ModelForm):
-#     class Meta:
-#         model = EmailList
-#         fields = [
-#             "dictionary",
-#         ]

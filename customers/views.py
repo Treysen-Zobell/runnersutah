@@ -11,28 +11,22 @@ from django.db.models.functions import Lower
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import auth
-from extra_views import InlineFormSetFactory
+from django.views.generic.edit import FormView
+from extra_views import InlineFormSetFactory, CreateWithInlinesView
 
-from customers.models import Customer  # , EmailList
+from customers.models import Customer, Email, Tag
 from customers.forms import (
     RegisterForm,
     EditForm,
     EditPasswordForm,
     EditUsernameForm,
     EditEmailForm,
-    # EmailListForm,
 )
 from common.utils import generate_excel, GoogleDrive, outside_diameter_to_float
 from inventory.models import InventoryChange, InventoryCurrent
 from products.models import Product
 
 app_name = "customers"
-
-
-# class EmailListView(InlineFormSetFactory):
-#     model = EmailList
-#     form_class = EmailListForm
-#     prefix = "email_list"
 
 
 @login_required
@@ -103,20 +97,31 @@ def add(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
+            # todo undo steps if anything fails
             user = User.objects.create_user(
                 username=form.cleaned_data["username"],
                 password=form.cleaned_data["password1"],
                 email=form.cleaned_data["email"],
             )
+
             group = Group.objects.get(name="customer")
             group.user_set.add(user)
+
             customer = Customer.objects.create(
                 user=user,
                 phone_number=form.cleaned_data["phone_number"],
                 display_name=form.cleaned_data["display_name"],
                 status="Inactive",
             )
-            customer.save()
+
+            for email_text, tags_text in zip(
+                request.POST.getlist("email_list"), request.POST.getlist("tag_list")
+            ):
+                email = Email.objects.create(address=email_text, customer=customer)
+                for tag_text in tags_text.split(","):
+                    tag_text = tag_text.strip()
+                    Tag.objects.create(name=tag_text, email=email)
+
             return redirect("customers:index")
 
     else:
@@ -301,12 +306,12 @@ def migrate(request):
         )
         group = Group.objects.get(name="customer")
         group.user_set.add(user)
+
         customer = Customer.objects.create(
             user=user,
             phone_number=phone,
             display_name=display_name,
             status="Inactive",
-            email_list=EmailList.objects.create(emails="", tags=""),
         )
         customer_dict[user_id] = customer
 
