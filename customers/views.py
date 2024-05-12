@@ -88,7 +88,15 @@ def index(request):
 @login_required
 def detail(request, customer_id: str):
     customer = get_object_or_404(Customer, pk=customer_id)
-    context = {"customer": customer}
+
+    email_lines = []
+    for email in list(Email.objects.filter(customer=customer)):
+        tags = list(Tag.objects.filter(email=email))
+        tags = [t.name for t in tags]
+        tags = ", ".join(tags)
+        email_lines.append((email.address, tags))
+
+    context = {"customer": customer, "email_list": email_lines}
     return render(request, "customers/detail.html", context)
 
 
@@ -133,6 +141,7 @@ def add(request):
 @login_required
 def edit(request, customer_id: str):
     customer = get_object_or_404(Customer, pk=customer_id)
+
     if request.method == "POST":
         form = EditForm(request.POST, instance=customer)
         if form.is_valid():
@@ -141,6 +150,16 @@ def edit(request, customer_id: str):
             customer.phone_number = form.cleaned_data["phone_number"]
             customer.display_name = form.cleaned_data["display_name"]
             customer.save()
+
+            Email.objects.filter(customer=customer).delete()
+            for email_text, tags_text in zip(
+                request.POST.getlist("email_list"), request.POST.getlist("tag_list")
+            ):
+                email = Email.objects.create(address=email_text, customer=customer)
+                for tag_text in tags_text.split(","):
+                    tag_text = tag_text.strip()
+                    Tag.objects.create(name=tag_text, email=email)
+
             return redirect("customers:index")
 
     else:
@@ -150,10 +169,21 @@ def edit(request, customer_id: str):
         form.fields["email"].initial = customer.user.email
         form.fields["phone_number"].initial = customer.phone_number
 
+    email_lines = []
+    for email in list(Email.objects.filter(customer=customer)):
+        tags = list(Tag.objects.filter(email=email))
+        tags = [t.name for t in tags]
+        tags = ", ".join(tags)
+        email_lines.append((email.address, tags))
+
     return render(
         request,
         "customers/edit.html",
-        {"form": form, "customer_id": customer_id},
+        {
+            "form": form,
+            "customer_id": customer_id,
+            "email_list": email_lines,
+        },
     )
 
 

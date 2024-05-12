@@ -82,3 +82,7 @@
     display: block;
     margin-left: 15px;
 }
+
+.card ul {
+    list-style-type: none;
+}

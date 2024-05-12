@@ -3,18 +3,10 @@
 {% block main %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'generic/card.css' %}">
+    <link rel="stylesheet" href="{% static 'customers/mailing_list.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#add-email').click(function () {
-                $('<div><input type="email" name="email_list"><input type="text" name="tag_list"><button class="remove-email">Remove</button></div>').appendTo('#email-container');
-            });
-
-            $(document).on('click', '.remove-email', function () {
-                $(this).parent().remove();
-            });
-        });
-    </script>
+    <script src="{% static 'customers/mailing_list.js' %}"></script>
 
     <div class="card">
         <h2 id="window-title">Add Customer</h2>
@@ -66,12 +58,8 @@
             </div>
             <div class="form-entry" id="email-container">
                 <h2 class="form-label">Mailing List:</h2>
-                <div>
-                    <input type="email" name="email_list">
-                    <input type="text" name="tag_list">
-                    <button type="button" id="add-email">Add Email</button>
-                </div>
             </div>
+            <button type="button" id="add-email">Add Email</button>
             <input type="submit" value="Add Customer" class="submit-button">
         </form>
     </div>

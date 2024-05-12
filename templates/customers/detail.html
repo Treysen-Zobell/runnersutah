@@ -29,8 +29,8 @@
                 <th>Mailing List:</th>
                 <td>
                     <ul>
-                        {% for email in customer.email_list.all %}
-                            <li>{{ email.address }} {{ email.tag }}</li>
+                        {% for email, tag in email_list %}
+                            <li>{{ email }} : {{ tag }}</li>
                         {% endfor %}
                     </ul>
                 </td>

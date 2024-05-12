@@ -27,7 +27,7 @@ class RegisterForm(UserCreationForm):
 
 class EditForm(UserChangeForm):
     display_name = forms.CharField()
-    phone_number = forms.CharField()
+    phone_number = forms.CharField(required=False)
 
     class Meta:
         model = get_user_model()
