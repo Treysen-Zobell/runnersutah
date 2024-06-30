@@ -516,7 +516,7 @@ def migrate(request):
         c_datetime = c_datetime.replace('\\"', '"')
 
         # Upload attachment
-        file_id = ""
+        file_id = attachment
         # if attachment:
         #     try:
         #         filename = attachment

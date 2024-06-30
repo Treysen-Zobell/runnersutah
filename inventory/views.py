@@ -259,18 +259,26 @@ def delete(request, inventory_id: str):
 def download_attachment(request, inventory_id: str):
     inventory = get_object_or_404(InventoryChange, pk=inventory_id)
 
-    # Download file from Google Drive
-    drive = GoogleDrive()
-    file = drive.download_file(inventory.attachment_id)
-    file = io.BytesIO(file)
+    with open(f"/home/runnersutah/pdf/{inventory.attachment_id}", "rb") as file:
+        response = FileResponse(file)
+        response["Content-Type"] = "application/pdf"
+        response["Content-Disposition"] = (
+            f"attachment; filename={inventory.attachment_id}.pdf"
+        )
+        return response
 
-    # Return file download
-    response = FileResponse(file)
-    response["Content-Type"] = "application/pdf"
-    response["Content-Disposition"] = (
-        f"attachment; filename={inventory.attachment_id}.pdf"
-    )
-    return response
+    # # Download file from Google Drive
+    # drive = GoogleDrive()
+    # file = drive.download_file(inventory.attachment_id)
+    # file = io.BytesIO(file)
+    #
+    # # Return file download
+    # response = FileResponse(file)
+    # response["Content-Type"] = "application/pdf"
+    # response["Content-Disposition"] = (
+    #     f"attachment; filename={inventory.attachment_id}.pdf"
+    # )
+    # return response
 
 
 @login_required
