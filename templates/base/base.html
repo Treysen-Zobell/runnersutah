@@ -1,30 +1,49 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Runners Utah</title>
-    
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'base/base.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+
+    {% block head %}{% endblock %}
 </head>
 <body>
+    <header>
+        <div class="left">
+            Administration Panel
+        </div>
+        <div class="center"></div>
+        <div class="right">
+            <form method="post" action="{% url 'customers:logout' %}">
+                {% csrf_token %}
+                Logged in as {{ user.get_username }} <button type="submit" class="logout-button">[Logout]</button>
+            </form>
+        </div>
+    </header>
 
-<!-- Top Bar -->
-{% include 'base/top_bar.html' %}
+    <aside>
+        <nav>
+            {% include "base/nav/customer_summary.html" %}
+            {% include "base/nav/customer_manage.html" %}
+            {% include "base/nav/product_manage.html" %}
+            {% include "base/nav/inventory_manage.html" %}
+            {% include "base/nav/administration.html" %}
+            {% include "base/nav/branding.html" %}
+        </nav>
+    </aside>
 
-<!-- Side Bar -->
-<nav class="sidebar">
-    {% include 'base/reports.html' %}
-    {% include 'base/customer_manage.html' %}
-    {% include 'base/product_manage.html' %}
-    {% include 'base/inventory_manage.html' %}
-    {% include 'base/administration.html' %}
-</nav>
-
-<!-- Content -->
-<main class="main-content">
-    {% block main %}{% endblock %}
-</main>
-
+    <article>
+        {% block main %}{% endblock %}
+    </article>
 </body>
+
+{% block script %}{% endblock %}
+
 </html>

@@ -1,0 +1,12 @@
+{% load auth_extras %}
+
+{% if user|has_group:"customer" %}
+    <div class="nav-option">
+        <div class="nav-title">
+            <h2>Reports</h2>
+        </div>
+        <ul class="nav-list">
+            <li><a href="{% url 'inventory:customer_report' user.pk %}">Summary</a></li>
+        </ul>
+    </div>
+{% endif %}

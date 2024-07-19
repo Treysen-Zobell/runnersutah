@@ -1,0 +1,126 @@
+
+* {
+    font-size: 13px;
+    font-family: Helvetica, Sans-Serif, serif;
+
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+
+    display: grid;
+    grid-template-areas:
+        "head head"
+        "nav main";
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 23px 1fr;
+}
+
+header {
+    background: #333333;
+    color: #ffffff;
+
+    grid-area: head;
+
+    display: flex;
+    flex-direction: row;
+}
+
+header .center {
+    flex: 1;
+}
+
+header .left,
+header .center,
+header .right {
+    font-weight: bold;
+
+    align-content: center;
+    padding:  0 10px 0 10px;
+}
+
+.logout-button {
+    display: inline;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+aside {
+    background: #d5e2f2;
+    border-right: #cccccc 1px solid;
+    color: #ffffff;
+
+    grid-area: nav;
+}
+
+.nav-option {
+    margin: 10px;
+    background: #ffffff;
+    color: #000000;
+    border-radius: 6px;
+    font-weight: bold;
+    border: 2px #999999;
+}
+
+.nav-option a,
+.nav-option a:hover,
+.nav-option a:visited,
+.nav-option a:active {
+    color: inherit;
+    text-decoration: none;
+}
+
+.nav-branding {
+    color: #000000;
+    padding: 5px;
+}
+
+.nav-branding > img {
+    width: 90%;
+    align-content: center;
+}
+
+.nav-title {
+    width: 100%;
+    height: 38px;
+    background: rgb(209,209,209);
+    background: linear-gradient(0deg, rgba(209,209,209,1) 0%, rgba(230,230,230,1) 28%, rgba(244,244,244,1) 100%);
+    color: #666666;
+    align-content: center;
+    border-radius: 6px 6px 0 0;
+}
+
+.nav-title > * {
+    padding-left: 10px;
+    font-size: 14px;
+}
+
+.nav-list > * {
+    text-decoration: none;
+    text-indent: 20px;
+    color: #b60400;
+    background: transparent url("../resources/bullet_go.gif") no-repeat scroll 3px 2px;
+    display: block;
+    padding: 7px 0 7px 0;
+}
+
+.nav-list > *:hover {
+    color: #ffffff;
+    background: #79a73b;
+}
+
+article {
+    background: #ffffff;
+
+    grid-area: main;
+    padding: 10px;
+}

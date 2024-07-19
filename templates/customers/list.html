@@ -1,0 +1,91 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load table_extras %}
+{% load auth_extras %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
+{% block main %}
+    <h1 class="table-title">Customer Lists</h1>
+    <p class="table-description">You can see all added customers here and can delete/edit password if necessary.</p>
+    <a href="{% url 'customers:download_table' %}" class="table-download-button">Download Table</a>
+    <a href="{% url 'customers:create' %}" class="table-add-button">Add Customer</a>
+    {% if object_list %}
+        <table class="list-table">
+            <tr>
+                <th>{% sort_link ordering 'display_name' 'Full Name' 1 %}</th>
+                <th>{% sort_link ordering 'user__username' 'User Name' 1 %}</th>
+                <th>{% sort_link ordering 'user__email' 'Email' 1 %}</th>
+                <th>{% sort_link ordering 'status' 'Status' 1 %}</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for object in object_list %}
+                <tr id="entry-{{ object.pk }}">
+                    <td>
+                        <a href="{% url 'inventory:customer_report' object.pk %}">{{ object.display_name }}</a>
+                    </td>
+                    <td>
+                        {{ object.user.username }}
+                    </td>
+                    <td>
+                        {{ object.user.email }}
+                    </td>
+                    <td>
+                        {{ object.status }}
+                    </td>
+                    <td>
+                        <a href="{% url 'customers:detail' object.pk %}" class="view-link">View</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'customers:update' object.pk %}" class="edit-link">Edit</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'customers:update_password' object.pk %}" class="edit-link">Change Password</a>
+                    </td>
+                    <td>
+                        <button class="delete-link" data-id="{{ object.pk }}">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No Customers Found</p>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script>
+    $(document).ready(function() {
+        $('.delete-link').click(function() {
+            const entryId = $(this).data('id');
+            const row = $('#entry-' + entryId);
+
+            // Show confirmation popup
+            if (confirm('Are you sure you want to delete this entry? This will also delete this customer\'s products and inventory.')) {
+                    $.ajax({
+                        url: '{% url "customers:delete" 0 %}'.replace('0', entryId),
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                row.remove();
+                            } else {
+                                alert('An error occurred while deleting the entry.');
+                            }
+                        },
+                        error: function(xhr, errmsg, err) {
+                            alert('An error occurred: ' + errmsg);
+                        }
+                    });
+                }
+        });
+    });
+    </script>
+{% endblock %}

@@ -1,40 +1,38 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/card.css' %}">
+{% endblock %}
 
 {% block main %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'generic/card.css' %}">
-
     <div class="card">
-        <a href="{% url 'customers:index' %}">Go Back</a>
-        <h2>{{ customer.user.username }}'s information</h2>
-        <hr/>
-        <table id="customer-desc">
-            <tr>
-                <th>Name:</th>
-                <td>{{ customer.display_name }}</td>
-            </tr>
-            <tr>
-                <th>Username:</th>
-                <td>{{ customer.user.username }}</td>
-            </tr>
-            <tr>
-                <th>Email:</th>
-                <td>{{ customer.user.email }}</td>
-            </tr>
-            <tr>
-                <th>Phone:</th>
-                <td>{{ customer.phone_number }}</td>
-            </tr>
-            <tr>
-                <th>Mailing List:</th>
-                <td>
-                    <ul>
-                        {% for email, tag in email_list %}
-                            <li>{{ email }} : {{ tag }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
+        <a href="{{request.META.HTTP_REFERER}}" class="card-go-back">Go Back</a>
+        <h1 class="card-title">{{ object.display_name }}'s Information</h1>
+        <hr>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Name:</th>
+                    <td>{{ object.display_name }}</td>
+                </tr>
+                <tr>
+                    <th>Username:</th>
+                    <td>{{ object.user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td>{{ object.user.email }}</td>
+                </tr>
+                <tr>
+                    <th>Phone:</th>
+                    <td>{{ object.phone_number }}</td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>{{ object.status }}</td>
+                </tr>
+            </tbody>
         </table>
     </div>
 {% endblock %}

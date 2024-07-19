@@ -1,0 +1,140 @@
+
+.table-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000000;
+
+    margin-bottom: 8px;
+    margin-top: 4px;
+}
+
+.table-description {
+    font-size: 13px;
+    color: #333333;
+
+    margin-bottom: 15px;
+}
+
+.table-add-button {
+    background: transparent url("../resources/add.png") no-repeat;
+    padding: 2px 0 0 20px;
+    font-size: 13px;
+
+    display: block;
+    margin-bottom: 12px;
+}
+
+.table-download-button {
+    background: transparent url("../resources/spreadsheet.png") no-repeat;
+    background-size: 16px 16px;
+    padding: 2px 0 0 20px;
+    font-size: 13px;
+
+    display: block;
+    margin-bottom: 12px;
+}
+
+.list-table {
+    width: 100%;
+}
+
+.list-table tr,
+.list-table td {
+    line-height: 24px;
+    color: #333333;
+}
+
+.list-table th {
+    font-size: 13px;
+    background: #eeeeee;
+}
+
+.list-table th > a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.list-table td {
+    text-align: center;
+}
+
+.list-table tr:nth-child(even) {
+    background: #e0e2f3;
+}
+
+.list-table,
+.list-table th,
+.list-table td {
+    border: #dddddd 1px solid;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+.list-table tr:hover {
+    background: #dddddd;
+}
+
+.view-link {
+    background: transparent url("../resources/magnifier.png") no-repeat 0 50%;
+    padding: 0 0 0 20px;
+}
+
+.edit-link {
+    background: transparent url("../resources/pencil.png") no-repeat 0 50%;
+    padding: 0 0 0 20px;
+}
+
+.delete-link {
+    background: transparent url("../resources/delete.png") no-repeat 0 50%;
+    padding: 0 0 0 20px;
+    border: none;
+    color: blue; /* Change color as desired */
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.zero-link {
+    background: inherit;
+    border: none;
+    color: blue; /* Change color as desired */
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.delete-link:hover {
+    text-decoration: none;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.step-links {
+    display: flex;
+    gap: 10px;
+}
+
+.step-links a,
+.step-links span {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #333;
+}
+
+.step-links a:hover {
+    background-color: #f0f0f0;
+}
+
+.step-links .current {
+    background-color: #007bff;
+    color: white;
+}
+
+.step-links .ellipsis {
+    padding: 5px 10px;
+    border: none;
+}

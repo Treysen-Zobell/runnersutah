@@ -1,62 +1,71 @@
 from django.contrib.auth.forms import (
     UserCreationForm,
     UserChangeForm,
-    SetPasswordForm,
+    PasswordChangeForm,
 )
 from django.contrib.auth import get_user_model
 from django import forms
-from django.contrib.auth.models import User
+from django.forms import modelformset_factory, BaseModelFormSet
 
-from customers.models import Customer
+from customers.models import Customer, Email
 
 
-class RegisterForm(UserCreationForm):
-    display_name = forms.CharField()
-    phone_number = forms.CharField()
-    email_list = forms.CharField()
+class CreateCustomerForm(UserCreationForm):
+    display_name = forms.CharField(max_length=250)
+    phone_number = forms.CharField(max_length=250, required=False)
 
     class Meta:
         model = get_user_model()
-        fields = [
+        fields = (
+            "display_name",
+            "phone_number",
             "username",
             "password1",
             "password2",
             "email",
-        ]
+        )
 
 
-class EditForm(UserChangeForm):
-    display_name = forms.CharField()
-    phone_number = forms.CharField(required=False)
+class UpdateCustomerForm(forms.ModelForm):
+    display_name = forms.CharField(max_length=250)
+    phone_number = forms.CharField(max_length=250, required=False)
+    email = forms.CharField(max_length=250, required=False)
 
     class Meta:
-        model = get_user_model()
-        fields = [
-            "username",
+        model = Customer
+        fields = (
+            "display_name",
+            "phone_number",
             "email",
-        ]
+        )
 
 
-class EditPasswordForm(SetPasswordForm):
+class EmailForm(forms.ModelForm):
+    address = forms.CharField(max_length=500, required=True)
+    tags = forms.MultipleChoiceField(
+        choices=[
+            ("poly_pipe", "Poly Pipe"),
+            ("line_pipe", "Line Pipe"),
+            ("composite_pipe", "Composite Pipe"),
+            ("flex_pipe", "Flexpipe"),
+            ("tubing_sand_screens", "Tubing - Sand Screens"),
+            ("tubing", "Tubing"),
+            ("casing", "Casing"),
+            ("other", "Other"),
+        ],
+        widget=forms.SelectMultiple(attrs={"class": "tag-option"}),
+    )
+
     class Meta:
-        model = get_user_model()
-        fields = [
-            "new_password1",
-            "new_password2",
-        ]
+        model = Email
+        fields = ["address"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields["tags"].initial = [tag.name for tag in self.instance.tags.all()]
 
 
-class EditUsernameForm(UserChangeForm):
-    class Meta:
-        model = get_user_model()
-        fields = [
-            "username",
-        ]
-
-
-class EditEmailForm(UserChangeForm):
-    class Meta:
-        model = get_user_model()
-        fields = [
-            "email",
-        ]
+EmailFormSet = modelformset_factory(
+    Email, form=EmailForm, formset=BaseModelFormSet, extra=0, can_delete=True
+)

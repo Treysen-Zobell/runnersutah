@@ -1,0 +1,91 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load table_extras %}
+{% load auth_extras %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
+{% block main %}
+    <h1 class="table-title">{{ customer_name }}</h1>
+    <a href="{% url 'inventory:download_customer_report_table' customer_id %}" class="table-download-button">Download Table</a>
+    <table class="list-table">
+        <tr>
+            <th>{% sort_link ordering 'product_type' 'Product Type' 1 %}</th>
+            <th>{% sort_link ordering 'outside_diameter' 'Outside Diameter' 1 %}</th>
+            <th>{% sort_link ordering 'weight' 'Lbs Per Ft' 1 %}</th>
+            <th>{% sort_link ordering 'grade' 'Grade' 1 %}</th>
+            <th>{% sort_link ordering 'coupling' 'Coupling' 1 %}</th>
+            <th>{% sort_link ordering 'range' 'Range' 1 %}</th>
+            <th>{% sort_link ordering 'condition' 'Condition' 1 %}</th>
+            <th>Remarks</th>
+            <th>{% sort_link ordering 'rack' 'Rack' 1 %}</th>
+            <th>{% sort_link ordering 'total_joints' 'Total Joints' 1 %}</th>
+            <th>{% sort_link ordering 'total_footage' 'Footage' 1 %}</th>
+            <th>{% sort_link ordering 'foreman' 'Foreman' 1 %}</th>
+            {% if user|has_group:"admin" %}
+                <th></th>
+                <th></th>
+            {% endif %}
+        </tr>
+    {% for object in object_list %}
+        <tr>
+            <td>{{ object.product_type }}</td>
+            <td>
+                <a href="{% url 'inventory:product_report' object.id %}">{{ object.outside_diameter_text }}</a>
+            </td>
+            <td>{{ object.weight_text }}</td>
+            <td>{{ object.grade }}</td>
+            <td>{{ object.coupling }}</td>
+            <td>{{ object.range }}</td>
+            <td>{{ object.condition }}</td>
+            <td>{{ object.remarks }}</td>
+            <td>{{ object.rack }}</td>
+            <td>{{ object.total_joints }}</td>
+            <td>{{ object.total_footage|floatformat:3 }}</td>
+            <td>{{ object.foreman }}</td>
+            {% if user|has_group:"admin" %}
+                <td>
+                    <a href="{% url 'products:update' object.id %}?next={{ request.path|urlencode }}" class="edit-link">Edit</a>
+                </td>
+                <td>
+                    <button class="zero-link" data-id="{{ object.pk }}">Zero Inventory</button>
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}
+
+{% block script %}
+    <script>
+    $(document).ready(function() {
+        $('.zero-link').click(function() {
+            const entryId = $(this).data('id');
+
+            // Show confirmation popup
+            if (confirm('Are you sure you want to zero out this product?')) {
+                    $.ajax({
+                        url: '{% url "inventory:zero_out" 0 %}'.replace('0', entryId),
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                window.location.reload();
+                            }
+                            else {
+                                alert('An error occurred while zeroing the product.');
+                            }
+                        },
+                        error: function(xhr, errmsg, err) {
+                            alert('An error occurred: ' + errmsg);
+                        }
+                    });
+                }
+        });
+    });
+    </script>
+{% endblock %}

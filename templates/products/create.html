@@ -1,0 +1,87 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load auth_extras %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/card.css' %}">
+{% endblock %}
+
+{% block main %}
+    <div class="card">
+        <h1 class="card-title">Create Product</h1>
+        <p class="card-description">Enter your product information.</p>
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+
+            <h2 class="form-label">Customer:</h2>
+            {{ form.customer }}
+            {% if "customer" in form.errors %}
+                <b class="error-message">{{ form.errors.customer }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Product Type:</h2>
+            {{ form.product_type }}
+            {% if "product_type" in form.errors %}
+                <b class="error-message">{{ form.errors.product_type }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Outside Diameter:</h2>
+            {{ form.outside_diameter_text }}
+            {% if "outside_diameter_text" in form.errors %}
+                <b class="error-message">{{ form.errors.outside_diameter_text }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Lbs Per Ft:</h2>
+            {{ form.weight_text }}
+            {% if "weight_text" in form.errors %}
+                <b class="error-message">{{ form.errors.weight_text }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Grade:</h2>
+            {{ form.grade }}
+            {% if "grade" in form.errors %}
+                <b class="error-message">{{ form.errors.grade }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Coupling:</h2>
+            {{ form.coupling }}
+            {% if "coupling" in form.errors %}
+                <b class="error-message">{{ form.errors.coupling }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Range:</h2>
+            {{ form.range }}
+            {% if "range" in form.errors %}
+                <b class="error-message">{{ form.errors.range }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Condition:</h2>
+            {{ form.condition }}
+            {% if "condition" in form.errors %}
+                <b class="error-message">{{ form.errors.condition }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Remarks:</h2>
+            {{ form.remarks }}
+            {% if "remarks" in form.errors %}
+                <b class="error-message">{{ form.errors.remarks }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Foreman:</h2>
+            {{ form.foreman }}
+            {% if "foreman" in form.errors %}
+                <b class="error-message">{{ form.errors.foreman }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Rack#:</h2>
+            {{ form.rack }}
+            {% if "rack" in form.errors %}
+                <b class="error-message">{{ form.errors.rack }}</b>
+            {% endif %}
+
+            <br>
+            <input type="submit" value="Save Changes">
+        </form>
+    </div>
+{% endblock %}

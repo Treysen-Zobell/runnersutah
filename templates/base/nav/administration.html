@@ -1,0 +1,19 @@
+{% load auth_extras %}
+
+{% if user|has_group:"customer" or user|has_group:"admin" %}
+    <div class="nav-option">
+        <div class="nav-title">
+            <h2>Administration</h2>
+        </div>
+        <ul class="nav-list">
+            <li><a href="{% url 'customers:update_password' user.pk %}">Change Password</a></li>
+            <li><a href="{% url 'customers:update_email' user.pk %}">Change Email</a></li>
+            <li>
+                <form method="post" action="{% url 'customers:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+{% endif %}

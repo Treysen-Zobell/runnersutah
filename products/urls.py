@@ -5,14 +5,11 @@ from . import views
 app_name = "products"
 
 urlpatterns = [
-    path("", views.product_list, name="index"),
-    path("add", views.product_add, name="add"),
-    path("get/<str:product_id>/", views.product_detail, name="detail"),
-    path("edit/<str:product_id>/", views.product_edit, name="edit"),
-    path("delete/<str:product_id>/", views.product_delete, name="delete"),
-    path(
-        "download/product_table",
-        views.download_product_table,
-        name="download_product_table",
-    ),
+    path("", views.ProductListView.as_view(), name="list"),
+    path("detail/<int:pk>/", views.ProductDetailView.as_view(), name="detail"),
+    path("create/", views.ProductCreateView.as_view(), name="create"),
+    path("update/<int:pk>/", views.ProductUpdateView.as_view(), name="update"),
+    path("load_products/", views.load_products, name="load_products"),
+    path("delete/<int:pk>/", views.delete_product, name="delete"),
+    path("download_table/", views.download_product_list_sheet, name="download_table"),
 ]

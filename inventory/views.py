@@ -1,35 +1,326 @@
-import io
+import re
+from typing import List, Optional
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Value, Case, IntegerField, When, F
-from django.http import FileResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import (
+    Sum,
+    When,
+    Value,
+    Case,
+    IntegerField,
+    Window,
+    F,
+    Subquery,
+    OuterRef,
+)
+from django.http import JsonResponse, FileResponse
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
+from django.core.mail import EmailMessage
 
-from common.utils import generate_excel
-from customers.models import Customer
+from customers.models import Customer, Email, Tag
+from customers.views import generate_excel
+from inventory.forms import InventoryEntryForm
+from inventory.models import InventoryEntry
 from products.models import Product
-from .forms import InventoryForm
-from .models import InventoryChange, InventoryCurrent
-from common.utils import GoogleDrive, outside_diameter_to_float
+from runnersutah import settings
+from utils.mixins import GroupRequiredMixin
+
+
+# Create your views here.
+class InventoryEntryListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
+    model = InventoryEntry
+    template_name = "inventory/list.html"
+    group_required = ["admin"]
+    paginate_by = 100
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Annotate the queryset to calculate sort_joints_in and sort_joints_out based on joints
+        ordering = self.request.GET.get("ordering", "date")
+
+        if ordering in ("joints_in", "-joints_in", "joints_out", "-joints_out"):
+            order_dir = "-" if ordering.startswith("-") else ""
+            positive_condition = (
+                Value(1) if ordering in ("joints_in", "-joints_in") else Value(2)
+            )
+            negative_condition = (
+                Value(1) if ordering in ("joints_out", "-joints_out") else Value(2)
+            )
+            queryset = queryset.annotate(
+                joints_major=Case(
+                    When(joints__gte=0, then=positive_condition),
+                    When(joints__lt=0, then=negative_condition),
+                    output_field=IntegerField(),
+                )
+            )
+
+            queryset = queryset.order_by("joints_major", f"{order_dir}joints")
+        else:
+            queryset = queryset.order_by(ordering)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Modify context data to calculate joints_in and joints_out based on joints
+        for obj in context["object_list"]:
+            if obj.joints is not None:
+                if obj.joints >= 0:
+                    obj.joints_in = obj.joints
+                    obj.joints_out = ""
+                else:
+                    obj.joints_in = ""
+                    obj.joints_out = -obj.joints
+                    obj.footage = -obj.footage
+
+        # Build elided paginator
+        paginator = context["paginator"]
+        page = context["page_obj"]
+        page_range = paginator.get_elided_page_range(
+            number=page.number, on_each_side=3, on_ends=1
+        )
+        context["page_range"] = page_range
+
+        ordering = self.request.GET.get("ordering", "date")
+        context["ordering"] = ordering
+
+        return context
+
+
+class InventoryEntryDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    model = InventoryEntry
+    template_name = "inventory/detail.html"
+    group_required = ["admin"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Modify context data to calculate joints_in and joints_out based on joints
+        if context["object"].joints is not None:
+            if context["object"].joints >= 0:
+                context["object"].joints_in = context["object"].joints
+                context["object"].joints_out = ""
+            else:
+                context["object"].joints_in = ""
+                context["object"].joints_out = -context["object"].joints
+                context["object"].footage = -context["object"].footage
+
+        return context
+
+
+class InventoryEntryCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    model = InventoryEntry
+    template_name = "inventory/create.html"
+    form_class = InventoryEntryForm
+    group_required = ["admin"]
+
+    def get_success_url(self):
+        return self.request.GET.get("next", reverse_lazy("inventory:list"))
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        # Redirect to self if add another is requested
+        if "save_add_another" in self.request.POST:
+            self.success_url = reverse_lazy("inventory:create")
+
+        # Send notification email if requested
+        if form.cleaned_data.get("send_email_update") == "yes":
+            send_product_report_sheet(self.object)
+
+        return response
+
+
+class InventoryEntryUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
+    model = InventoryEntry
+    template_name = "inventory/update.html"
+    form_class = InventoryEntryForm
+    group_required = ["admin"]
+
+    def get_success_url(self):
+        return self.request.GET.get("next", reverse_lazy("inventory:list"))
+
+    def get_initial(self):
+        initial = super().get_initial()
+        entry = self.get_object()
+        if entry.joints >= 0:
+            initial["joints_in"] = entry.joints
+            initial["joints_out"] = ""
+        else:
+            initial["joints_in"] = ""
+            initial["joints_out"] = -entry.joints
+            initial["footage"] = -entry.footage
+        return initial
+
+    def form_valid(self, form):
+        # Convert joints in/out to joints +/-
+        joints_in = form.cleaned_data["joints_in"]
+        joints_out = form.cleaned_data["joints_out"]
+        if joints_in is not None:
+            form.instance.joints = joints_in
+        else:
+            form.instance.joints = -joints_out
+
+        response = super().form_valid(form)
+
+        # Send notification email if requested
+        if form.cleaned_data.get("send_email_update") == "yes":
+            send_product_report_sheet(self.object)
+
+        return response
+
+
+class CustomerReportListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/customer_report.html"
+
+    def get_queryset(self):
+        customer_id = self.kwargs.get("customer_id")
+        ordering = self.request.GET.get("ordering", "outside_diameter")
+
+        # queryset = (
+        #     InventoryEntry.objects.filter(product__customer_id=customer_id)
+        #     .values("product_id", *[f"product__{n.name}" for n in Product._meta.fields])
+        #     .annotate(total_joints=Sum("joints"), total_footage=Sum("footage"))
+        #     .order_by(ordering)
+        # )
+
+        queryset = (
+            Product.objects.filter(customer_id=customer_id)
+            .annotate(
+                total_joints=Subquery(
+                    InventoryEntry.objects.filter(product=OuterRef("pk"))
+                    .values("product")
+                    .annotate(total_joints=Sum("joints"))
+                    .values("total_joints")
+                ),
+                total_footage=Subquery(
+                    InventoryEntry.objects.filter(product=OuterRef("pk"))
+                    .values("product")
+                    .annotate(total_footage=Sum("footage"))
+                    .values("total_footage")
+                ),
+            )
+            .order_by(ordering)
+        )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Modify context data to calculate joints_in and joints_out based on joints
+        ordering = self.request.GET.get("ordering", "outside_diameter")
+        context["ordering"] = ordering
+
+        customer_name = Customer.objects.get(
+            id=self.kwargs.get("customer_id")
+        ).display_name
+        context["customer_name"] = customer_name
+        context["customer_id"] = self.kwargs.get("customer_id")
+
+        return context
+
+
+class ProductReportListView(LoginRequiredMixin, ListView):
+    template_name = "inventory/product_report.html"
+
+    def get_queryset(self):
+        product_id = self.kwargs.get("product_id")
+        queryset = InventoryEntry.objects.filter(product_id=product_id)
+
+        # Annotate the queryset to calculate sort_joints_in and sort_joints_out based on joints
+        ordering = self.request.GET.get("ordering", "date")
+
+        if ordering in ("joints_in", "-joints_in", "joints_out", "-joints_out"):
+            order_dir = "-" if ordering.startswith("-") else ""
+            positive_condition = (
+                Value(1) if ordering in ("joints_in", "-joints_in") else Value(2)
+            )
+            negative_condition = (
+                Value(1) if ordering in ("joints_out", "-joints_out") else Value(2)
+            )
+            queryset = queryset.annotate(
+                joints_major=Case(
+                    When(joints__gte=0, then=positive_condition),
+                    When(joints__lt=0, then=negative_condition),
+                    output_field=IntegerField(),
+                )
+            )
+
+            queryset = queryset.order_by("joints_major", f"{order_dir}joints")
+        else:
+            queryset = queryset.order_by(ordering)
+
+        queryset = queryset.annotate(
+            running_total_joints=Window(
+                expression=Sum("joints"), order_by=[F("date").asc(), F("id").asc()]
+            ),
+            running_total_footage=Window(
+                expression=Sum("footage"), order_by=[F("date").asc(), F("id").asc()]
+            ),
+        )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Modify context data to calculate joints_in and joints_out based on joints
+        ordering = self.request.GET.get("ordering", "date")
+        context["ordering"] = ordering
+
+        product = Product.objects.get(id=self.kwargs.get("product_id"))
+        context["product_name"] = str(product)
+        context["customer_name"] = product.customer.display_name
+        context["product_id"] = product.id
+
+        for obj in context["object_list"]:
+            if obj.joints is not None:
+                if obj.joints >= 0:
+                    obj.joints_in = obj.joints
+                    obj.joints_out = ""
+                else:
+                    obj.joints_in = ""
+                    obj.joints_out = -obj.joints
+                    obj.footage = -obj.footage
+
+        return context
 
 
 @login_required
-def load_products(request):
-    """
-    Gets the products associated with the selected customer
-    :param request:
-    :return:
-    """
-    customer_id = request.GET.get("customer")
-    products = Product.objects.filter(customer_id=customer_id)
-    print(products)
-    return render(request, "inventory/dropdown_options.html", {"options": products})
+@require_POST
+def delete_inventory_entry(request, pk):
+    if request.user.groups.filter(name="admin").exists():
+        customer = InventoryEntry.objects.get(pk=pk)
+        customer.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+
+def convert_joints_context(object_list: List[InventoryEntry]):
+    for obj in object_list:
+        if obj.joints is not None:
+            if obj.joints >= 0:
+                obj.joints_in = obj.joints
+                obj.joints_out = ""
+            else:
+                obj.joints_in = ""
+                obj.joints_out = -obj.joints
+                obj.footage = -obj.footage
+    return object_list
 
 
 @login_required
-def download_inventory_table(request):
-    inventory_changes = InventoryChange.objects.all()
+def download_inventory_list_sheet(request):
+    ordering = request.GET.get("ordering", "date")
+    inventory_entries = InventoryEntry.objects.all().order_by(ordering)
+
     labels = [
         "Date",
         "R.R# OR REL#",
@@ -38,18 +329,20 @@ def download_inventory_table(request):
         "Carrier",
         "Joints In",
         "Joints Out",
+        "Footage",
     ]
     rows = [
         (
-            change.date.strftime("%m/%d/%Y"),
-            change.rr,
-            change.po,
-            change.afe,
-            change.carrier,
-            change.joints if change.joints >= 0 else "",
-            "" if change.joints >= 0 else -change.joints,
+            entry.date.strftime("%m/%d/%Y"),
+            entry.rr,
+            entry.po,
+            entry.afe,
+            entry.carrier,
+            entry.joints if entry.joints >= 0 else "",
+            "" if entry.joints >= 0 else -entry.joints,
+            abs(entry.footage),
         )
-        for change in inventory_changes
+        for entry in inventory_entries
     ]
 
     file = generate_excel(labels, rows)
@@ -60,519 +353,196 @@ def download_inventory_table(request):
 
 
 @login_required
-def index(request):
-    order_by = request.GET.get("order_by", "date")
-    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-
-    # Sorts joints major into +/- and minor by value to keep avoid blank entries at the top
-    if order_by in ("joints_in", "joints_out"):
-        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
-        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
-        sorted_objects = InventoryChange.objects.annotate(
-            positive_negative=Case(
-                When(joints__gte=0, then=positive_condition),
-                When(joints__lt=0, then=negative_condition),
-                output_field=IntegerField(),
-            )
-        )
-        inventory = sorted_objects.order_by("positive_negative", order_dir + "joints")
-
-    elif order_by == "outside_diameter":
-        inventory = InventoryChange.objects.all()
-        inventory = sorted(
-            inventory,
-            key=lambda p: outside_diameter_to_float(p.product.outside_diameter),
-        )
-        if order_dir == "-":
-            inventory = reversed(inventory)
-
-    else:
-        inventory = InventoryChange.objects.order_by(order_dir + order_by)
-
-    paginator = Paginator(inventory, 20)
-    page = request.GET.get("page", 1)
-    try:
-        inventory = paginator.page(page)
-        page_range = paginator.get_elided_page_range(number=page)
-    except PageNotAnInteger:
-        inventory = paginator.page(1)
-        page_range = paginator.get_elided_page_range(number=1)
-    except EmptyPage:
-        inventory = paginator.page(paginator.num_pages)
-        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
-
-    order_dir = "asc" if order_dir == "-" else "desc"
-    context = {
-        "inventory_list": inventory,
-        "order_by": order_by,
-        "order_dir": order_dir,
-        "page_range": page_range,
-        "page": page,
-    }
-    return render(request, "inventory/index.html", context)
-
-
-@login_required
-def detail(request, inventory_id: str):
-    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
-    context = {"inventory": inventory}
-    return render(request, "inventory/detail.html", context)
-
-
-@login_required
-def add(request):
-    if request.method == "POST":
-        form = InventoryForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Process fields to convert joints in/out and footage to +/- values
-            joints_multiplier = 1 if form.cleaned_data["joints_in"] else -1
-            joints = joints_multiplier * (
-                form.cleaned_data["joints_in"] or form.cleaned_data["joints_out"]
-            )
-            footage = joints_multiplier * form.cleaned_data["footage"]
-
-            # Upload attachment to Google Drive if a file was selected and get file ID
-            attachment_id = ""
-            if form.cleaned_data["attachment_id"]:
-                file = form.cleaned_data["attachment_id"]
-                drive = GoogleDrive()
-                attachment_id = drive.upload_file(file)
-
-            # Create and save inventory change
-            inventory = InventoryChange.objects.create(
-                customer=form.cleaned_data["customer"],
-                product=form.cleaned_data["product"],
-                date=form.cleaned_data["date"],
-                rr=form.cleaned_data["rr"],
-                po=form.cleaned_data["po"],
-                afe=form.cleaned_data["afe"],
-                carrier=form.cleaned_data["carrier"],
-                received_transferred=form.cleaned_data["received_transferred"],
-                joints=joints,
-                footage=footage,
-                attachment_id=attachment_id,
-                rack_id=form.cleaned_data["rack_id"],
-            )
-            inventory.save()
-
-            if "submit" in request.POST:
-                return redirect("inventory:index")
-
-            form = InventoryForm()
-
-    else:
-        form = InventoryForm()
-
-    return render(request, "inventory/add.html", {"form": form})
-
-
-@login_required
-def edit(request, inventory_id: str):
-    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
-    if request.method == "POST":
-        form = InventoryForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Process fields to convert joints in/out and footage to +/- values
-            joints_multiplier = 1 if form.cleaned_data["joints_in"] else -1
-            joints = joints_multiplier * (
-                form.cleaned_data["joints_in"] or form.cleaned_data["joints_out"]
-            )
-            footage = joints_multiplier * form.cleaned_data["footage"]
-
-            # Delete old attachment and upload new attachment to Google Drive if a new file
-            # was selected and save the new file ID
-            if form.cleaned_data["attachment_id"]:
-                drive = GoogleDrive()
-
-                attachment_id = inventory.attachment_id
-                if attachment_id:
-                    drive.delete_file(attachment_id)
-
-                file = form.cleaned_data["attachment_id"]
-                inventory.attachment_id = drive.upload_file(file)
-
-            # Save inventory change
-            inventory.customer = form.cleaned_data["customer"]
-            inventory.product = form.cleaned_data["product"]
-            inventory.date = form.cleaned_data["date"]
-            inventory.rr = form.cleaned_data["rr"]
-            inventory.po = form.cleaned_data["po"]
-            inventory.afe = form.cleaned_data["afe"]
-            inventory.carrier = form.cleaned_data["carrier"]
-            inventory.received_transferred = form.cleaned_data["received_transferred"]
-            inventory.joints = joints
-            inventory.footage = footage
-            inventory.rack_id = form.cleaned_data["rack_id"]
-            inventory.save()
-
-            if "submit" in request.POST:
-                return redirect("inventory:index")
-
-            form = InventoryForm()
-
-    else:
-        form = InventoryForm(
-            initial={
-                "customer": inventory.customer,
-                "product": inventory.product,
-                "date": inventory.date,
-            }
-        )
-        form.fields["rr"].initial = inventory.rr
-        form.fields["po"].initial = inventory.po
-        form.fields["afe"].initial = inventory.afe
-        form.fields["carrier"].initial = inventory.carrier
-        form.fields["received_transferred"].initial = inventory.received_transferred
-        if inventory.joints >= 0:
-            form.fields["joints_in"].initial = inventory.joints
-            form.fields["joints_out"].initial = 0
-        else:
-            form.fields["joints_in"].initial = 0
-            form.fields["joints_out"].initial = -inventory.joints
-        form.fields["footage"].initial = abs(inventory.footage)
-        form.fields["rack_id"].initial = inventory.rack_id
-
-        form.fields["product"].queryset = Product.objects.filter(
-            customer_id=inventory.customer
-        )
-
-    return render(
-        request, "inventory/edit.html", {"form": form, "inventory_id": inventory_id}
+def download_customer_report_sheet(request, customer_id: int):
+    ordering = request.GET.get("ordering", "product__outside_diameter")
+    queryset = (
+        InventoryEntry.objects.filter(product__customer_id=customer_id)
+        .values("product_id", *[f"product__{n.name}" for n in Product._meta.fields])
+        .annotate(total_joints=Sum("joints"), total_footage=Sum("footage"))
+        .order_by(ordering)
     )
 
-
-@login_required
-def delete(request, inventory_id: str):
-    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
-
-    # Delete file from Google Drive
-    attachment_id = inventory.attachment_id
-    drive = GoogleDrive()
-    drive.delete_file(attachment_id)
-
-    inventory.delete()
-
-    return redirect("inventory:index")
-
-
-@login_required
-def download_attachment(request, inventory_id: str):
-    inventory = get_object_or_404(InventoryChange, pk=inventory_id)
-
-    with open(f"/home/runnersutah/pdf/{inventory.attachment_id}", "rb") as file:
-        response = FileResponse(file)
-        response["Content-Type"] = "application/pdf"
-        response["Content-Disposition"] = (
-            f"attachment; filename={inventory.attachment_id}.pdf"
-        )
-        return response
-
-    # # Download file from Google Drive
-    # drive = GoogleDrive()
-    # file = drive.download_file(inventory.attachment_id)
-    # file = io.BytesIO(file)
-    #
-    # # Return file download
-    # response = FileResponse(file)
-    # response["Content-Type"] = "application/pdf"
-    # response["Content-Disposition"] = (
-    #     f"attachment; filename={inventory.attachment_id}.pdf"
-    # )
-    # return response
-
-
-@login_required
-def report(request, customer_id: str):
-    customer = get_object_or_404(Customer, pk=customer_id)
-
-    order_by = request.GET.get("order_by", "outside_diameter_inches")
-    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-
-    if order_by in ("joints_in", "joints_out"):
-        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
-        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
-        sorted_objects = InventoryCurrent.objects.filter(customer=customer).annotate(
-            positive_negative=Case(
-                When(joints__gte=0, then=positive_condition),
-                When(joints__lt=0, then=negative_condition),
-                output_field=IntegerField(),
-            )
-        )
-        inventory_current = sorted_objects.order_by(
-            "positive_negative", order_dir + "joints"
-        )
-
-    elif order_by in (
-        "outside_diameter_inches",
-        "weight",
-        "grade",
-        "coupling",
-        "range",
-        "condition",
-        "remarks",
-    ):
-        inventory_current = (
-            InventoryCurrent.objects.filter(customer=customer)
-            .annotate(s=F(f"product__{order_by}"))
-            .order_by(order_dir + "s")
-        )
-
-    else:
-        inventory_current = InventoryCurrent.objects.filter(customer=customer).order_by(
-            order_dir + order_by
-        )
-
-    paginator = Paginator(inventory_current, 20)
-    page = request.GET.get("page", 1)
-    try:
-        inventory_current = paginator.page(page)
-        page_range = paginator.get_elided_page_range(number=page)
-    except PageNotAnInteger:
-        inventory_current = paginator.page(1)
-        page_range = paginator.get_elided_page_range(number=1)
-    except EmptyPage:
-        inventory_current = paginator.page(paginator.num_pages)
-        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
-
-    order_dir = "asc" if order_dir == "-" else "desc"
-    context = {
-        "inventory_list": inventory_current,
-        "order_by": order_by,
-        "order_dir": order_dir,
-        "customer_name": customer.display_name,
-        "customer_id": customer_id,
-        "page_range": page_range,
-        "page": page,
-    }
-    return render(request, "inventory/report.html", context)
-
-
-@login_required
-def download_report_table(request, customer_id: str):
-    inventory_changes = InventoryChange.objects.all()
     labels = [
+        "Product Type",
         "Outside Diameter",
         "Lbs Per Ft",
         "Grade",
-        "CPLG",
+        "Coupling",
         "Range",
         "Condition",
-        "Remarks",
-        "Rack#",
-        "Joints",
+        "Rack",
+        "Total Joints",
         "Footage",
+        "Foreman",
     ]
-
-    customer = get_object_or_404(Customer, pk=customer_id)
-    inventory_current = InventoryCurrent.objects.filter(customer=customer)
-
-    order_by = request.GET.get("order_by", "outside_diameter")
-    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-    if order_by in (
-        "outside_diameter",
-        "weight",
-        "grade",
-        "coupling",
-        "range",
-        "condition",
-        "remarks",
-    ):
-        inventory_current = inventory_current.annotate(
-            s=F(f"product__{order_by}")
-        ).order_by(f"s")
-    else:
-        inventory_current = inventory_current.order_by(order_dir + order_by)
-
     rows = [
         (
-            inventory.product.outside_diameter,
-            inventory.product.weight,
-            inventory.product.grade,
-            inventory.product.coupling,
-            inventory.product.range,
-            inventory.product.condition,
-            inventory.product.remarks,
-            inventory.rack_id,
-            inventory.joints,
-            inventory.footage,
-            inventory.product.foreman,
+            q.get("product__product_type"),
+            q.get("product__outside_diameter_text"),
+            q.get("product__weight_text"),
+            q.get("product__grade"),
+            q.get("product__coupling"),
+            q.get("product__range"),
+            q.get("product__condition"),
+            q.get("product__rack"),
+            q.get("total_joints"),
+            f'{q.get("total_footage"):.3f}',
+            q.get("product__foreman"),
         )
-        for inventory in inventory_current
+        for q in queryset
     ]
 
     file = generate_excel(labels, rows)
     response = FileResponse(file)
     response["Content-Type"] = "application/ms-excel"
-    response["Content-Disposition"] = f"attachment; filename=inventory.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=customer_report.xlsx"
     return response
 
 
 @login_required
-def report_detail(request, customer_id: str, product_id: str):
-    # Get inventory changes sorted by date
-    customer = get_object_or_404(Customer, pk=customer_id)
-    product = get_object_or_404(Product, pk=product_id)
-    inventory_changes = (
-        InventoryChange.objects.filter(customer=customer)
-        .filter(product=product)
-        .order_by("date")
-    )
+def download_product_report_sheet(request, product_id: int):
+    ordering = request.GET.get("ordering", "date")
+    file = generate_product_report(product_id, ordering)
+    response = FileResponse(file)
+    response["Content-Type"] = "application/ms-excel"
+    response["Content-Disposition"] = f"attachment; filename=product_report.xlsx"
+    return response
 
-    # Calculate historical joint and footage totals
-    joints_history = {}
-    footage_history = {}
-    joints_total = 0
-    footage_total = 0
-    for change in inventory_changes:
-        joints_total += change.joints
-        footage_total += change.footage
-        joints_history[change.id] = joints_total
-        footage_history[change.id] = footage_total
 
-    # Sort historical changes by column labels
-    order_by = request.GET.get("order_by", "date")
-    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
+def generate_product_report(product_id: int, ordering: Optional[str] = None):
+    queryset = InventoryEntry.objects.filter(product_id=product_id)
+    if not ordering:
+        ordering = "-date"
 
-    if order_by in ("joints_in", "joints_out"):
-        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
-        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
-        sorted_objects = (
-            InventoryChange.objects.filter(customer=customer)
-            .filter(product=product)
-            .annotate(
-                positive_negative=Case(
-                    When(joints__gte=0, then=positive_condition),
-                    When(joints__lt=0, then=negative_condition),
-                    output_field=IntegerField(),
-                )
-            )
+    if ordering in ("joints_in", "-joints_in", "joints_out", "-joints_out"):
+        order_dir = "-" if ordering.startswith("-") else ""
+        positive_condition = (
+            Value(1) if ordering in ("joints_in", "-joints_in") else Value(2)
         )
-        inventory_current = sorted_objects.order_by(
-            "positive_negative", order_dir + "joints"
+        negative_condition = (
+            Value(1) if ordering in ("joints_out", "-joints_out") else Value(2)
         )
-
-    elif order_by in ("outside_diameter",):
-        inventory_current = inventory_changes.annotate(
-            s=F(f"product__{order_by}")
-        ).order_by(f"s")
-
-    else:
-        inventory_current = inventory_changes.order_by(order_dir + order_by)
-
-    paginator = Paginator(inventory_current, 20)
-    page = request.GET.get("page", 1)
-    try:
-        inventory_current = paginator.page(page)
-        page_range = paginator.get_elided_page_range(number=page)
-    except PageNotAnInteger:
-        inventory_current = paginator.page(1)
-        page_range = paginator.get_elided_page_range(number=1)
-    except EmptyPage:
-        inventory_current = paginator.page(paginator.num_pages)
-        page_range = paginator.get_elided_page_range(number=paginator.num_pages)
-
-    order_dir = "asc" if order_dir == "-" else "desc"
-    context = {
-        "inventory_list": inventory_current,
-        "joints_history": joints_history,
-        "footage_history": footage_history,
-        "order_by": order_by,
-        "order_dir": order_dir,
-        "customer_name": customer.display_name,
-        "customer_id": customer_id,
-        "product_id": product_id,
-        "page_range": page_range,
-        "page": page,
-    }
-    return render(request, "inventory/report_detail.html", context)
-
-
-@login_required
-def download_report_detail_table(request, customer_id: str, product_id: str):
-    inventory_changes = InventoryChange.objects.all()
-    labels = [
-        "Date",
-        "AFE",
-        "R.R OR REL#",
-        "P.O OR B/L#",
-        "Carrier",
-        "Received from Transferred to",
-        "In",
-        "Out",
-        "Footage",
-        "Manufacturer",
-        "Rack#",
-        "Joints",
-        "Footage",
-    ]
-
-    # Get inventory changes sorted by date
-    customer = get_object_or_404(Customer, pk=customer_id)
-    product = get_object_or_404(Product, pk=product_id)
-    inventory_changes = (
-        InventoryChange.objects.filter(customer=customer)
-        .filter(product=product)
-        .order_by("date")
-    )
-
-    # Calculate historical joint and footage totals
-    joints_history = {}
-    footage_history = {}
-    joints_total = 0
-    footage_total = 0
-    for change in inventory_changes:
-        joints_total += change.joints
-        footage_total += change.footage
-        joints_history[change.id] = joints_total
-        footage_history[change.id] = footage_total
-
-    # Sort historical changes by column labels
-    order_by = request.GET.get("order_by", "date")
-    order_dir = "-" if request.GET.get("order_dir", "desc") == "asc" else ""
-
-    if order_by in ("joints_in", "joints_out"):
-        positive_condition = Value(1) if order_by == "joints_in" else Value(2)
-        negative_condition = Value(1) if order_by == "joints_out" else Value(2)
-        sorted_objects = InventoryChange.objects.annotate(
-            positive_negative=Case(
+        queryset = queryset.annotate(
+            joints_major=Case(
                 When(joints__gte=0, then=positive_condition),
                 When(joints__lt=0, then=negative_condition),
                 output_field=IntegerField(),
             )
         )
-        inventory_current = sorted_objects.order_by(
-            "positive_negative", order_dir + "joints"
-        )
 
-    elif order_by in ("outside_diameter",):
-        inventory_current = inventory_changes.annotate(
-            s=F(f"product__{order_by}")
-        ).order_by(f"s")
-
+        queryset = queryset.order_by("joints_major", f"{order_dir}joints")
     else:
-        inventory_current = inventory_changes.order_by(order_dir + order_by)
+        queryset = queryset.order_by(ordering)
 
+    queryset = queryset.annotate(
+        running_total_joints=Window(expression=Sum("joints"), order_by=F("date").asc()),
+        running_total_footage=Window(
+            expression=Sum("footage"), order_by=F("date").asc()
+        ),
+    )
+
+    labels = [
+        "Date",
+        "AFE",
+        "R.R# OR REL#",
+        "P.O# OR B/L#",
+        "Carrier",
+        "In",
+        "Out",
+        "Footage",
+        "Total Joints",
+        "Total Footage",
+        "Manufacturer",
+        "Rack#",
+    ]
     rows = [
         (
-            inventory.date.strftime("%m/%d/%Y"),
-            inventory.afe,
-            inventory.rr,
-            inventory.po,
-            inventory.carrier,
-            inventory.received_transferred,
-            inventory.joints if inventory.joints >= 0 else "",
-            "" if inventory.joints >= 0 else -inventory.joints,
-            abs(inventory.footage),
-            inventory.manufacturer,
-            inventory.rack_id,
-            joints_history[inventory.id],
-            abs(footage_history[inventory.id]),
+            entry.date.strftime("%m/%d/%Y"),
+            entry.afe,
+            entry.rr,
+            entry.po,
+            entry.carrier,
+            entry.joints if entry.joints >= 0 else "",
+            "" if entry.joints >= 0 else -entry.joints,
+            f"{abs(entry.footage):.3f}",
+            entry.running_total_joints,
+            entry.running_total_footage,
+            entry.manufacturer,
+            entry.product.rack,
         )
-        for inventory in inventory_current
+        for entry in queryset
     ]
 
     file = generate_excel(labels, rows)
-    response = FileResponse(file)
-    response["Content-Type"] = "application/ms-excel"
-    response["Content-Disposition"] = f"attachment; filename=inventory.xlsx"
-    return response
+    return file
+
+
+def send_product_report_sheet(inventory_entry: InventoryEntry):
+    print("Sending product report")
+    report = generate_product_report(inventory_entry.product.id, ordering="-date")
+
+    product_elements = [
+        inventory_entry.product.outside_diameter_text,
+        inventory_entry.product.weight_text,
+        inventory_entry.product.product_type,
+        inventory_entry.product.coupling,
+        inventory_entry.product.condition,
+    ]
+    product_elements = [p for p in product_elements if p]
+    product_desc = ", ".join(product_elements)
+
+    subject_elements = [product_desc]
+    if inventory_entry.rr:
+        subject_elements.append(inventory_entry.rr)
+    if inventory_entry.po:
+        subject_elements.append(inventory_entry.po)
+    if inventory_entry.received_transferred:
+        subject_elements.append(inventory_entry.received_transferred)
+    subject = ", ".join(subject_elements)
+
+    body = "An update has been made to your inventory. If you have an questions or concerns please contact Runners Inc (435) 722-4259 or reply to this email.\n\nThank you!"
+
+    mailing_list = []
+    for email_list in Email.objects.filter(
+        customer_id=inventory_entry.product.customer.id
+    ):
+        print("Email list", email_list)
+        tags = Tag.objects.filter(email_id=email_list.id)
+        tags = [tag.name for tag in tags]
+        print("Tags", tags)
+        if any(
+            [
+                tag.lower() == "any"
+                or re.match(tag.lower(), inventory_entry.product.product_type.lower())
+                for tag in tags
+            ]
+        ):
+            for email in email_list.address.split(","):
+                mailing_list.append(email)
+
+    email = EmailMessage(
+        subject,
+        body,
+        from_email=settings.EMAIL_HOST_USER,
+        to=mailing_list,
+        attachments=[("report.xlsx", report.read(), "application/ms-excel")],
+    )
+    email.send()
+
+
+@login_required
+def zero_out_product(request, product_id: int):
+    entries = InventoryEntry.objects.filter(product_id=product_id)
+    total_footage = 0
+    total_joints = 0
+    for entry in entries:
+        total_joints += entry.joints
+        total_footage += entry.footage
+    InventoryEntry.objects.create(
+        product_id=product_id,
+        date=datetime.now(),
+        joints=-total_joints,
+        footage=-total_footage,
+        carrier="Zero Out",
+    )
+    return JsonResponse({"success": True})

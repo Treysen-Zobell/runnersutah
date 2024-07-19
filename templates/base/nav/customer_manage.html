@@ -1,0 +1,13 @@
+{% load auth_extras %}
+
+{% if user|has_group:"admin" %}
+    <div class="nav-option">
+        <div class="nav-title">
+            <h2>Customer Manage</h2>
+        </div>
+        <ul class="nav-list">
+            <li><a href="{% url 'customers:list' %}">Customer List</a></li>
+            <li><a href="{% url 'customers:create' %}">Add Customer</a></li>
+        </ul>
+    </div>
+{% endif %}

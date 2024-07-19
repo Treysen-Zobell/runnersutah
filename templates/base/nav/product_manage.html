@@ -1,0 +1,13 @@
+{% load auth_extras %}
+
+{% if user|has_group:"admin" %}
+    <div class="nav-option">
+        <div class="nav-title">
+            <h2>Product Manage</h2>
+        </div>
+        <ul class="nav-list">
+            <li><a href="{% url 'products:list' %}">Product List</a></li>
+            <li><a href="{% url 'products:create' %}">Add Product</a></li>
+        </ul>
+    </div>
+{% endif %}

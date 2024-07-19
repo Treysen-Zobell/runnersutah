@@ -1,0 +1,25 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/card.css' %}">
+{% endblock %}
+
+{% block main %}
+    <div class="card">
+        <h1 class="card-title">Update {{ request.user.username }}'s Email</h1>
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+
+            <h2 class="form-label">Email:</h2>
+            {{ form.email }}
+            {% if "email" in form.errors %}
+                <b class="error-message">{{ form.errors.email }}</b>
+            {% endif %}
+
+            <br>
+            <input type="submit" value="Update Email">
+        </form>
+    </div>
+{% endblock %}

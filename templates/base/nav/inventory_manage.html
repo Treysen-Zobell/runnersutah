@@ -1,0 +1,13 @@
+{% load auth_extras %}
+
+{% if user|has_group:"admin" %}
+    <div class="nav-option">
+        <div class="nav-title">
+            <h2>Line Pipe Description</h2>
+        </div>
+        <ul class="nav-list">
+            <li><a href="{% url 'inventory:list' %}">Inventory List</a></li>
+            <li><a href="{% url 'inventory:create' %}">Add Inventory</a></li>
+        </ul>
+    </div>
+{% endif %}

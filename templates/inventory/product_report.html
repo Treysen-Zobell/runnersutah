@@ -1,0 +1,91 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load table_extras %}
+{% load auth_extras %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
+{% block main %}
+    <h1 class="table-title">{{ customer_name }}</h1>
+    <p class="table-description">{{ product_name }}</p>
+    <a href="{% url 'inventory:download_product_report_sheet' product_id %}" class="table-download-button">Download Table</a>
+
+    <table class="list-table">
+        <tr>
+            <th>{% sort_link ordering 'date' 'Date' 1 %}</th>
+            <th>{% sort_link ordering 'afe' 'AFE' 1 %}</th>
+            <th>{% sort_link ordering 'rr' 'R.R# OR REL.#' 1 %}</th>
+            <th>{% sort_link ordering 'po' 'P.O# OR B/L#' 1 %}</th>
+            <th>{% sort_link ordering 'carrier' 'Carrier' 1 %}</th>
+            <th>{% sort_link ordering 'received_transferred' 'Received From Transferred To' 1 %}</th>
+            <th>{% sort_link ordering 'joints_in' 'In' 1 %}</th>
+            <th>{% sort_link ordering 'joints_out' 'Out' 1 %}</th>
+            <th>{% sort_link ordering 'footage' 'Footage' 1 %}</th>
+            <th>Total Joints</th>
+            <th>Total Footage</th>
+            <th>{% sort_link ordering 'manufacturer' 'Manufacturer' 1 %}</th>
+            <th>{% sort_link ordering 'product__rack' 'Rack#' 1 %}</th>
+            <th>Download</th>
+            {% if user|has_group:"admin" %}
+                <th></th>
+            {% endif %}
+        </tr>
+        {% for object in object_list %}
+            <tr>
+                <td>
+                    {{ object.date|date:"m/d/Y" }}
+                </td>
+                <td>
+                    {{ object.afe }}
+                </td>
+                <td>
+                    {{ object.rr }}
+                </td>
+                <td>
+                    {{ object.po }}
+                </td>
+                <td>
+                    {{ object.carrier }}
+                </td>
+                <td>
+                    {{ object.received_transferred }}
+                </td>
+                <td>
+                    {{ object.joints_in }}
+                </td>
+                <td>
+                    {{ object.joints_out }}
+                </td>
+                <td>
+                    {{ object.footage|floatformat:3 }}
+                </td>
+                <td>
+                    {{ object.running_total_joints }}
+                </td>
+                <td>
+                    {{ object.running_total_footage|floatformat:3 }}
+                </td>
+                <td>
+                    {{ object.manufacturer }}
+                </td>
+                <td>
+                    {{ object.product.rack }}
+                </td>
+                <td>
+                    {% if object.attachment %}
+                        <a href="{{ object.attachment.url }}" target="_blank">Download</a>
+                    {% else %}
+                        No PDF
+                    {% endif %}
+                </td>
+                {% if user|has_group:"admin" %}
+                    <td>
+                        <a href="{% url 'inventory:update' object.pk %}?next={{ request.path|urlencode }}" class="edit-link">Edit</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

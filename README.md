@@ -1,42 +1,35 @@
-
 # Todo
-* [DONE] Get account with Hertzner
-* [DONE] Get account with Google Drive 100GB
-* [DONE] Setup Google Drive API
-* [DONE] Customer View
-* [DONE] Admin View
-* [DONE] Customer Inventory
-* [ON HOLD] Email notification on inventory change
-* [DONE] Download table buttons
-  * [DONE] Inventory
-  * [DONE] Report
-  * [DONE] Report Historical
-* [DONE] Move inventory logic out of inventory views
-* [DONE] Make inventory tests
-* Home page
-* Sort download table
-* [DONE] Paginate tables
-* [DONE] Fix table sorting bug. Changing page 3 times will result in order changing to desc
-* [DONE] Fix table sorting bug. Column labels don't maintain page
-* Add permissions to limit page views by account
-* [PREPARE] Remove strict password validator
-* Import PDFs in db migration
-
-# DB Migration
-
-1. Download and extract old SQL database "runners_inventorymanagement.sql"
-2. Convert sql file to sqlite format using https://brunocassol.com/mysql2sqlite/ and save as "old.sqlite3"
-3. Remove all LOCK and UNLOCK commands manually (8 count)
-4. Initialize db using command "sqlite3 old_processed.sqlite3 -init old.sqlite3"
-
-# Meeting Notes
-
-## Things to Cover
-
-1. Email server and template
-2. Download table format
-3. Data import scheme (100% remarks or no-duplicate)
-4. Products that no longer exist (db migration)
-5. Missing fields (db migration)
-
-Current plan for data migration. Auto-categorize data when possible. If any data can't be categorized automatically add it to the remarks section.
+- [X] Customer Mailing List Frontend
+- [X] Customer mailing List Tags
+- [X] Send Email on Inventory Edit
+- [X] Do Not Send Email Box
+- [X] DB Migration Script
+- [X] Rename Customer Report "Weight" Column To "Lbs Per Ft"
+- [X] Rename Product Update "Weight" Entry To "Lbs Per Foot"
+- [X] Rename Weight Columns In Tables
+- - [X] Product List
+- - [X] Customer Report
+- [ ] Change Table Header on
+- - [ ] Customer Report
+- - [ ] Product Report
+- [X] Edit Inventory Entry Joints In/Out Not Auto-Initializing
+- [X] Change Inventory List Default Sort To Date Ascending
+- [X] Product Report Rolling Inventory Totals
+- [X] Product Report Invert Date Sort
+- [X] Table Columns Product Type Then OD
+- [X] Open PDF In New Tab
+- [ ] Comma Delimited Emails
+- [X] Add "Any" to Mailing List Suggestions
+- [X] Default 0 0 Inv Change On Product Make
+- [X] 0 Out Product Button
+- [X] Add Remarks to Table View
+- [ ] Rename "Administration View" In Customer View
+- [X] Add Receive Transferred to Table View
+- [X] Add Logo and Contact To Bottom Left
+- [X] Can't Edit Customer Email
+- [X] Paginate List Views, 100 Entries
+- [X] Customer Report Sorting
+- [X] Customer Report Move Remarks Between Condition and Rack#
+- [X] Missing Inventory
+- [X] Product Type List
+- [X] Fix Pagination + Ordering

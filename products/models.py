@@ -1,21 +1,34 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from customers.models import Customer
 
 
+# Create your models here.
 class Product(models.Model):
-    product_type = models.TextField(blank=True)
-    outside_diameter = models.TextField(blank=True)
-    outside_diameter_inches = models.FloatField(null=True, blank=True)
-    weight = models.FloatField(null=True, blank=True)
-    grade = models.TextField(blank=True)
-    coupling = models.TextField(blank=True)
-    range = models.TextField(blank=True)
-    condition = models.TextField(blank=True)
-    remarks = models.TextField(blank=True)
-    foreman = models.TextField(blank=True)
-    customer_id = models.ForeignKey(Customer, on_delete=models.RESTRICT)
+    product_type = models.CharField(max_length=250, blank=True)
+    outside_diameter_text = models.CharField(max_length=250, blank=True)
+    outside_diameter = models.FloatField(null=True)
+    weight_text = models.CharField(max_length=250, blank=True)
+    weight = models.FloatField(null=True)
+    grade = models.CharField(max_length=250, blank=True)
+    coupling = models.CharField(max_length=250, blank=True)
+    range = models.CharField(max_length=250, blank=True)
+    condition = models.CharField(max_length=250, blank=True)
+    remarks = models.CharField(max_length=1000, blank=True)
+    foreman = models.CharField(max_length=250, blank=True)
+    rack = models.CharField(max_length=250)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"OD: {self.outside_diameter} LBS/FT: {self.weight} GRADE: {self.grade}"
+        elements = [
+            self.rack,
+            self.product_type,
+            self.outside_diameter_text,
+            self.weight_text,
+            self.grade,
+            self.coupling,
+            self.range,
+            self.condition,
+        ]
+        elements = [e for e in elements if e]
+        return ", ".join(elements)

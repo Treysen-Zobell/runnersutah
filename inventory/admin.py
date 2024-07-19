@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import InventoryChange, InventoryCurrent
+from inventory.models import InventoryEntry
 
-admin.site.register(InventoryChange)
-admin.site.register(InventoryCurrent)
+# Register your models here.
+admin.site.register(InventoryEntry)

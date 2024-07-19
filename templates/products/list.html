@@ -1,0 +1,128 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load table_extras %}
+{% load auth_extras %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
+{% block main %}
+    <h1 class="table-title">Product Lists</h1>
+    <p class="table-description">You can see all added products here and can delete/edit password if necessary.</p>
+    <a href="{% url 'products:download_table' %}" class="table-download-button">Download Table</a>
+    <a href="{% url 'products:create' %}" class="table-add-button">Add Product</a>
+
+    <table class="list-table">
+        <tr>
+            <th>{% sort_link ordering 'product_type' 'Product Type' page_obj.number %}</th>
+            <th>{% sort_link ordering 'outside_diameter' 'Outside Diameter' page_obj.number %}</th>
+            <th>{% sort_link ordering 'weight' 'Lbs Per Ft' page_obj.number %}</th>
+            <th>{% sort_link ordering 'grade' 'Grade' page_obj.number %}</th>
+            <th>{% sort_link ordering 'coupling' 'Coupling' page_obj.number %}</th>
+            <th>{% sort_link ordering 'range' 'Range' page_obj.number %}</th>
+            <th>{% sort_link ordering 'condition' 'Condition' page_obj.number %}</th>
+            <th>Remarks</th>
+            <th>{% sort_link ordering 'rack' 'Rack' page_obj.number %}</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        {% for object in object_list %}
+            <tr id="entry-{{ object.pk }}">
+                <td>
+                    {{ object.product_type }}
+                </td>
+                <td>
+                    {{ object.outside_diameter_text }}
+                </td>
+                <td>
+                    {{ object.weight_text }}
+                </td>
+                <td>
+                    {{ object.grade }}
+                </td>
+                <td>
+                    {{ object.coupling }}
+                </td>
+                <td>
+                    {{ object.range }}
+                </td>
+                <td>
+                    {{ object.condition }}
+                </td>
+                <td>
+                    {{ object.remarks }}
+                </td>
+                <td>
+                    {{ object.rack }}
+                </td>
+                <td>
+                    <a href="{% url 'products:detail' object.pk %}" class="view-link">View</a>
+                </td>
+                <td>
+                    <a href="{% url 'products:update' object.pk %}" class="edit-link">Edit</a>
+                </td>
+                <td>
+                    <button class="delete-link" data-id="{{ object.pk }}">Delete</button>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if objects.has_previous %}
+                <a href="?page=1&ordering={{ ordering }}">&laquo; first</a>
+                <a href="?page={{ objects.previous_page_number }}&ordering={{ ordering }}">previous</a>
+            {% endif %}
+
+            {% for page in page_range %}
+                {% if page == paginator.ELLIPSIS %}
+                    <span class="ellipsis">&hellip;</span>
+                {% elif page == page_obj.number %}
+                    <span class="current">{{ page }}</span>
+                {% else %}
+                    <a href="?page={{ page }}&ordering={{ ordering }}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if objects.has_next %}
+                <a href="?page={{ objects.next_page_number }}&ordering={{ ordering }}">next</a>
+                <a href="?page={{ objects.paginator.num_pages }}&ordering={{ ordering }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    $(document).ready(function() {
+        $('.delete-link').click(function() {
+            const entryId = $(this).data('id');
+            const row = $('#entry-' + entryId);
+
+            // Show confirmation popup
+            if (confirm('Are you sure you want to delete this entry? This will also delete this product\'s inventory.')) {
+                    $.ajax({
+                        url: '{% url "products:delete" 0 %}'.replace('0', entryId),
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                row.remove();
+                            } else {
+                                alert('An error occurred while deleting the entry.');
+                            }
+                        },
+                        error: function(xhr, errmsg, err) {
+                            alert('An error occurred: ' + errmsg);
+                        }
+                    });
+                }
+        });
+    });
+    </script>
+{% endblock %}

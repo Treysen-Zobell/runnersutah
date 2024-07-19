@@ -1,5 +1,5 @@
 """
-URL configuration for runnersutah project.
+URL configuration for runnersutah_rewrite project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -17,12 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
-    path("customers/", include("customers.urls"), name="customers"),
-    path("products/", include("products.urls"), name="products"),
-    path("inventory/", include("inventory.urls"), name="inventory"),
     path("admin/", admin.site.urls),
-    path("", RedirectView.as_view(url="/customers", permanent=True), name="index"),
-]
+    path("customers/", include("customers.urls")),
+    path("products/", include("products.urls")),
+    path("inventory/", include("inventory.urls")),
+    path("utils/", include("utils.urls")),
+    path("accounts/", include("django.contrib.auth.urls")),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

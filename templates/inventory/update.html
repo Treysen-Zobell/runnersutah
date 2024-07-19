@@ -1,0 +1,108 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/card.css' %}">
+{% endblock %}
+
+{% block main %}
+    <div class="card">
+        <h1 class="card-title">Edit Inventory Entry</h1>
+        <p class="card-description">Enter your inventory change.</p>
+        <hr>
+        <form method="post" enctype=multipart/form-data>
+            {% csrf_token %}
+
+            <h2 class="form-label">Customer:</h2>
+            {{ form.customer }}
+            {% if "customer" in form.errors %}
+                <b class="error-message">{{ form.errors.customer }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Product:</h2>
+            {{ form.product }}
+            {% if "product" in form.errors %}
+                <b class="error-message">{{ form.errors.product }}</b>
+            {% endif %}
+
+            <h2 class="form-label">PDF:</h2>
+            {{ form.attachment }}
+            {% if "product" in form.errors %}
+                <b class="error-message">{{ form.errors.attachment }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Date:</h2>
+            {{ form.date }}
+            {% if "date" in form.errors %}
+                <b class="error-message">{{ form.errors.date }}</b>
+            {% endif %}
+
+            <h2 class="form-label">AFE:</h2>
+            {{ form.afe }}
+            {% if "afe" in form.errors %}
+                <b class="error-message">{{ form.errors.afe }}</b>
+            {% endif %}
+
+            <h2 class="form-label">R.R# OR REL.#:</h2>
+            {{ form.rr }}
+            {% if "rr" in form.errors %}
+                <b class="error-message">{{ form.errors.rr }}</b>
+            {% endif %}
+
+            <h2 class="form-label">P.O# OR B/L#:</h2>
+            {{ form.po }}
+            {% if "po" in form.errors %}
+                <b class="error-message">{{ form.errors.po }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Carrier:</h2>
+            {{ form.carrier }}
+            {% if "carrier" in form.errors %}
+                <b class="error-message">{{ form.errors.carrier }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Received From Transferred To:</h2>
+            {{ form.received_transferred }}
+            {% if "received_transferred" in form.errors %}
+                <b class="error-message">{{ form.errors.received_transferred }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Joints In:</h2>
+            {{ form.joints_in }}
+            {% if "joints_in" in form.errors %}
+                <b class="error-message">{{ form.errors.joints_in }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Joints Out:</h2>
+            {{ form.joints_out }}
+            {% if "joints_out" in form.errors %}
+                <b class="error-message">{{ form.errors.joints_out }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Footage:</h2>
+            {{ form.footage }}
+            {% if "footage" in form.errors %}
+                <b class="error-message">{{ form.errors.footage }}</b>
+            {% endif %}
+
+            <h2 class="form-label">Manufacturer:</h2>
+            {{ form.manufacturer }}
+            {% if "manufacturer" in form.errors %}
+                <b class="error-message">{{ form.errors.manufacturer }}</b>
+            {% endif %}
+        
+            <h2 class="form-label">Send Email Update:</h2>
+            {{ form.send_email_update }}
+            {% if "manufacturer" in form.errors %}
+                <b class="error-message">{{ form.errors.manufacturer }}</b>
+            {% endif %}
+
+            <br>
+            <input type="submit" value="Save Changes" name="save">
+        </form>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
+{% endblock %}

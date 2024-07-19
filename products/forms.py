@@ -1,63 +1,50 @@
 from django import forms
 
-from .models import Customer, Product
-from .fields import ListTextWidget
+from customers.models import Customer
+from products.models import Product
 
 
 class ProductForm(forms.ModelForm):
-    product_type = forms.CharField(required=False)
-    outside_diameter = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+    CHOICES = [
+        ("poly_pipe", "Poly Pipe"),
+        ("line_pipe", "Line Pipe"),
+        ("composite_pipe", "Composite Pipe"),
+        ("flex_pipe", "Flexpipe"),
+        ("tubing_sand_screens", "Tubing - Sand Screens"),
+        ("tubing", "Tubing"),
+        ("casing", "Casing"),
+        ("other", "Other"),
+    ]
+    product_type = forms.ChoiceField(choices=CHOICES)
+    outside_diameter_text = forms.CharField(max_length=250, required=False)
+    weight_text = forms.CharField(max_length=250, required=False)
+    grade = forms.CharField(max_length=250, required=False)
+    coupling = forms.CharField(max_length=250, required=False)
+    range = forms.CharField(max_length=250, required=False)
+    condition = forms.CharField(max_length=250, required=False)
+    remarks = forms.CharField(
+        max_length=1000,
         required=False,
+        widget=forms.Textarea(attrs={"class": "form-control"}),
     )
-    weight = forms.FloatField(
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-        required=False,
+    foreman = forms.CharField(max_length=250, required=False)
+    rack = forms.CharField(max_length=250)
+    customer = forms.ModelChoiceField(
+        label="Customer", queryset=Customer.objects.all().order_by("display_name")
     )
-    grade = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        required=False,
-    )
-    coupling = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        required=False,
-    )
-    range = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        required=False,
-    )
-    condition = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        required=False,
-    )
-    foreman = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        required=False,
-    )
-    customer_id = forms.ModelChoiceField(
-        label="Customer",
-        queryset=Customer.objects.all(),
-    )
-
-    def __init__(self, *args, **kwargs):
-        product_type_list = kwargs.pop("product_type_list")
-        super().__init__(*args, **kwargs)
-
-        self.fields["product_type"].widget = ListTextWidget(
-            data_list=product_type_list, name="product-list"
-        )
 
     class Meta:
         model = Product
-        fields = [
+        fields = (
             "product_type",
-            "outside_diameter",
-            "weight",
+            "outside_diameter_text",
+            "weight_text",
             "grade",
             "coupling",
             "range",
             "condition",
             "remarks",
             "foreman",
-            "customer_id",
-        ]
+            "rack",
+            "customer",
+        )
