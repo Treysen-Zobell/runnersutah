@@ -32,22 +32,6 @@
             {% if "email" in form.errors %}
                 <b class="error-message">{{ form.errors.email }}</b>
             {% endif %}
-
-{#            <h2 class="form-label">Mailing List</h2>#}
-{#            <div id="email-container">#}
-{#                {% for email, tag in email_list %}#}
-{#                    <div>#}
-{#                        <i class="remove-email fa-solid fa-trash"></i>#}
-{#                        <label>#}
-{#                            <input type="text" name="email_list" value="{{ email }}">#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <input type="text" name="tag_list" value="{{ tag }}">#}
-{#                        </label>#}
-{#                    </div>#}
-{#                {% endfor %}#}
-{#            </div>#}
-{#            <button type="button" id="add-email">Add Email</button>#}
         
             <h2 class="form-label">Mailing List</h2>
             <div id="email-container">
@@ -56,6 +40,7 @@
                         <i class="remove-email fa-solid fa-trash"></i>
                         {{ form.address }}
                         {{ form.tags }}
+                        {{ form.DELETE }}
                         {% for hidden in form.hidden_fields %}
                             {{ hidden }}
                         {% endfor %}
@@ -71,5 +56,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'js/expanding_options.js' %}"></script>
+    <script src="{% static 'js/mailing_list.js' %}"></script>
 {% endblock %}

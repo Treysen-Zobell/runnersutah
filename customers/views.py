@@ -51,6 +51,18 @@ class CustomerDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     template_name = "customers/detail.html"
     group_required = ["admin"]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Collect mailing list
+        context["mailing_list"] = []
+        emails = Email.objects.filter(customer=self.object)
+        for email in emails:
+            tags = Tag.objects.filter(email=email)
+            context["mailing_list"].append((email.address, ", ".join([tag.name for tag in tags])))
+
+        return context
+
 
 class CustomerCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     model = Customer
@@ -64,7 +76,7 @@ class CustomerCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
         if self.request.POST:
             context["email_formset"] = EmailFormSet(self.request.POST)
         else:
-            context["email_formset"] = EmailFormSet()
+            context["email_formset"] = EmailFormSet(queryset=Email.objects.none())
         return context
 
     def form_valid(self, form):
@@ -86,11 +98,14 @@ class CustomerCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
             # Create mailing list
             for email_form in email_formset:
-                email_address = email_form.cleaned_data.get("email")
+                if email_form.cleaned_data.get("DELETE"):
+                    continue
+
+                email_address = email_form.cleaned_data.get("address")
                 tags = email_form.cleaned_data.get("tags")
                 if email_address:
                     email = Email.objects.create(
-                        address=email_address, customer=customer
+                        address=email_address, customer_id=customer.id
                     )
                     for tag in tags:
                         Tag.objects.create(name=tag, email=email)
@@ -98,65 +113,6 @@ class CustomerCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
             return response
         else:
             return self.form_invalid(form)
-
-
-# class CustomerUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
-#     model = Customer
-#     template_name = "customers/update.html"
-#     form_class = UpdateCustomerForm
-#     success_url = reverse_lazy("customers:list")
-#     group_required = ["admin"]
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#
-#         # Get current mailing list
-#         customer_id = self.kwargs.get("pk")
-#
-#         email_addresses = []
-#         for email_address in Email.objects.filter(customer_id=customer_id):
-#             tags = Tag.objects.filter(email_id=email_address.id)
-#             tag_names = [t.name for t in tags]
-#             tags_text = ", ".join(tag_names)
-#             email_addresses.append([email_address.address, tags_text])
-#         context["email_list"] = email_addresses
-#
-#         return context
-#
-#     def form_valid(self, form):
-#         response = super().form_valid(form)
-#
-#         # Delete old mailing list
-#         customer_id = self.kwargs["pk"]
-#         Email.objects.filter(customer_id=customer_id).delete()
-#
-#         # Build new mailing list
-#         email_list = self.request.POST.getlist("email_list")
-#         tag_list = self.request.POST.getlist("tag_list")
-#         for email_text, tags_text in zip(email_list, tag_list):
-#             for email_text2 in email_text.split(","):
-#                 email_text2 = email_text2.strip()
-#                 email = Email.objects.create(
-#                     address=email_text2, customer_id=customer_id
-#                 )
-#                 for tag_text in tags_text.split(","):
-#                     tag_text = tag_text.strip()
-#                     Tag.objects.create(name=tag_text, email=email)
-#
-#         # Save email
-#         email_address = form.cleaned_data.get("email")
-#         customer = Customer.objects.get(id=customer_id)
-#         customer.user.email = email_address
-#         customer.user.save()
-#
-#         return response
-#
-#     def get_initial(self):
-#         initial = super().get_initial()
-#
-#         initial["email"] = self.object.user.email
-#
-#         return initial
 
 
 class CustomerUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
@@ -190,6 +146,9 @@ class CustomerUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
 
             # Create mailing list
             for email_form in email_formset:
+                if email_form.cleaned_data.get("DELETE"):
+                    continue
+
                 email_address = email_form.cleaned_data.get("address")
                 tags = email_form.cleaned_data.get("tags")
                 if email_address:

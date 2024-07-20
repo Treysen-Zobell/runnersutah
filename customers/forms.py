@@ -44,14 +44,15 @@ class EmailForm(forms.ModelForm):
     address = forms.CharField(max_length=500, required=True)
     tags = forms.MultipleChoiceField(
         choices=[
-            ("poly_pipe", "Poly Pipe"),
-            ("line_pipe", "Line Pipe"),
-            ("composite_pipe", "Composite Pipe"),
-            ("flex_pipe", "Flexpipe"),
-            ("tubing_sand_screens", "Tubing - Sand Screens"),
-            ("tubing", "Tubing"),
-            ("casing", "Casing"),
-            ("other", "Other"),
+            ("Poly Pipe", "Poly Pipe"),
+            ("Line Pipe", "Line Pipe"),
+            ("Composite Pipe", "Composite Pipe"),
+            ("Flexpipe", "Flexpipe"),
+            ("Tubing - Sand Screens", "Tubing - Sand Screens"),
+            ("Tubing", "Tubing"),
+            ("Casing", "Casing"),
+            ("Other", "Other"),
+            ("Any", "Any"),
         ],
         widget=forms.SelectMultiple(attrs={"class": "tag-option"}),
     )

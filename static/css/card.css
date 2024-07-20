@@ -109,7 +109,7 @@
         "remove email"
         "remove tag";
     grid-template-columns: 28px auto;
-    grid-template-rows: 28px 140px;
+    grid-template-rows: 28px 158px;
 
     /*height: 56px;*/
     margin-top: 5px;
@@ -145,5 +145,9 @@
 
 .tag-option {
     grid-area: tag;
-    height: 140px;
+    height: 158px;
+}
+
+.email-entry input[name*="DELETE"] {
+    display: none;
 }

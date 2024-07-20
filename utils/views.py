@@ -760,29 +760,8 @@ def migrate_db(request):
 
 
 def tmp(request):
-    links = []
-    for rack in (
-        "MV-12",
-        "ALT 4-1",
-        "ALT 4-2",
-        "ALT 4-M1",
-        "ET 9-QA1",
-        "ETS 9-1",
-        "NFX L 8-3",
-        "NFX 5-1",
-        "NFX 5-Subs",
-        "NFX 5-Seal Assembly",
-        "Ovi 11-1",
-        "NPC 4-1E",
-        "NPC 4-Seal Assembly",
-        "Ovi 11-E1",
-        "Ovi L 8-5",
-        "Ovi 2-3",
-        "Ovi 13-E1",
-        "Ovi 2-1",
-    ):
-        products = Product.objects.filter(rack=rack)
-        for product in products:
-            links.append(f"localhost:8000/inventory/zero_out/{product.pk}/")
-
-    return JsonResponse(links, safe=False)
+    tags = Tag.objects.all()
+    for tag in tags:
+        tag.name = tag.name.replace("_", " ").title()
+        tag.save()
+    return HttpResponse("Ok")

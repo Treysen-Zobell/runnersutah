@@ -506,14 +506,13 @@ def send_product_report_sheet(inventory_entry: InventoryEntry):
     for email_list in Email.objects.filter(
         customer_id=inventory_entry.product.customer.id
     ):
-        print("Email list", email_list)
         tags = Tag.objects.filter(email_id=email_list.id)
         tags = [tag.name for tag in tags]
-        print("Tags", tags)
         if any(
             [
                 tag.lower() == "any"
                 or re.match(tag.lower(), inventory_entry.product.product_type.lower())
+                or (tag.lower() == "other" and not re.match(tag.lower(), inventory_entry.product.product_type.lower()))
                 for tag in tags
             ]
         ):
