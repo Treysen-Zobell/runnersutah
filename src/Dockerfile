@@ -16,10 +16,11 @@ ENV PATH="$POETRY_HOME/bin:$PATH"
 RUN poetry self add poetry-plugin-shell
 
 WORKDIR /app
-COPY ../pyproject.toml ../README.md ./src ./
+COPY ../pyproject.toml ../README.md ./src ./static ./
 RUN poetry lock && poetry install
 
 RUN poetry run python manage.py makemigrations
+RUN poetry run python manage.py collectstatic --no-input
 
 ENTRYPOINT ["sh", "-c", "poetry run python manage.py migrate && poetry run gunicorn runnersutah.wsgi:application --bind 0.0.0.0:8000"]
 #CMD ["sleep", "infinity"]

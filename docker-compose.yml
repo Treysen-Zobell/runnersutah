@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: runners-backend
     depends_on:
       db:
         condition: service_healthy
@@ -9,11 +10,15 @@ services:
     restart: unless-stopped
     env_file:
       - config/.env
+    volumes:
+      - django-static:/app/staticfiles
+      - django-media:/mnt/media
     ports:
       - "8000:8000"
 
   db:
     image: postgres
+    container_name: runners-db
     restart: always
     env_file:
       - config/.env
@@ -32,6 +37,7 @@ services:
 
   nginx:
     image: 'jc21/nginx-proxy-manager:latest'
+    container_name: runners-nginx
     restart: unless-stopped
     ports:
       - '80:80'
@@ -40,8 +46,12 @@ services:
     volumes:
       - nginx-data:/data
       - letsencrypt-data:/etc/letsencrypt
+      - django-static:/mnt/staticfiles
+      - django-media:/mnt/media
 
 volumes:
   db-data: {}
   nginx-data: {}
   letsencrypt-data: {}
+  django-static: {}
+  django-media: {}
