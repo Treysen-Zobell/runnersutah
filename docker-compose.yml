@@ -1,0 +1,47 @@
+services:
+  backend:
+    depends_on:
+      db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - config/.env
+    ports:
+      - "8000:8000"
+
+  db:
+    image: postgres
+    restart: always
+    env_file:
+      - config/.env
+    environment:
+      PGDATA: /var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+  nginx:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - nginx-data:/data
+      - letsencrypt-data:/etc/letsencrypt
+
+volumes:
+  db-data: {}
+  nginx-data: {}
+  letsencrypt-data: {}
