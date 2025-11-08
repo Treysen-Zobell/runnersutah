@@ -1,6 +1,6 @@
 services:
-  backend:
-    container_name: runners-backend
+  django:
+    container_name: django
     depends_on:
       db:
         condition: service_healthy
@@ -18,7 +18,7 @@ services:
 
   db:
     image: postgres
-    container_name: runners-db
+    container_name: db
     restart: always
     env_file:
       - config/.env
@@ -32,26 +32,37 @@ services:
       timeout: 10s
     volumes:
       - db-data:/var/lib/postgresql/data
-    ports:
-      - "${POSTGRES_PORT}:5432"
 
   nginx:
-    image: 'jc21/nginx-proxy-manager:latest'
-    container_name: runners-nginx
+    image: nginx:latest
+    container_name: nginx_server
     restart: unless-stopped
     ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
+      - "80:80"
+      - "443:443"
+    env_file:
+      - config/.env
     volumes:
-      - nginx-data:/data
-      - letsencrypt-data:/etc/letsencrypt
-      - django-static:/mnt/staticfiles
-      - django-media:/mnt/media
+      - ./data/nginx/templates:/etc/nginx/templates
+      - ./data/nginx/html:/usr/share/nginx/html
+      - certbot-www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    restart: unless-stopped
+    env_file:
+      - config/.env
+    volumes:
+      - certbot-www:/var/www/certbot
+      - certbot-conf:/etc/letsencrypt
+    entrypoint: sh -c "trap exit TERM; while :; do certbot certonly --webroot --webroot-path /var/www/certbot -d $$DOMAIN -d www.$$DOMAIN --email $$LETSENCRYPT_EMAIL --agree-tos --no-eff-email --keep-until-expiring --non-interactive; nginx_pid=$(pgrep nginx) && sleep 12h & wait $!; done"
+    depends_on:
+      - nginx
 
 volumes:
   db-data: {}
-  nginx-data: {}
-  letsencrypt-data: {}
   django-static: {}
   django-media: {}
+  certbot-www: { }
+  certbot-conf: { }
