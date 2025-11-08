@@ -12,7 +12,7 @@ services:
       - config/.env
     volumes:
       - django-static:/app/staticfiles
-      - django-media:/mnt/media
+      - ./data/django/media:/mnt/media
     ports:
       - "8000:8000"
 
@@ -47,7 +47,7 @@ services:
       - ./data/nginx/html:/usr/share/nginx/html
       - certbot-www:/var/www/certbot
       - django-static:/mnt/static
-      - django-media:/mnt/media
+      - ./data/django/media:/mnt/media
 
   certbot:
     image: certbot/certbot:latest
@@ -65,6 +65,5 @@ services:
 volumes:
   db-data: {}
   django-static: {}
-  django-media: {}
   certbot-www: { }
   certbot-conf: { }
