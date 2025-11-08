@@ -46,6 +46,8 @@ services:
       - ./data/nginx/templates:/etc/nginx/templates
       - ./data/nginx/html:/usr/share/nginx/html
       - certbot-www:/var/www/certbot
+      - django-static:/mnt/static
+      - django-media:/mnt/media
 
   certbot:
     image: certbot/certbot:latest
