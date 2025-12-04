@@ -1,0 +1,64 @@
+from django.contrib.auth import get_user_model
+from django.db import models
+
+User = get_user_model()
+
+
+class Customer(models.Model):
+    """
+    Represents a customer with an associated user account.
+
+    Reverse lookups:
+     - products: Product instances with this user
+     - notification_groups: NotificationGroup instances with this user
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    display_name = models.TextField(blank=False, null=False)
+    phone_number = models.TextField(blank=True)
+    status = models.TextField(blank=False, default="Active")
+
+
+class NotificationGroup(models.Model):
+    """
+    Represents a collection of email addresses with shared notification preferences, assigned to a customer.
+
+    Reverse lookups:
+     - emails: Email addresses associated with this group.
+    """
+
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, related_name="notification_groups"
+    )
+    name = models.TextField(blank=False, null=False)
+    templates = models.ManyToManyField(
+        "products.ProductTemplate",
+        blank=True,
+        related_name="notification_groups",
+        help_text="Product templates this group wants to be notified for.",
+    )
+
+    def __str__(self):
+        return f"{self.name} ({self.customer.display_name})"
+
+
+class Email(models.Model):
+    """
+    Represents an email address that must be unique within a notification group.
+    """
+
+    group = models.ForeignKey(
+        NotificationGroup, on_delete=models.CASCADE, related_name="emails"
+    )
+    address = models.EmailField()
+
+    class Meta:
+        # Enforce only one instance of an email address in a group
+        constraints = [
+            models.UniqueConstraint(
+                fields=["group", "address"], name="unique_email_address"
+            )
+        ]
+
+    def __str__(self):
+        return self.address
