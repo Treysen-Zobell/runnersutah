@@ -12,15 +12,19 @@ class ProductTemplate(models.Model):
         - notification_groups: NotificationGroup instances associated with this template.
     """
 
+    DISCRETE = "discrete"
+    CONTINUOUS = "continuous"
+
+    COUNTING_TYPES = [
+        (DISCRETE, "Discrete"),
+        (CONTINUOUS, "Continuous"),
+    ]
+
     name = models.TextField()
     format_string = models.TextField(
         help_text="Text representation of product, ex: {{title}} - {{diameter}}"
     )
-    inventory_change_template = models.OneToOneField(
-        "inventory.InventoryChangeTemplate",
-        on_delete=models.PROTECT,
-        related_name="product_templates",
-    )
+    counting_type = models.TextField(choices=COUNTING_TYPES, default=DISCRETE)
 
     def __str__(self) -> str:
         return self.name

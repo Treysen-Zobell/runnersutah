@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from utils.model_commons import BaseTemplateField, BaseFieldValue
+from products.models import ProductTemplate
 
 
 class StorageLocation(models.Model):
@@ -10,6 +11,9 @@ class StorageLocation(models.Model):
     """
 
     name = models.TextField()
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class InventoryChangeTemplate(models.Model):
@@ -22,19 +26,11 @@ class InventoryChangeTemplate(models.Model):
      - product_templates: ProductTemplate instances associated with this template.
     """
 
-    DISCRETE = "discrete"
-    CONTINUOUS = "continuous"
-
-    COUNTING_TYPES = [
-        (DISCRETE, "Discrete"),
-        (CONTINUOUS, "Continuous"),
-    ]
-
     name = models.TextField()
     format_string = models.TextField(
         help_text="Text representation of an inventory change, ex: {{amount}} moved on {{date}}"
     )
-    counting_type = models.TextField(choices=COUNTING_TYPES, default=DISCRETE)
+    product_templates = models.ManyToManyField("products.ProductTemplate", blank=True)
 
     def __str__(self) -> str:
         return self.name
@@ -50,7 +46,22 @@ class InventoryChangeTemplateField(BaseTemplateField):
     )
 
 
-class InventoryChange(models.Model):
+class InventoryTransaction(models.Model):
+    """
+    Represents a bulk inventory transaction involving multiple products.
+
+    Reverse lookups:
+     - lines: InventoryTransactionLine instances associated with this transaction.
+    """
+
+    customer = models.ForeignKey("customers.Customer", on_delete=models.PROTECT)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Transaction {self.pk} ({self.date})"
+
+
+class InventoryChangeLine(models.Model):
     """
     Represents a record for a change in inventory.
 
@@ -58,29 +69,22 @@ class InventoryChange(models.Model):
      - values: InventoryChangeFieldValue instances associated with this record.
     """
 
-    template = models.ForeignKey(InventoryChangeTemplate, on_delete=models.PROTECT)
-    customer = models.ForeignKey("customers.Customer", on_delete=models.PROTECT)
+    transaction = models.ForeignKey(
+        InventoryTransaction, on_delete=models.CASCADE, related_name="lines"
+    )
     product = models.ForeignKey("products.Product", on_delete=models.PROTECT)
-    date = models.DateTimeField(auto_now_add=True)
+    location = models.ForeignKey(StorageLocation, on_delete=models.PROTECT)
     quantity_int = models.IntegerField(blank=True, null=True)
     quantity_decimal = models.DecimalField(
         blank=True, null=True, max_digits=15, decimal_places=4
     )
-    location = models.ForeignKey(StorageLocation, on_delete=models.PROTECT)
-
-    def __str__(self) -> str:
-        return f"{self.template.name}"
 
     def clean(self) -> None:
         """
-        Ensures that the following conditions are met:
-         - Either quantity_int has a valid value if the inventory template requires discrete values, or
-           quantity decimal if it requires continuous values.
-
-        :raises ValidationError: if any condition is not met.
+        :raises ValidationError: If the quantity change is not appropriate for the product's counting type.
         """
-        counting_type = self.template.counting_type
-        if counting_type == InventoryChangeTemplate.DISCRETE:
+        counting_type = self.product.template.counting_type
+        if counting_type == ProductTemplate.DISCRETE:
             if self.quantity_int is None:
                 raise ValidationError(
                     "Discrete inventory changes require quantity_int some value."
@@ -89,7 +93,7 @@ class InventoryChange(models.Model):
                 raise ValidationError(
                     "Discrete inventory changes require quantity_decimal be null"
                 )
-        if counting_type == InventoryChangeTemplate.CONTINUOUS:
+        if counting_type == ProductTemplate.CONTINUOUS:
             if self.quantity_int is not None:
                 raise ValidationError(
                     "Continuous inventory changes require quantity_int null."
@@ -103,14 +107,22 @@ class InventoryChange(models.Model):
         self.clean()
         super().save(*args, **kwargs)
 
+    def __str__(self) -> str:
+        qty = (
+            self.quantity_int
+            if self.quantity_int is not None
+            else self.quantity_decimal
+        )
+        return f"{self.product} ({qty}) @ {self.location}"
+
 
 class InventoryChangeFieldValue(BaseFieldValue):
     """
     Represents the value associated with a field on an inventory change.
     """
 
-    inventory_change = models.ForeignKey(
-        InventoryChange, on_delete=models.CASCADE, related_name="values"
+    line = models.ForeignKey(
+        InventoryChangeLine, on_delete=models.CASCADE, related_name="values"
     )
     field = models.ForeignKey(InventoryChangeTemplateField, on_delete=models.CASCADE)
 
@@ -118,10 +130,10 @@ class InventoryChangeFieldValue(BaseFieldValue):
         # Enforce only one value for each field.
         constraints = [
             models.UniqueConstraint(
-                fields=["inventory_change", "field"],
+                fields=["line", "field"],
                 name="unique_inventory_change_field",
             )
         ]
 
     def get_owner(self):
-        return self.inventory_change
+        return self.line
