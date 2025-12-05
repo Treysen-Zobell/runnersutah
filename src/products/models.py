@@ -15,10 +15,19 @@ class ProductTemplate(models.Model):
         - notification_groups: NotificationGroup instances associated with this template.
     """
 
+    DISCRETE = "discrete"
+    CONTINUOUS = "continuous"
+
+    COUNTING_TYPES = [
+        (DISCRETE, "Discrete"),
+        (CONTINUOUS, "Continuous"),
+    ]
+
     name = models.TextField()
     format_string = models.TextField(
         help_text="Text representation of product, ex: {{title}} - {{diameter}}"
     )
+    counting_type = models.TextField(choices=COUNTING_TYPES)
 
     def __str__(self):
         return self.name
