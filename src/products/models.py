@@ -27,7 +27,7 @@ class ProductTemplate(models.Model):
     format_string = models.TextField(
         help_text="Text representation of product, ex: {{title}} - {{diameter}}"
     )
-    counting_type = models.TextField(choices=COUNTING_TYPES)
+    counting_type = models.TextField(choices=COUNTING_TYPES, default=DISCRETE)
 
     def __str__(self):
         return self.name
@@ -54,10 +54,6 @@ class ProductTemplateField(models.Model):
         (STATIC, "Static Text"),
     ]
 
-    @staticmethod
-    def choices_default():
-        return []
-
     # General info for any field
     template = models.ForeignKey(
         ProductTemplate, on_delete=models.CASCADE, related_name="fields"
@@ -68,10 +64,12 @@ class ProductTemplateField(models.Model):
     required = models.BooleanField(default=False)
 
     # Info for static field
-    static_text = models.TextField(help_text="Immutable text for labeling in tables")
+    static_text = models.TextField(
+        blank=True, null=True, help_text="Immutable text for labeling in tables"
+    )
 
     # Info for choices field
-    choices = models.JSONField(default=choices_default)
+    choices = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.template.name}_{self.name}"
@@ -86,12 +84,6 @@ class Product(models.Model):
     """
 
     template = models.ForeignKey(ProductTemplate, on_delete=models.PROTECT)
-    customers = models.ManyToManyField(
-        "customers.Customer",
-        related_name="products",
-        blank=True,
-        help_text="Customers who have this product in their stock",
-    )
 
     def __str__(self):
         return f"{self.template.name}"

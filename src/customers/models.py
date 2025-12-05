@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from products.models import Product
+
 User = get_user_model()
 
 
@@ -9,7 +11,6 @@ class Customer(models.Model):
     Represents a customer with an associated user account.
 
     Reverse lookups:
-     - products: Product instances with this user
      - notification_groups: NotificationGroup instances with this user
     """
 
@@ -17,6 +18,7 @@ class Customer(models.Model):
     display_name = models.TextField(blank=False, null=False)
     phone_number = models.TextField(blank=True)
     status = models.TextField(blank=False, default="Active")
+    products = models.ManyToManyField("products.Product", blank=True)
 
 
 class NotificationGroup(models.Model):
