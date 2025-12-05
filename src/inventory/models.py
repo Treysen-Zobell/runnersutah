@@ -19,6 +19,7 @@ class InventoryChangeTemplate(models.Model):
 
     Reverse Lookups:
      - fields: InventoryChangeTemplateField instances associated with this template.
+     - product_templates: ProductTemplate instances associated with this template.
     """
 
     DISCRETE = "discrete"
@@ -72,11 +73,11 @@ class InventoryChange(models.Model):
 
     def clean(self) -> None:
         """
-        Ensure that either quantity_int has a valid value if the inventory template requires discrete values, or
-        quantity decimal if it requires continuous values.
+        Ensures that the following conditions are met:
+         - Either quantity_int has a valid value if the inventory template requires discrete values, or
+           quantity decimal if it requires continuous values.
 
-        :raises ValidationError: if quantity_int or quantity_decimal are not valid for the template inventory counting
-                                 system.
+        :raises ValidationError: if any condition is not met.
         """
         counting_type = self.template.counting_type
         if counting_type == InventoryChangeTemplate.DISCRETE:

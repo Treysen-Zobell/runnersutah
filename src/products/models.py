@@ -16,6 +16,11 @@ class ProductTemplate(models.Model):
     format_string = models.TextField(
         help_text="Text representation of product, ex: {{title}} - {{diameter}}"
     )
+    inventory_change_template = models.OneToOneField(
+        "inventory.InventoryChangeTemplate",
+        on_delete=models.PROTECT,
+        related_name="product_templates",
+    )
 
     def __str__(self) -> str:
         return self.name
