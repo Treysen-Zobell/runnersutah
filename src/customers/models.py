@@ -20,6 +20,9 @@ class Customer(models.Model):
     status = models.TextField(blank=False, default="Active")
     products = models.ManyToManyField("products.Product", blank=True)
 
+    def __str__(self) -> str:
+        return f"{self.user.name} ({self.phone_number}) {self.status}"
+
 
 class NotificationGroup(models.Model):
     """
@@ -40,7 +43,7 @@ class NotificationGroup(models.Model):
         help_text="Product templates this group wants to be notified for.",
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.customer.display_name})"
 
 
@@ -62,5 +65,5 @@ class Email(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.address
