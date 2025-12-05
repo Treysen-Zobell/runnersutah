@@ -11,7 +11,10 @@ This application is a web-based platform for managing company inventory, build u
 ---
 ## Workflow
 
-### 1. Creating Product Templates
+### 1. Creating Storage Locations
+Storage locations are physical locations, like warehouses or racks. They are where we'll be storing our inventory.
+
+### 2. Creating Product Templates
 Product templates are the first step to creating any type of product. Each template essentially boils down to a list of
 either optional or required pieces of information for a product of a certain type. Take for example, line pipe.
 Different pipes have different specific information, but they are all classified by things like their outside diameter,
@@ -26,10 +29,22 @@ what is being stored so automated functions like sorting still work. Currently, 
 - Measure - Stores a measurement, either metric or imperial.
 - Static - Doesn't take any input, mostly used for adding labels within tables.
 
-### 2. Creating Products
+### 3. Creating Inventory Change Templates
+Similar to product templates, inventory change templates are for declaring the set of required information to make a
+change to a customer's inventory for collection of product templates. This is the equivalent of an invoice. The customer
+and datetime of transaction are required by default, you can add any additional fields (such as person overseeing the 
+transaction or a transaction reference number).
+
+### 4. Creating Products
 After we have the appropriate template for a product category, we can fill it with specific products. Using the example
 of line pipe again, we can make a product with an outside diameter of 6 5/8", a weight per foot of 19.19, and a
 coupling of type ERW. We also need to assign the product to some customers so that they can hold a stock of it.
+
+### 5. Creating Inventory Transactions
+After we have a customer, the products, and an inventory change template for those types of products we can make a
+transaction. First we need to fill in the inventory change template by supplying the customer, date, and anything else
+required by the template. Then we can make inventory lines for each product. Each line requires the product, the
+storage location it's being sent to or pulled from, and the amount of product.
 
 ---
 ## Setup Instructions
