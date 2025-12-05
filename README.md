@@ -59,6 +59,3 @@ coupling of type ERW. We also need to assign the product to some customers so th
 ```sh
   poetry run python src/manage.py runserver
 ```
-
-### Todo:
- - Make product "deactivate-able" for a customer so it can be hidden from view.
