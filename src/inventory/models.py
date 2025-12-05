@@ -55,7 +55,7 @@ class InventoryTransaction(models.Model):
     """
 
     customer = models.ForeignKey("customers.Customer", on_delete=models.PROTECT)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField()
 
     def __str__(self) -> str:
         return f"Transaction {self.pk} ({self.date})"
