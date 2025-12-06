@@ -1,6 +1,8 @@
 {% load static %}
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
 <div class="card">
     <h1 class="cart-title">Create Customer</h1>
@@ -13,37 +15,37 @@
         <h2 class="form-label">Full Name:</h2>
         {{ form.display_name }}
         {% if "display_name" in form.errors %}
-            <b class="error-message">{{ form.errors.display_name }}</b>
+        <b class="error-message">{{ form.errors.display_name }}</b>
         {% endif %}
 
         <h2 class="form-label">Email Address:</h2>
         {{ form.email }}
         {% if "email" in form.errors %}
-            <b class="error-message">{{ form.errors.email }}</b>
+        <b class="error-message">{{ form.errors.email }}</b>
         {% endif %}
 
         <h2 class="form-label">Phone Number:</h2>
         {{ form.phone_number }}
         {% if "phone_number" in form.errors %}
-            <b class="error-message">{{ form.errors.phone_number }}</b>
+        <b class="error-message">{{ form.errors.phone_number }}</b>
         {% endif %}
 
         <h2 class="form-label">Username:</h2>
         {{ form.username }}
         {% if "username" in form.errors %}
-            <b class="error-message">{{ form.errors.username }}</b>
+        <b class="error-message">{{ form.errors.username }}</b>
         {% endif %}
 
         <h2 class="form-label">Password:</h2>
         {{ form.password1 }}
         {% if "password1" in form.errors %}
-            <b class="error-message">{{ form.errors.password1 }}</b>
+        <b class="error-message">{{ form.errors.password1 }}</b>
         {% endif %}
 
         <h2 class="form-label">Retype Password:</h2>
         {{ form.password2 }}
         {% if "password2" in form.errors %}
-            <b class="error-message">{{ form.errors.password2 }}</b>
+        <b class="error-message">{{ form.errors.password2 }}</b>
         {% endif %}
 
         <h2 class="form-label">Notification Groups</h2>
@@ -59,27 +61,34 @@
 </div>
 
 <script
-    src="https://code.jquery.com/jquery-3.2.1.min.js"
-    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-    crossorigin="anonymous">
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
 </script>
 
 <script>
     $(document).ready(function () {
         $('#add-notification-group').click(function () {
-            let formIdx = $('#id_notification_group_form-TOTAL_FORMS').val();
+            const totalForms = $('#id_notification_group_form-TOTAL_FORMS');
+            let formIdx = totalForms.val();
             console.log(formIdx);
-            $('#notification-groups-container').append(
-                $(
-                    '<div class="email-list-container">' +
-                    '<i class="remove-email-container fa-solid fa-trash"></i>' +
-                    '<p>Email</p>' +
-                    '<input type="checkbox" name="notification_group_form-' + formIdx + '-DELETE" class="delete-checkbox" style="display: none">' +
-                    '<input type="hidden" id="id_notification_group_form-' + formIdx + '-id" name="notification_group_form-' + formIdx + '-id">' +
-                    '</div'
-                )
+            const $newGroup = $('<div>', {class: 'email-list-container'}).append(
+                $('<i>', {class: 'remove-email-container fa-solid fa-trash'}),
+                $('<p>').text('Email'),
+                $('<input>', {
+                    type: 'checkbox',
+                    name: `notification_group_form-${formIdx}-DELETE`,
+                    class: 'delete-checkbox',
+                    style: 'display:none'
+                }),
+                $('<input>', {
+                    type: 'hidden',
+                    id: `id_notification_group_form-${formIdx}-id`,
+                    name: `notification_group_form-${formIdx}-id`
+                })
             );
-            $('#id_notification_group_form-TOTAL_FORMS').val(parseInt(formIdx) + 1);
+            $('#notification-groups-container').append($newGroup);
+            totalForms.val(parseInt(formIdx) + 1);
         });
 
         $(document).on('click', '.remove-email-container', function () {
