@@ -5,51 +5,51 @@
       crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
 <div class="card">
-    <h1 class="cart-title">Create Customer</h1>
-    <p class="cart-description">Enter your customer information.</p>
+    <h1 class="card-title">Create Customer</h1>
+    <p class="card-description">Enter your customer information.</p>
     <hr>
     <form method="post">
         {% csrf_token %}
-        {{ notification_group_formset.management_form }}
 
-        <h2 class="form-label">Full Name:</h2>
-        {{ form.display_name }}
-        {% if "display_name" in form.errors %}
-        <b class="error-message">{{ form.errors.display_name }}</b>
-        {% endif %}
+        <div class="customer-form">
+            <h2 class="form-label">Full Name:</h2>
+            {{ form.display_name }}
+            {% if "display_name" in form.errors %}
+            <b class="error-message">{{ form.errors.display_name }}</b>
+            {% endif %}
 
-        <h2 class="form-label">Email Address:</h2>
-        {{ form.email }}
-        {% if "email" in form.errors %}
-        <b class="error-message">{{ form.errors.email }}</b>
-        {% endif %}
+            <h2 class="form-label">Email Address:</h2>
+            {{ form.email }}
+            {% if "email" in form.errors %}
+            <b class="error-message">{{ form.errors.email }}</b>
+            {% endif %}
 
-        <h2 class="form-label">Phone Number:</h2>
-        {{ form.phone_number }}
-        {% if "phone_number" in form.errors %}
-        <b class="error-message">{{ form.errors.phone_number }}</b>
-        {% endif %}
+            <h2 class="form-label">Phone Number:</h2>
+            {{ form.phone_number }}
+            {% if "phone_number" in form.errors %}
+            <b class="error-message">{{ form.errors.phone_number }}</b>
+            {% endif %}
 
-        <h2 class="form-label">Username:</h2>
-        {{ form.username }}
-        {% if "username" in form.errors %}
-        <b class="error-message">{{ form.errors.username }}</b>
-        {% endif %}
+            <h2 class="form-label">Username:</h2>
+            {{ form.username }}
+            {% if "username" in form.errors %}
+            <b class="error-message">{{ form.errors.username }}</b>
+            {% endif %}
 
-        <h2 class="form-label">Password:</h2>
-        {{ form.password1 }}
-        {% if "password1" in form.errors %}
-        <b class="error-message">{{ form.errors.password1 }}</b>
-        {% endif %}
+            <h2 class="form-label">Password:</h2>
+            {{ form.password1 }}
+            {% if "password1" in form.errors %}
+            <b class="error-message">{{ form.errors.password1 }}</b>
+            {% endif %}
 
-        <h2 class="form-label">Retype Password:</h2>
-        {{ form.password2 }}
-        {% if "password2" in form.errors %}
-        <b class="error-message">{{ form.errors.password2 }}</b>
-        {% endif %}
+            <h2 class="form-label">Retype Password:</h2>
+            {{ form.password2 }}
+            {% if "password2" in form.errors %}
+            <b class="error-message">{{ form.errors.password2 }}</b>
+            {% endif %}
+        </div>
 
         <h2 class="form-label">Notification Groups</h2>
-
         {% include "customers/partials/formset.html" with formset=notification_group_formset %}
 
         <br>
