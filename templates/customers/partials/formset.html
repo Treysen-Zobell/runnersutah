@@ -7,10 +7,6 @@
                 {{ form }}
 
                 {% if form.nested %}
-                    <div class="empty-child-form" style="display: none;">
-                        {{ form.nested.empty_form }}
-                    </div>
-
                     {% include "customers/partials/formset.html" with formset=form.nested %}
                 {% endif %}
             </div>
@@ -21,5 +17,5 @@
         {{ formset.empty_form }}
     </div>
 
-<!--    <button type="button" class="add-form" onclick="addForm(this)">Add</button>-->
+    <button type="button" class="add-form" onclick="addForm(this)">Add</button>
 </div>
