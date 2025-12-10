@@ -50,10 +50,7 @@
 
         <h2 class="form-label">Notification Groups</h2>
 
-        <div id="notification-groups-container">
-
-        </div>
-        <button type="button" id="add-notification-group">Add Group</button>
+        {% include "customers/partials/formset.html" with formset=notification_group_formset %}
 
         <br>
         <input type="submit" value="Save Changes">

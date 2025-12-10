@@ -15,9 +15,9 @@ class Customer(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    display_name = models.TextField(blank=False, null=False)
-    phone_number = models.TextField(blank=True)
-    status = models.TextField(blank=False, default="Active")
+    display_name = models.CharField(blank=False, null=False, max_length=255)
+    phone_number = models.CharField(blank=True, max_length=255)
+    status = models.CharField(blank=False, default="Active", max_length=255)
     products = models.ManyToManyField("products.Product", blank=True)
 
     def __str__(self) -> str:
@@ -35,7 +35,7 @@ class NotificationGroup(models.Model):
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="notification_groups"
     )
-    name = models.TextField(blank=False, null=False)
+    name = models.CharField(blank=False, null=False, max_length=255)
     templates = models.ManyToManyField(
         "products.ProductTemplate",
         blank=True,

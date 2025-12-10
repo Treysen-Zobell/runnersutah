@@ -1,7 +1,7 @@
 from django.urls.base import reverse_lazy
 from django.views.generic.edit import CreateView
 
-from customers.forms import CreateCustomerForm, NotificationGroupFormSet
+from customers.forms import CreateCustomerForm, NotificationGroupFormSet, EmailFormSet
 from customers.models import Customer, NotificationGroup
 
 
@@ -26,34 +26,34 @@ class CustomerCreateView(CreateView):
         return context
 
     def form_valid(self, form):
+        response = super().form_valid(form)
+
+        customer = Customer.objects.create(
+            user=self.object,
+            display_name=form.cleaned_data["display_name"],
+            phone_number=form.cleaned_data["phone_number"],
+            products=form.cleaned_data["products"],
+        )
+
         notification_group_formset = NotificationGroupFormSet(
             self.request.POST,
             prefix="notification_group_form",
+            instance=customer,
         )
         if notification_group_formset.is_valid():
-            response = super().form_valid(form)
-
-            customer = Customer.objects.create(
-                user=self.object,
-                display_name=form.cleaned_data["display_name"],
-                phone_number=form.cleaned_data["phone_number"],
-                products=form.cleaned_data["products"],
-            )
-
             for notification_group_form in notification_group_formset:
                 if notification_group_form.cleaned_data.get("DELETE"):
                     continue
+                notification_group = notification_group_form.save()
 
-                name = notification_group_form.cleaned_data.get("name")
-                templates = notification_group_form.cleaned_data.get("templates")
-                if name:
-                    notification_group = NotificationGroup.objects.create(
-                        customer=customer,
-                        name=name,
-                        templates=templates,
-                    )
+                email_formset = EmailFormSet(
+                    self.request.POST,
+                    prefix=f"{notification_group.prefix}-{EmailFormSet.get_default_prefix()}",
+                )
+                if email_formset.is_valid():
+                    for email_form in email_formset:
+                        if email_form.cleaned_data.get("DELETE"):
+                            continue
+                        email_form.save()
 
-            return response
-
-        else:
-            return self.form_invalid(form)
+        return response
