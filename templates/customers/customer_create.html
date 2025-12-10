@@ -64,33 +64,5 @@
 </script>
 
 <script>
-    $(document).ready(function () {
-        $('#add-notification-group').click(function () {
-            const totalForms = $('#id_notification_group_form-TOTAL_FORMS');
-            let formIdx = totalForms.val();
-            console.log(formIdx);
-            const $newGroup = $('<div>', {class: 'email-list-container'}).append(
-                $('<i>', {class: 'remove-email-container fa-solid fa-trash'}),
-                $('<p>').text('Email'),
-                $('<input>', {
-                    type: 'checkbox',
-                    name: `notification_group_form-${formIdx}-DELETE`,
-                    class: 'delete-checkbox',
-                    style: 'display:none'
-                }),
-                $('<input>', {
-                    type: 'hidden',
-                    id: `id_notification_group_form-${formIdx}-id`,
-                    name: `notification_group_form-${formIdx}-id`
-                })
-            );
-            $('#notification-groups-container').append($newGroup);
-            totalForms.val(parseInt(formIdx) + 1);
-        });
 
-        $(document).on('click', '.remove-email-container', function () {
-            $(this).siblings().prop('checked', true);
-            $(this).closest('.email-list-container').hide();
-        });
-    });
 </script>
