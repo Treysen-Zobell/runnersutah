@@ -18,7 +18,7 @@ def is_empty_form(form):
 
 
 def is_form_persisted(form):
-    return form.instance and not form.instance._state.adding
+    return bool(getattr(form.instance, "pk", None))
 
 
 def is_adding_nested_inlines_to_empty_form(form):
