@@ -48,6 +48,8 @@ EmailFormSet = inlineformset_factory(
 
 class NotificationGroupWithEmailsFormSet(BaseInlineFormSet):
     def add_fields(self, form, index):
+        super().add_fields(form, index)
+
         email_formset = EmailFormSet(
             instance=form.instance,
             data=form.data if form.is_bound else None,
