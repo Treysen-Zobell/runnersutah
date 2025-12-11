@@ -62,7 +62,7 @@ class NotificationGroupWithEmailsFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
         for form in self.forms:
-            if not hasattr(form, "nested") or self._should_delete_form(form):
+            if not hasattr(form, "nested") or form.cleaned_data.get("DELETE"):
                 continue
             if is_adding_nested_inlines_to_empty_form(form):
                 form.add_error(
