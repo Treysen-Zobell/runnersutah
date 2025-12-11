@@ -13,16 +13,9 @@ class CustomerCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context["notification_group_formset"] = NotificationGroupFormSet(
-                self.request.POST,
-                prefix="notification_group_form",
-            )
-        else:
-            context["notification_group_formset"] = NotificationGroupFormSet(
-                queryset=NotificationGroup.objects.none(),
-                prefix="notification_group_form",
-            )
+        context["notification_group_formset"] = NotificationGroupFormSet(
+            self.request.POST or None,
+        )
         return context
 
     def form_valid(self, form):
@@ -37,9 +30,9 @@ class CustomerCreateView(CreateView):
 
         notification_group_formset = NotificationGroupFormSet(
             self.request.POST,
-            prefix="notification_group_form",
             instance=customer,
         )
+
         if notification_group_formset.is_valid():
             for notification_group_form in notification_group_formset:
                 if notification_group_form.cleaned_data.get("DELETE"):
