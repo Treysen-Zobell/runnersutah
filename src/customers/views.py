@@ -1,5 +1,6 @@
 from django.views.decorators.http import require_POST
 from django.urls.base import reverse_lazy
+from django.views.generic import UpdateView
 from django.views.generic.edit import CreateView
 from django.utils.module_loading import import_string
 from django.template.loader import render_to_string
