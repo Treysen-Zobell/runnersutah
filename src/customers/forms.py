@@ -33,30 +33,35 @@ def is_adding_nested_inlines_to_empty_form(form):
     return any(not is_empty_form(nested_form) for nested_form in non_deleted_forms)
 
 
+class EmailFormSetBase(BaseInlineFormSet):
+    pass
+
+
 EmailFormSet = inlineformset_factory(
     NotificationGroup,
     Email,
+    formset=EmailFormSetBase,
     fields=("address",),
-    extra=2,
+    extra=0,
 )
 
 
 class NotificationGroupWithEmailsFormSet(BaseInlineFormSet):
     def add_fields(self, form, index):
-        form.nested = EmailFormSet(
+        email_formset = EmailFormSet(
             instance=form.instance,
             data=form.data if form.is_bound else None,
             files=form.files if form.is_bound else None,
             prefix=f"{form.prefix}-{EmailFormSet.get_default_prefix()}",
         )
-        form.empty_nested = form.nested.empty_form
+        form.nested = (email_formset,)
 
     def is_valid(self):
         result = super().is_valid()
         if self.is_bound:
             for form in self.forms:
                 if hasattr(form, "nested"):
-                    result = result and form.nested.is_valid()
+                    result = result and all(f.is_valid() for f in form.nested)
         return result
 
     def clean(self):
@@ -87,8 +92,8 @@ NotificationGroupFormSet = inlineformset_factory(
     Customer,
     NotificationGroup,
     formset=NotificationGroupWithEmailsFormSet,
-    fields=("name", "templates"),
-    extra=2,
+    fields=("name",),
+    extra=0,
 )
 
 
@@ -98,6 +103,7 @@ class CreateCustomerForm(UserCreationForm):
     products = forms.ModelMultipleChoiceField(
         queryset=Product.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+        required=False,
     )
 
     class Meta:

@@ -21,7 +21,7 @@ class Customer(models.Model):
     products = models.ManyToManyField("products.Product", blank=True)
 
     def __str__(self) -> str:
-        return f"{self.user.name} ({self.phone_number}) {self.status}"
+        return f"{self.user} ({self.phone_number}) {self.status}"
 
 
 class NotificationGroup(models.Model):

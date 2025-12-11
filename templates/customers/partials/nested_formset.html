@@ -1,0 +1,26 @@
+<div class="formsets">
+    {% for formset in formsets %}
+        <div class="formset">
+            <div class="management-form">
+                {{ formset.management_form }}
+            </div>
+            <div class="forms" id="{{ formset.prefix }}-forms">
+                {% for form in formset %}
+                    {{ form.errors }}
+                    {% include "customers/partials/form.html" with form=form %}
+                {% endfor %}
+            </div>
+            <button
+                    hx-post="{% url 'customers:add_form' %}"
+                    hx-target="#{{ formset.prefix }}-forms"
+                    hx-swap="beforeend"
+                    hx-vals='{
+                        "formset_class": "{{ formset.formset_class }}",
+                        "formset_prefix": "{{ formset.prefix }}"
+                    }'
+                    type="button">
+                    Add Form
+            </button>
+        </div>
+    {% endfor %}
+</div>
