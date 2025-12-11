@@ -43,20 +43,11 @@ class CustomerCreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        print("form_valid")
         response = super().form_valid(form)
-        print(response)
-
-        customer = Customer.objects.create(
-            user=self.object,
-            display_name=form.cleaned_data["display_name"],
-            phone_number=form.cleaned_data["phone_number"],
-        )
-        customer.products.set(form.cleaned_data["products"])
 
         notification_group_formset = NotificationGroupFormSet(
             self.request.POST,
-            instance=customer,
+            instance=self.object,
             prefix="notification_group_formset",
         )
 

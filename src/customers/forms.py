@@ -119,3 +119,15 @@ class CreateCustomerForm(UserCreationForm):
             "password1",
             "password2",
         ]
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+
+        customer = Customer.objects.create(
+            user=user,
+            display_name=self.cleaned_data.get("display_name"),
+            phone_number=self.cleaned_data.get("phone_number", ""),
+        )
+        customer.products.set(self.cleaned_data.get("products", []))
+
+        return customer
