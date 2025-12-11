@@ -8,7 +8,7 @@ from django.forms.models import (
 from django.utils.translation import gettext_lazy as _
 
 from customers.models import Customer, NotificationGroup, Email
-from products.models import Product, ProductTemplate
+from products.models import Product
 
 
 def is_empty_form(form):
@@ -27,10 +27,13 @@ def is_adding_nested_inlines_to_empty_form(form):
     ):
         return False
 
-    non_deleted_forms = set(form.nested.forms).difference(
-        set(form.nested.deleted_forms)
-    )
-    return any(not is_empty_form(nested_form) for nested_form in non_deleted_forms)
+    for formset in form.nested:
+        non_deleted_forms = set(formset.forms).difference(set(formset.deleted_forms))
+        for nested_form in non_deleted_forms:
+            if not is_empty_form(nested_form):
+                return True
+
+    return False
 
 
 class EmailFormSetBase(BaseInlineFormSet):
