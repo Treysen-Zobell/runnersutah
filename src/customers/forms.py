@@ -134,3 +134,36 @@ class CreateCustomerForm(UserCreationForm):
         customer.products.set(self.cleaned_data.get("products", []))
 
         return customer
+
+
+class UpdateCustomerForm(forms.ModelForm):
+    display_name = forms.CharField(max_length=250)
+    phone_number = forms.CharField(max_length=250, required=False)
+    products = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    class Meta:
+        model = Customer
+        fields = [
+            "display_name",
+            "phone_number",
+            "products",
+            "email",
+        ]
+
+    def save(self, commit=True):
+        customer = super().save(commit=False)
+
+        user = customer.user
+        user.email = self.cleaned_data.get("email")
+        user.save(commit=commit)
+
+        customer.display_name = self.cleaned_data.get("display_name")
+        customer.phone_number = self.cleaned_data.get("phone_number", "")
+        if commit:
+            customer.save()
+            customer.products.set(self.cleaned_data.get("products", []))
+        return customer
