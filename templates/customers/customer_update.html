@@ -62,24 +62,6 @@
             {% if "phone_number" in form.errors %}
             <b class="error-message">{{ form.errors.phone_number }}</b>
             {% endif %}
-
-            <h2 class="form-label">Username:</h2>
-            {{ form.username }}
-            {% if "username" in form.errors %}
-            <b class="error-message">{{ form.errors.username }}</b>
-            {% endif %}
-
-            <h2 class="form-label">Password:</h2>
-            {{ form.password1 }}
-            {% if "password1" in form.errors %}
-            <b class="error-message">{{ form.errors.password1 }}</b>
-            {% endif %}
-
-            <h2 class="form-label">Retype Password:</h2>
-            {{ form.password2 }}
-            {% if "password2" in form.errors %}
-            <b class="error-message">{{ form.errors.password2 }}</b>
-            {% endif %}
         </div>
 
         <h2 class="form-label">Notification Groups</h2>

@@ -155,6 +155,7 @@ class UpdateCustomerForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+    email = forms.EmailField(max_length=250, required=False)
 
     class Meta:
         model = Customer
@@ -170,7 +171,7 @@ class UpdateCustomerForm(forms.ModelForm):
 
         user = customer.user
         user.email = self.cleaned_data.get("email")
-        user.save(commit=commit)
+        user.save()
 
         customer.display_name = self.cleaned_data.get("display_name")
         customer.phone_number = self.cleaned_data.get("phone_number", "")

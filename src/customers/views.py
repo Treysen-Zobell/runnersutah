@@ -1,11 +1,15 @@
 from django.views.decorators.http import require_POST
 from django.urls.base import reverse_lazy
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.utils.module_loading import import_string
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 
-from customers.forms import CreateCustomerForm, NotificationGroupFormSet, EmailFormSet
+from customers.forms import (
+    CreateCustomerForm,
+    NotificationGroupFormSet,
+    UpdateCustomerForm,
+)
 from customers.models import Customer
 
 
@@ -52,23 +56,50 @@ class CustomerCreateView(CreateView):
         )
 
         if notification_group_formset.is_valid():
-            for notification_group_form in notification_group_formset:
-                if notification_group_form.cleaned_data.get("DELETE"):
-                    continue
-                notification_group = notification_group_form.save()
-
-                email_formset = EmailFormSet(
-                    self.request.POST,
-                    prefix=f"{notification_group_form.prefix}-{EmailFormSet.get_default_prefix()}",
-                    instance=notification_group,
-                )
-                if email_formset.is_valid():
-                    for email_form in email_formset:
-                        if email_form.cleaned_data.get("DELETE"):
-                            continue
-                        email_form.save()
+            notification_group_formset.save()
 
         return response
+
+
+class CustomerUpdateView(UpdateView):
+    model = Customer
+    template_name = "customers/customer_update.html"
+    form_class = UpdateCustomerForm
+    success_url = reverse_lazy("customers:customer_create")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        notification_group_formset = NotificationGroupFormSet(
+            self.request.POST or None,
+            instance=self.object,
+            prefix="notification_group_formset",
+        )
+        assign_class(notification_group_formset)
+
+        context["formsets"] = (notification_group_formset,)
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        notification_group_formset = NotificationGroupFormSet(
+            self.request.POST,
+            instance=self.object,
+            prefix="notification_group_formset",
+        )
+
+        if notification_group_formset.is_valid():
+            notification_group_formset.save()
+
+        return response
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        initial["email"] = self.object.user.email
+
+        return initial
 
 
 @require_POST
