@@ -84,12 +84,23 @@ class NotificationGroupWithEmailsFormSet(BaseInlineFormSet):
                 )
 
     def save(self, commit=True):
-        result = super().save(commit=commit)
+        result = []
+
         for form in self.forms:
+            if form.cleaned_data.get("DELETE"):
+                if form.instance.pk and commit:
+                    form.instance.delete()
+                continue
+
+            instance = form.save(commit=commit)
+            result.append(instance)
+
             if hasattr(form, "nested") and not is_adding_nested_inlines_to_empty_form(
                 form
             ):
-                form.nested.save(commit=commit)
+                for formset in form.nested:
+                    formset.save(commit=commit)
+
         return result
 
 
