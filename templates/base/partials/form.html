@@ -1,0 +1,7 @@
+<div class="form">
+    {{ form }}
+
+    {% if form.nested %}
+        {% include "base/partials/nested_formset.html" with formsets=form.nested %}
+    {% endif %}
+</div>

@@ -1,43 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    {% load static %}
+{% extends "base/base.html" %}
 
-    <title>Create Customer</title>
-    <script src="https://unpkg.com/htmx.org@1.9.11"></script>
-    <script
-        src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous">
-    </script>
+{% block head %}
+<title>Create Customer</title>
+{% endblock %}
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.addEventListener('htmx:afterSwap', function(event) {
-                const formsDiv = event.target;
-
-                if (!formsDiv.id || !formsDiv.id.endsWith('-forms')) return;
-
-                const prefix = formsDiv.id.replace('-forms', '');
-                const formsetDiv = formsDiv.closest('.formset');
-                if (!formsetDiv) return;
-
-                const totalFormsInput = formsetDiv.querySelector(`input[name="${prefix}-TOTAL_FORMS"]`);
-                if (totalFormsInput) {
-                    totalFormsInput.value = parseInt(totalFormsInput.value) + 1;
-                    console.log(`Incremented TOTAL_FORMS for ${prefix} to ${totalFormsInput.value}`);
-                }
-            });
-        });
-    </script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-      crossorigin="anonymous" referrerpolicy="no-referrer"/>
-</head>
-
-<body>
-    <div class="card">
+{% block body %}
+<div class="card">
     <h1 class="card-title">Create Customer</h1>
     <p class="card-description">Enter your customer information.</p>
     <hr>
@@ -83,11 +51,10 @@
         </div>
 
         <h2 class="form-label">Notification Groups</h2>
-        {% include "customers/partials/nested_formset.html" with formsets=formsets %}
+        {% include "base/partials/nested_formset.html" with formsets=formsets %}
 
         <br>
         <input type="submit" value="Save Changes">
     </form>
 </div>
-</body>
-</html>
+{% endblock %}

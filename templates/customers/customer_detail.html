@@ -1,25 +1,31 @@
-<h1>Customer Details</h1>
+{% extends "base/base.html" %}
 
-<dl>
-    <dt>ID</dt>
-    <dd>{{ customer.id }}</dd>
+{% block head %}
+    <title>{{ customer.display_name }} Info</title>
+{% endblock %}
 
-    <dt>User</dt>
-    <dd>{{ customer.user }}</dd>
+{% block body %}
+    <dl>
+        <dt>ID</dt>
+        <dd>{{ customer.id }}</dd>
 
-    <dt>Name</dt>
-    <dd>{{ customer.display_name }}</dd>
+        <dt>User</dt>
+        <dd>{{ customer.user }}</dd>
 
-    <dt>Phone</dt>
-    <dd>{{ customer.phone_number }}</dd>
+        <dt>Name</dt>
+        <dd>{{ customer.display_name }}</dd>
 
-    <dt>Status</dt>
-    <dd>{{ customer.status }}</dd>
+        <dt>Phone</dt>
+        <dd>{{ customer.phone_number }}</dd>
 
-    <dt>Products</dt>
-    <dd>{{ customer.products }}</dd>
-</dl>
+        <dt>Status</dt>
+        <dd>{{ customer.status }}</dd>
 
-<a href="{% url 'customers:customer_update' customer.pk %}">Update</a>
-<a href="{% url 'customers:customer_delete' customer.pk %}">Delete</a>
-<a href="{% url 'customers:customer_list' %}">Back</a>
+        <dt>Products</dt>
+        <dd>{{ customer.products }}</dd>
+    </dl>
+
+    <a href="{% url 'customers:customer_update' customer.pk %}">Update</a>
+    <a href="{% url 'customers:customer_delete' customer.pk %}">Delete</a>
+    <a href="{% url 'customers:customer_list' %}">Back</a>
+{% endblock %}

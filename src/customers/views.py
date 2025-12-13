@@ -149,7 +149,7 @@ def add_form(request):
             assign_class(nested_fs)
 
     form_html = render_to_string(
-        "customers/partials/form.html", {"form": empty_form}, request=request
+        "base/partials/form.html", {"form": empty_form}, request=request
     )
     form_html = form_html.replace("__prefix__", str(total_forms))
 

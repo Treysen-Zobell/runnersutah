@@ -7,7 +7,7 @@
             <div class="forms" id="{{ formset.prefix }}-forms">
                 {% for form in formset %}
                     {{ form.errors }}
-                    {% include "customers/partials/form.html" with form=form %}
+                    {% include "base/partials/form.html" with form=form %}
                 {% endfor %}
             </div>
             <button
