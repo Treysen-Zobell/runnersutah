@@ -1,0 +1,17 @@
+<h1>Delete Customer</h1>
+
+<p>
+    Are you sure you want to delete
+    <strong>{{ object }}</strong>
+    and the associated user account?
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">
+        Yes, delete
+    </button>
+    <a href="{% url 'customers:customer_list' %}">
+        Cancel
+    </a>
+</form>

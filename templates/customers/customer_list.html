@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% for object in object_list %}
+        <a href="{% url 'customers:customer_update' object.pk %}">{{ object.display_name }}</a>
+        {{ object }}
+        <a href="{% url 'customers:customer_detail' object.pk %}">Detail</a>
+        <a href="{% url 'customers:customer_delete' object.pk %}">Delete</a>
+        <br>
+    {% endfor %}
+    <a href="{% url 'customers:customer_create' %}">Create Customer</a>
+</body>
+</html>

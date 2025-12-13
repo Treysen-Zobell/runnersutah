@@ -1,5 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_POST
 from django.urls.base import reverse_lazy
+from django.views.generic import ListView, DeleteView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.utils.module_loading import import_string
 from django.template.loader import render_to_string
@@ -11,6 +13,9 @@ from customers.forms import (
     UpdateCustomerForm,
 )
 from customers.models import Customer
+
+
+User = get_user_model()
 
 
 def assign_class(formset):
@@ -32,7 +37,7 @@ class CustomerCreateView(CreateView):
     model = Customer
     template_name = "customers/customer_create.html"
     form_class = CreateCustomerForm
-    success_url = reverse_lazy("customers:customer_create")
+    success_url = reverse_lazy("customers:customer_list")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,11 +66,16 @@ class CustomerCreateView(CreateView):
         return response
 
 
+class CustomerDetailView(DetailView):
+    model = Customer
+    template_name = "customers/customer_detail.html"
+
+
 class CustomerUpdateView(UpdateView):
     model = Customer
     template_name = "customers/customer_update.html"
     form_class = UpdateCustomerForm
-    success_url = reverse_lazy("customers:customer_create")
+    success_url = reverse_lazy("customers:customer_list")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -100,6 +110,28 @@ class CustomerUpdateView(UpdateView):
         initial["email"] = self.object.user.email
 
         return initial
+
+
+class CustomerDeleteView(DeleteView):
+    model = Customer
+    template_name = "customers/customer_confirm_delete.html"
+    success_url = reverse_lazy("customers:customer_list")
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        user = self.object.user
+
+        response = super().delete(request, *args, **kwargs)
+
+        if user:
+            user.delete()
+
+        return response
+
+
+class CustomerListView(ListView):
+    model = Customer
+    template_name = "customers/customer_list.html"
 
 
 @require_POST
